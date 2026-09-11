@@ -1,0 +1,182 @@
+job_id,title,company,district,trade,required_skills,salary_min,salary_max,source
+1001,Junior CNC Lathe Operator,Tata Motors Tech,Pune,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,22000,28000,National Career Service (NCS)
+1002,Precision G-Code Machinist,Bharat Forge Ltd,Pune,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,24000,30000,Apprenticeship India Portal
+1003,Solar Array Installation Tech,Mahindra Susten,Pune,Solar PV Installer & Technician,Solar Panel Array Wiring|Grid Inverter Installation,25000,32000,NSDC Industry Connect
+1004,Grid Inverter Commissioning Specialist,Adani Green Energy,Pune,Solar PV Installer & Technician,Solar Panel Array Wiring|Grid Inverter Installation,26000,34000,Direct Corporate Portal
+1005,EV Lithium Battery Pack Assembly Tech,Ather Energy,Pune,EV Battery Maintenance Specialist,EV Lithium Pack Diagnostics|BMS Sensor Calibration,28000,35000,Apprenticeship India Portal
+1006,BMS Calibration & Testing Engineer,Ola Electric,Pune,EV Battery Maintenance Specialist,EV Lithium Pack Diagnostics|BMS Sensor Calibration,30000,38000,National Career Service (NCS)
+1007,CNC Turning Machine Setter,L&T Heavy Engineering,Pune,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,23000,29000,NSDC Industry Connect
+1008,Rooftop Solar PV Electrician,Suzlon Green Tech,Pune,Solar PV Installer & Technician,Solar Panel Array Wiring|Grid Inverter Installation,22000,27000,Apprenticeship India Portal
+1009,EV Traction Battery Auditor,TVS Motor Company,Pune,EV Battery Maintenance Specialist,EV Lithium Pack Diagnostics|BMS Sensor Calibration,27000,33000,Direct Corporate Portal
+1010,Multi-Axis CNC Programmer,Bosch India,Pune,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,25000,32000,National Career Service (NCS)
+1011,Commercial Solar Array Tech,Schneider Electric,Pune,Solar PV Installer & Technician,Solar Panel Array Wiring|Grid Inverter Installation,24000,30000,NSDC Industry Connect
+1012,EV Cell Balancing Specialist,Reliance New Energy,Pune,EV Battery Maintenance Specialist,EV Lithium Pack Diagnostics|BMS Sensor Calibration,29000,36000,Apprenticeship India Portal
+1013,VMC Machine Programmer,Tata Motors Tech,Nashik,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,21000,27000,National Career Service (NCS)
+1014,Solar Farm Operations Tech,Mahindra Susten,Nashik,Solar PV Installer & Technician,Solar Panel Array Wiring|Grid Inverter Installation,23000,29000,NSDC Industry Connect
+1015,EV Fleet Battery Specialist,Ola Electric,Nashik,EV Battery Maintenance Specialist,EV Lithium Pack Diagnostics|BMS Sensor Calibration,26000,32000,Direct Corporate Portal
+1016,Precision Tooling Specialist,Bharat Forge Ltd,Nashik,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,22000,28000,Apprenticeship India Portal
+1017,Grid-Tied Inverter Tech,Adani Green Energy,Nashik,Solar PV Installer & Technician,Solar Panel Array Wiring|Grid Inverter Installation,24000,30000,National Career Service (NCS)
+1018,BMS Sensor Technician,Ather Energy,Nashik,EV Battery Maintenance Specialist,EV Lithium Pack Diagnostics|BMS Sensor Calibration,27000,34000,NSDC Industry Connect
+1019,CNC Lathe Machine Operator,L&T Heavy Engineering,Thane,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,23000,29000,Apprenticeship India Portal
+1020,Solar PV Stringing Technician,Suzlon Green Tech,Thane,Solar PV Installer & Technician,Solar Panel Array Wiring|Grid Inverter Installation,22000,28000,Direct Corporate Portal
+1021,High Voltage Battery Safety Auditor,Reliance New Energy,Thane,EV Battery Maintenance Specialist,EV Lithium Pack Diagnostics|BMS Sensor Calibration,30000,37000,National Career Service (NCS)
+1022,CNC Quality Control Inspector,Bosch India,Thane,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,24000,30000,NSDC Industry Connect
+1023,Solar Microgrid Electrician,Schneider Electric,Thane,Solar PV Installer & Technician,Solar Panel Array Wiring|Grid Inverter Installation,25000,31000,Apprenticeship India Portal
+1024,EV Battery Module Assembler,TVS Motor Company,Thane,EV Battery Maintenance Specialist,EV Lithium Pack Diagnostics|BMS Sensor Calibration,28000,35000,Direct Corporate Portal
+1025,Precision Machine Setter,Tata Motors Tech,Bengaluru,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,26000,33000,National Career Service (NCS)
+1026,Solar Inverter Maintenance Specialist,Mahindra Susten,Bengaluru,Solar PV Installer & Technician,Solar Panel Array Wiring|Grid Inverter Installation,27000,34000,NSDC Industry Connect
+1027,Traction Battery Diagnostics Engineer,Ather Energy,Bengaluru,EV Battery Maintenance Specialist,EV Lithium Pack Diagnostics|BMS Sensor Calibration,32000,40000,Direct Corporate Portal
+1028,CNC Milling Machine Programmer,Bharat Forge Ltd,Bengaluru,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,27000,35000,Apprenticeship India Portal
+1029,Grid Solar System Integrator,Adani Green Energy,Bengaluru,Solar PV Installer & Technician,Solar Panel Array Wiring|Grid Inverter Installation,28000,36000,National Career Service (NCS)
+1030,EV Pack Thermal Safety Tech,Ola Electric,Bengaluru,EV Battery Maintenance Specialist,EV Lithium Pack Diagnostics|BMS Sensor Calibration,31000,39000,NSDC Industry Connect
+1031,Junior CNC Lathe Operator,L&T Heavy Engineering,Ahmedabad,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,22000,28000,Apprenticeship India Portal
+1032,Solar PV Field Installation Tech,Suzlon Green Tech,Ahmedabad,Solar PV Installer & Technician,Solar Panel Array Wiring|Grid Inverter Installation,23000,29000,Direct Corporate Portal
+1033,EV Battery Diagnostic Specialist,Reliance New Energy,Ahmedabad,EV Battery Maintenance Specialist,EV Lithium Pack Diagnostics|BMS Sensor Calibration,28000,35000,National Career Service (NCS)
+1034,CNC Machine Tooling Operator,Bosch India,Ahmedabad,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,23000,29000,NSDC Industry Connect
+1035,Solar Panel Array Electrician,Schneider Electric,Ahmedabad,Solar PV Installer & Technician,Solar Panel Array Wiring|Grid Inverter Installation,24000,30000,Apprenticeship India Portal
+1036,BMS Diagnostic Calibration Tech,TVS Motor Company,Ahmedabad,EV Battery Maintenance Specialist,EV Lithium Pack Diagnostics|BMS Sensor Calibration,29000,36000,Direct Corporate Portal
+1037,Precision G-Code Machinist,Tata Motors Tech,Pune,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,24000,30000,National Career Service (NCS)
+1038,Solar Inverter Installer,Mahindra Susten,Pune,Solar PV Installer & Technician,Solar Panel Array Wiring|Grid Inverter Installation,25000,32000,NSDC Industry Connect
+1039,EV Lithium Battery Pack Tech,Ather Energy,Pune,EV Battery Maintenance Specialist,EV Lithium Pack Diagnostics|BMS Sensor Calibration,29000,37000,Apprenticeship India Portal
+1040,CNC Lathe Machine Setter,Bharat Forge Ltd,Pune,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,25000,31000,Direct Corporate Portal
+1041,Solar PV System Integrator,Adani Green Energy,Pune,Solar PV Installer & Technician,Solar Panel Array Wiring|Grid Inverter Installation,26000,33000,National Career Service (NCS)
+1042,EV Cell Diagnostics Tech,Ola Electric,Pune,EV Battery Maintenance Specialist,EV Lithium Pack Diagnostics|BMS Sensor Calibration,30000,38000,NSDC Industry Connect
+1043,Junior CNC Lathe Operator,L&T Heavy Engineering,Pune,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,22000,28000,Apprenticeship India Portal
+1044,Solar PV Array Installer,Suzlon Green Tech,Pune,Solar PV Installer & Technician,Solar Panel Array Wiring|Grid Inverter Installation,23000,29000,Direct Corporate Portal
+1045,EV Battery Pack Assembly Specialist,Reliance New Energy,Pune,EV Battery Maintenance Specialist,EV Lithium Pack Diagnostics|BMS Sensor Calibration,28000,35000,National Career Service (NCS)
+1046,Precision CNC Programmer,Bosch India,Pune,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,26000,33000,NSDC Industry Connect
+1047,Solar Inverter Field Tech,Schneider Electric,Pune,Solar PV Installer & Technician,Solar Panel Array Wiring|Grid Inverter Installation,24000,31000,Apprenticeship India Portal
+1048,EV BMS Calibration Specialist,TVS Motor Company,Pune,EV Battery Maintenance Specialist,EV Lithium Pack Diagnostics|BMS Sensor Calibration,29000,36000,Direct Corporate Portal
+1049,G-Code Precision Machinist,Tata Motors Tech,Nashik,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,22000,28000,National Career Service (NCS)
+1050,Rooftop Solar PV Electrician,Mahindra Susten,Nashik,Solar PV Installer & Technician,Solar Panel Array Wiring|Grid Inverter Installation,23000,29000,NSDC Industry Connect
+1051,EV Lithium Battery Pack Assembly Tech,Ather Energy,Nashik,EV Battery Maintenance Specialist,EV Lithium Pack Diagnostics|BMS Sensor Calibration,27000,34000,Apprenticeship India Portal
+1052,CNC Tooling Specialist,Bharat Forge Ltd,Nashik,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,23000,29000,Direct Corporate Portal
+1053,Grid-Tied Inverter Tech,Adani Green Energy,Nashik,Solar PV Installer & Technician,Solar Panel Array Wiring|Grid Inverter Installation,25000,31000,National Career Service (NCS)
+1054,BMS Sensor Calibration Tech,Ola Electric,Nashik,EV Battery Maintenance Specialist,EV Lithium Pack Diagnostics|BMS Sensor Calibration,28000,35000,NSDC Industry Connect
+1055,Precision Turning Operator,L&T Heavy Engineering,Thane,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,24000,30000,Apprenticeship India Portal
+1056,Solar PV Wiring Specialist,Suzlon Green Tech,Thane,Solar PV Installer & Technician,Solar Panel Array Wiring|Grid Inverter Installation,23000,29000,Direct Corporate Portal
+1057,EV Battery Diagnostic Specialist,Reliance New Energy,Thane,EV Battery Maintenance Specialist,EV Lithium Pack Diagnostics|BMS Sensor Calibration,29000,36000,National Career Service (NCS)
+1058,CNC Machine Programmer,Bosch India,Thane,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,25000,32000,NSDC Industry Connect
+1059,Solar Inverter Commissioning Specialist,Schneider Electric,Thane,Solar PV Installer & Technician,Solar Panel Array Wiring|Grid Inverter Installation,26000,33000,Apprenticeship India Portal
+1060,EV Pack Assembly Tech,TVS Motor Company,Thane,EV Battery Maintenance Specialist,EV Lithium Pack Diagnostics|BMS Sensor Calibration,28000,35000,Direct Corporate Portal
+1061,Multi-Axis CNC Machinist,Tata Motors Tech,Bengaluru,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,27000,34000,National Career Service (NCS)
+1062,Commercial Solar PV Tech,Mahindra Susten,Bengaluru,Solar PV Installer & Technician,Solar Panel Array Wiring|Grid Inverter Installation,28000,35000,NSDC Industry Connect
+1063,Traction Battery Safety Auditor,Ather Energy,Bengaluru,EV Battery Maintenance Specialist,EV Lithium Pack Diagnostics|BMS Sensor Calibration,33000,41000,Direct Corporate Portal
+1064,G-Code Precision Programmer,Bharat Forge Ltd,Bengaluru,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,28000,36000,Apprenticeship India Portal
+1065,Solar Farm Systems Specialist,Adani Green Energy,Bengaluru,Solar PV Installer & Technician,Solar Panel Array Wiring|Grid Inverter Installation,29000,37000,National Career Service (NCS)
+1066,EV Battery BMS Engineer,Ola Electric,Bengaluru,EV Battery Maintenance Specialist,EV Lithium Pack Diagnostics|BMS Sensor Calibration,32000,40000,NSDC Industry Connect
+1067,CNC Milling Machinist,L&T Heavy Engineering,Ahmedabad,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,23000,29000,Apprenticeship India Portal
+1068,Solar Array Wiring Tech,Suzlon Green Tech,Ahmedabad,Solar PV Installer & Technician,Solar Panel Array Wiring|Grid Inverter Installation,24000,30000,Direct Corporate Portal
+1069,EV Cell Balancing Specialist,Reliance New Energy,Ahmedabad,EV Battery Maintenance Specialist,EV Lithium Pack Diagnostics|BMS Sensor Calibration,29000,36000,National Career Service (NCS)
+1070,Precision Lathe Machinist,Bosch India,Ahmedabad,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,24000,30000,NSDC Industry Connect
+1071,Solar Inverter System Electrician,Schneider Electric,Ahmedabad,Solar PV Installer & Technician,Solar Panel Array Wiring|Grid Inverter Installation,25000,31000,Apprenticeship India Portal
+1072,BMS Testing Technician,TVS Motor Company,Ahmedabad,EV Battery Maintenance Specialist,EV Lithium Pack Diagnostics|BMS Sensor Calibration,28000,35000,Direct Corporate Portal
+1073,Junior CNC Lathe Operator,Tata Motors Tech,Pune,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,22000,28000,National Career Service (NCS)
+1074,Solar PV Array Installer,Mahindra Susten,Pune,Solar PV Installer & Technician,Solar Panel Array Wiring|Grid Inverter Installation,25000,32000,NSDC Industry Connect
+1075,EV Battery Pack Assembly Specialist,Ather Energy,Pune,EV Battery Maintenance Specialist,EV Lithium Pack Diagnostics|BMS Sensor Calibration,28000,35000,Apprenticeship India Portal
+1076,Precision Tooling Specialist,Bharat Forge Ltd,Pune,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,24000,30000,Direct Corporate Portal
+1077,Grid Inverter Commissioning Specialist,Adani Green Energy,Pune,Solar PV Installer & Technician,Solar Panel Array Wiring|Grid Inverter Installation,26000,33000,National Career Service (NCS)
+1078,BMS Sensor Calibration Tech,Ola Electric,Pune,EV Battery Maintenance Specialist,EV Lithium Pack Diagnostics|BMS Sensor Calibration,30000,38000,NSDC Industry Connect
+1079,CNC Lathe Machine Setter,L&T Heavy Engineering,Pune,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,23000,29000,Apprenticeship India Portal
+1080,Rooftop Solar Array Technician,Suzlon Green Tech,Pune,Solar PV Installer & Technician,Solar Panel Array Wiring|Grid Inverter Installation,23000,29000,Direct Corporate Portal
+1081,EV Lithium Battery Pack Tech,Reliance New Energy,Pune,EV Battery Maintenance Specialist,EV Lithium Pack Diagnostics|BMS Sensor Calibration,29000,36000,National Career Service (NCS)
+1082,Multi-Axis CNC Programmer,Bosch India,Pune,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,25000,32000,NSDC Industry Connect
+1083,Commercial Solar Array Tech,Schneider Electric,Pune,Solar PV Installer & Technician,Solar Panel Array Wiring|Grid Inverter Installation,24000,30000,Apprenticeship India Portal
+1084,EV Cell Balancing Specialist,TVS Motor Company,Pune,EV Battery Maintenance Specialist,EV Lithium Pack Diagnostics|BMS Sensor Calibration,28000,35000,Direct Corporate Portal
+1085,VMC Machine Programmer,Tata Motors Tech,Nashik,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,21000,27000,National Career Service (NCS)
+1086,Solar Farm Operations Tech,Mahindra Susten,Nashik,Solar PV Installer & Technician,Solar Panel Array Wiring|Grid Inverter Installation,23000,29000,NSDC Industry Connect
+1087,EV Fleet Battery Specialist,Ather Energy,Nashik,EV Battery Maintenance Specialist,EV Lithium Pack Diagnostics|BMS Sensor Calibration,27000,34000,Apprenticeship India Portal
+1088,Precision Tooling Specialist,Bharat Forge Ltd,Nashik,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,22000,28000,Direct Corporate Portal
+1089,Grid-Tied Inverter Tech,Adani Green Energy,Nashik,Solar PV Installer & Technician,Solar Panel Array Wiring|Grid Inverter Installation,24000,30000,National Career Service (NCS)
+1090,BMS Sensor Technician,Ola Electric,Nashik,EV Battery Maintenance Specialist,EV Lithium Pack Diagnostics|BMS Sensor Calibration,28000,35000,NSDC Industry Connect
+1091,CNC Lathe Machine Operator,L&T Heavy Engineering,Thane,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,23000,29000,Apprenticeship India Portal
+1092,Solar PV Stringing Technician,Suzlon Green Tech,Thane,Solar PV Installer & Technician,Solar Panel Array Wiring|Grid Inverter Installation,22000,28000,Direct Corporate Portal
+1093,High Voltage Battery Safety Auditor,Reliance New Energy,Thane,EV Battery Maintenance Specialist,EV Lithium Pack Diagnostics|BMS Sensor Calibration,30000,37000,National Career Service (NCS)
+1094,CNC Quality Control Inspector,Bosch India,Thane,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,24000,30000,NSDC Industry Connect
+1095,Solar Microgrid Electrician,Schneider Electric,Thane,Solar PV Installer & Technician,Solar Panel Array Wiring|Grid Inverter Installation,25000,31000,Apprenticeship India Portal
+1096,EV Battery Module Assembler,TVS Motor Company,Thane,EV Battery Maintenance Specialist,EV Lithium Pack Diagnostics|BMS Sensor Calibration,28000,35000,Direct Corporate Portal
+1097,Precision Machine Setter,Tata Motors Tech,Bengaluru,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,26000,33000,National Career Service (NCS)
+1098,Solar Inverter Maintenance Specialist,Mahindra Susten,Bengaluru,Solar PV Installer & Technician,Solar Panel Array Wiring|Grid Inverter Installation,27000,34000,NSDC Industry Connect
+1099,Traction Battery Diagnostics Engineer,Ather Energy,Bengaluru,EV Battery Maintenance Specialist,EV Lithium Pack Diagnostics|BMS Sensor Calibration,32000,40000,Direct Corporate Portal
+1100,CNC Milling Machine Programmer,Bharat Forge Ltd,Bengaluru,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,27000,35000,Apprenticeship India Portal
+1101,Grid Solar System Integrator,Adani Green Energy,Bengaluru,Solar PV Installer & Technician,Solar Panel Array Wiring|Grid Inverter Installation,28000,36000,National Career Service (NCS)
+1102,EV Pack Thermal Safety Tech,Ola Electric,Bengaluru,EV Battery Maintenance Specialist,EV Lithium Pack Diagnostics|BMS Sensor Calibration,31000,39000,NSDC Industry Connect
+1103,Junior CNC Lathe Operator,L&T Heavy Engineering,Ahmedabad,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,22000,28000,Apprenticeship India Portal
+1104,Solar PV Field Installation Tech,Suzlon Green Tech,Ahmedabad,Solar PV Installer & Technician,Solar Panel Array Wiring|Grid Inverter Installation,23000,29000,Direct Corporate Portal
+1105,EV Battery Diagnostic Specialist,Reliance New Energy,Ahmedabad,EV Battery Maintenance Specialist,EV Lithium Pack Diagnostics|BMS Sensor Calibration,28000,35000,National Career Service (NCS)
+1106,CNC Machine Tooling Operator,Bosch India,Ahmedabad,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,23000,29000,NSDC Industry Connect
+1107,Solar Panel Array Electrician,Schneider Electric,Ahmedabad,Solar PV Installer & Technician,Solar Panel Array Wiring|Grid Inverter Installation,24000,30000,Apprenticeship India Portal
+1108,BMS Diagnostic Calibration Tech,TVS Motor Company,Ahmedabad,EV Battery Maintenance Specialist,EV Lithium Pack Diagnostics|BMS Sensor Calibration,29000,36000,Direct Corporate Portal
+1109,Precision G-Code Machinist,Tata Motors Tech,Pune,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,24000,30000,National Career Service (NCS)
+1110,Solar Inverter Installer,Mahindra Susten,Pune,Solar PV Installer & Technician,Solar Panel Array Wiring|Grid Inverter Installation,25000,32000,NSDC Industry Connect
+1111,EV Lithium Battery Pack Tech,Ather Energy,Pune,EV Battery Maintenance Specialist,EV Lithium Pack Diagnostics|BMS Sensor Calibration,29000,37000,Apprenticeship India Portal
+1112,CNC Lathe Machine Setter,Bharat Forge Ltd,Pune,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,25000,31000,Direct Corporate Portal
+1113,Solar PV System Integrator,Adani Green Energy,Pune,Solar PV Installer & Technician,Solar Panel Array Wiring|Grid Inverter Installation,26000,33000,National Career Service (NCS)
+1114,EV Cell Diagnostics Tech,Ola Electric,Pune,EV Battery Maintenance Specialist,EV Lithium Pack Diagnostics|BMS Sensor Calibration,30000,38000,NSDC Industry Connect
+1115,Junior CNC Lathe Operator,L&T Heavy Engineering,Pune,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,22000,28000,Apprenticeship India Portal
+1116,Solar PV Array Installer,Suzlon Green Tech,Pune,Solar PV Installer & Technician,Solar Panel Array Wiring|Grid Inverter Installation,23000,29000,Direct Corporate Portal
+1117,EV Battery Pack Assembly Specialist,Reliance New Energy,Pune,EV Battery Maintenance Specialist,EV Lithium Pack Diagnostics|BMS Sensor Calibration,28000,35000,National Career Service (NCS)
+1118,Precision CNC Programmer,Bosch India,Pune,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,26000,33000,NSDC Industry Connect
+1119,Solar Inverter Field Tech,Schneider Electric,Pune,Solar PV Installer & Technician,Solar Panel Array Wiring|Grid Inverter Installation,24000,31000,Apprenticeship India Portal
+1120,EV BMS Calibration Specialist,TVS Motor Company,Pune,EV Battery Maintenance Specialist,EV Lithium Pack Diagnostics|BMS Sensor Calibration,29000,36000,Direct Corporate Portal
+1121,G-Code Precision Machinist,Tata Motors Tech,Nashik,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,22000,28000,National Career Service (NCS)
+1122,Rooftop Solar PV Electrician,Mahindra Susten,Nashik,Solar PV Installer & Technician,Solar Panel Array Wiring|Grid Inverter Installation,23000,29000,NSDC Industry Connect
+1123,EV Lithium Battery Pack Assembly Tech,Ather Energy,Nashik,EV Battery Maintenance Specialist,EV Lithium Pack Diagnostics|BMS Sensor Calibration,27000,34000,Apprenticeship India Portal
+1124,CNC Tooling Specialist,Bharat Forge Ltd,Nashik,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,23000,29000,Direct Corporate Portal
+1125,Grid-Tied Inverter Tech,Adani Green Energy,Nashik,Solar PV Installer & Technician,Solar Panel Array Wiring|Grid Inverter Installation,25000,31000,National Career Service (NCS)
+1126,BMS Sensor Calibration Tech,Ola Electric,Nashik,EV Battery Maintenance Specialist,EV Lithium Pack Diagnostics|BMS Sensor Calibration,28000,35000,NSDC Industry Connect
+1127,Precision Turning Operator,L&T Heavy Engineering,Thane,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,24000,30000,Apprenticeship India Portal
+1128,Solar PV Wiring Specialist,Suzlon Green Tech,Thane,Solar PV Installer & Technician,Solar Panel Array Wiring|Grid Inverter Installation,23000,29000,Direct Corporate Portal
+1129,EV Battery Diagnostic Specialist,Reliance New Energy,Thane,EV Battery Maintenance Specialist,EV Lithium Pack Diagnostics|BMS Sensor Calibration,29000,36000,National Career Service (NCS)
+1130,CNC Machine Programmer,Bosch India,Thane,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,25000,32000,NSDC Industry Connect
+1131,Solar Inverter Commissioning Specialist,Schneider Electric,Thane,Solar PV Installer & Technician,Solar Panel Array Wiring|Grid Inverter Installation,26000,33000,Apprenticeship India Portal
+1132,EV Pack Assembly Tech,TVS Motor Company,Thane,EV Battery Maintenance Specialist,EV Lithium Pack Diagnostics|BMS Sensor Calibration,28000,35000,Direct Corporate Portal
+1133,Multi-Axis CNC Machinist,Tata Motors Tech,Bengaluru,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,27000,34000,National Career Service (NCS)
+1134,Commercial Solar PV Tech,Mahindra Susten,Bengaluru,Solar PV Installer & Technician,Solar Panel Array Wiring|Grid Inverter Installation,28000,35000,NSDC Industry Connect
+1135,Traction Battery Safety Auditor,Ather Energy,Bengaluru,EV Battery Maintenance Specialist,EV Lithium Pack Diagnostics|BMS Sensor Calibration,33000,41000,Direct Corporate Portal
+1136,G-Code Precision Programmer,Bharat Forge Ltd,Bengaluru,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,28000,36000,Apprenticeship India Portal
+1137,Solar Farm Systems Specialist,Adani Green Energy,Bengaluru,Solar PV Installer & Technician,Solar Panel Array Wiring|Grid Inverter Installation,29000,37000,National Career Service (NCS)
+1138,EV Battery BMS Engineer,Ola Electric,Bengaluru,EV Battery Maintenance Specialist,EV Lithium Pack Diagnostics|BMS Sensor Calibration,32000,40000,NSDC Industry Connect
+1139,CNC Milling Machinist,L&T Heavy Engineering,Ahmedabad,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,23000,29000,Apprenticeship India Portal
+1140,Solar Array Wiring Tech,Suzlon Green Tech,Ahmedabad,Solar PV Installer & Technician,Solar Panel Array Wiring|Grid Inverter Installation,24000,30000,Direct Corporate Portal
+1141,EV Cell Balancing Specialist,Reliance New Energy,Ahmedabad,EV Battery Maintenance Specialist,EV Lithium Pack Diagnostics|BMS Sensor Calibration,29000,36000,National Career Service (NCS)
+1142,Precision Lathe Machinist,Bosch India,Ahmedabad,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,24000,30000,NSDC Industry Connect
+1143,Solar Inverter System Electrician,Schneider Electric,Ahmedabad,Solar PV Installer & Technician,Solar Panel Array Wiring|Grid Inverter Installation,25000,31000,Apprenticeship India Portal
+1144,BMS Testing Technician,TVS Motor Company,Ahmedabad,EV Battery Maintenance Specialist,EV Lithium Pack Diagnostics|BMS Sensor Calibration,28000,35000,Direct Corporate Portal
+1145,Junior CNC Lathe Operator,Tata Motors Tech,Pune,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,22000,28000,National Career Service (NCS)
+1146,Solar PV Array Installer,Mahindra Susten,Pune,Solar PV Installer & Technician,Solar Panel Array Wiring|Grid Inverter Installation,25000,32000,NSDC Industry Connect
+1147,EV Battery Pack Assembly Specialist,Ather Energy,Pune,EV Battery Maintenance Specialist,EV Lithium Pack Diagnostics|BMS Sensor Calibration,28000,35000,Apprenticeship India Portal
+1148,Precision Tooling Specialist,Bharat Forge Ltd,Pune,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,24000,30000,Direct Corporate Portal
+1149,Grid Inverter Commissioning Specialist,Adani Green Energy,Pune,Solar PV Installer & Technician,Solar Panel Array Wiring|Grid Inverter Installation,26000,33000,National Career Service (NCS)
+1150,BMS Sensor Calibration Tech,Ola Electric,Pune,EV Battery Maintenance Specialist,EV Lithium Pack Diagnostics|BMS Sensor Calibration,30000,38000,NSDC Industry Connect
+1151,CNC Lathe Machine Setter,L&T Heavy Engineering,Pune,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,23000,29000,Apprenticeship India Portal
+1152,Rooftop Solar Array Technician,Suzlon Green Tech,Pune,Solar PV Installer & Technician,Solar Panel Array Wiring|Grid Inverter Installation,23000,29000,Direct Corporate Portal
+1153,EV Lithium Battery Pack Tech,Reliance New Energy,Pune,EV Battery Maintenance Specialist,EV Lithium Pack Diagnostics|BMS Sensor Calibration,29000,36000,National Career Service (NCS)
+1154,Multi-Axis CNC Programmer,Bosch India,Pune,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,25000,32000,NSDC Industry Connect
+1155,Commercial Solar Array Tech,Schneider Electric,Pune,Solar PV Installer & Technician,Solar Panel Array Wiring|Grid Inverter Installation,24000,30000,Apprenticeship India Portal
+1156,EV Cell Balancing Specialist,TVS Motor Company,Pune,EV Battery Maintenance Specialist,EV Lithium Pack Diagnostics|BMS Sensor Calibration,28000,35000,Direct Corporate Portal
+1157,VMC Machine Programmer,Tata Motors Tech,Nashik,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,21000,27000,National Career Service (NCS)
+1158,Solar Farm Operations Tech,Mahindra Susten,Nashik,Solar PV Installer & Technician,Solar Panel Array Wiring|Grid Inverter Installation,23000,29000,NSDC Industry Connect
+1159,EV Fleet Battery Specialist,Ather Energy,Nashik,EV Battery Maintenance Specialist,EV Lithium Pack Diagnostics|BMS Sensor Calibration,27000,34000,Apprenticeship India Portal
+1160,Precision Tooling Specialist,Bharat Forge Ltd,Nashik,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,22000,28000,Direct Corporate Portal
+1161,Grid-Tied Inverter Tech,Adani Green Energy,Nashik,Solar PV Installer & Technician,Solar Panel Array Wiring|Grid Inverter Installation,24000,30000,National Career Service (NCS)
+1162,BMS Sensor Technician,Ola Electric,Nashik,EV Battery Maintenance Specialist,EV Lithium Pack Diagnostics|BMS Sensor Calibration,28000,35000,NSDC Industry Connect
+1163,CNC Lathe Machine Operator,L&T Heavy Engineering,Thane,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,23000,29000,Apprenticeship India Portal
+1164,Solar PV Stringing Technician,Suzlon Green Tech,Thane,Solar PV Installer & Technician,Solar Panel Array Wiring|Grid Inverter Installation,22000,28000,Direct Corporate Portal
+1165,High Voltage Battery Safety Auditor,Reliance New Energy,Thane,EV Battery Maintenance Specialist,EV Lithium Pack Diagnostics|BMS Sensor Calibration,30000,37000,National Career Service (NCS)
+1166,CNC Quality Control Inspector,Bosch India,Thane,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,24000,30000,NSDC Industry Connect
+1167,Solar Microgrid Electrician,Schneider Electric,Thane,Solar PV Installer & Technician,Solar Panel Array Wiring|Grid Inverter Installation,25000,31000,Apprenticeship India Portal
+1168,EV Battery Module Assembler,TVS Motor Company,Thane,EV Battery Maintenance Specialist,EV Lithium Pack Diagnostics|BMS Sensor Calibration,28000,35000,Direct Corporate Portal
+1169,Precision Machine Setter,Tata Motors Tech,Bengaluru,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,26000,33000,National Career Service (NCS)
+1170,Solar Inverter Maintenance Specialist,Mahindra Susten,Bengaluru,Solar PV Installer & Technician,Solar Panel Array Wiring|Grid Inverter Installation,27000,34000,NSDC Industry Connect
+1171,Traction Battery Diagnostics Engineer,Ather Energy,Bengaluru,EV Battery Maintenance Specialist,EV Lithium Pack Diagnostics|BMS Sensor Calibration,32000,40000,Direct Corporate Portal
+1172,CNC Milling Machine Programmer,Bharat Forge Ltd,Bengaluru,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,27000,35000,Apprenticeship India Portal
+1173,Grid Solar System Integrator,Adani Green Energy,Bengaluru,Solar PV Installer & Technician,Solar Panel Array Wiring|Grid Inverter Installation,28000,36000,National Career Service (NCS)
+1174,EV Pack Thermal Safety Tech,Ola Electric,Bengaluru,EV Battery Maintenance Specialist,EV Lithium Pack Diagnostics|BMS Sensor Calibration,31000,39000,NSDC Industry Connect
+1175,Junior CNC Lathe Operator,L&T Heavy Engineering,Ahmedabad,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,22000,28000,Apprenticeship India Portal
+1176,Solar PV Field Installation Tech,Suzlon Green Tech,Ahmedabad,Solar PV Installer & Technician,Solar Panel Array Wiring|Grid Inverter Installation,23000,29000,Direct Corporate Portal
+1177,EV Battery Diagnostic Specialist,Reliance New Energy,Ahmedabad,EV Battery Maintenance Specialist,EV Lithium Pack Diagnostics|BMS Sensor Calibration,28000,35000,National Career Service (NCS)
+1178,CNC Machine Tooling Operator,Bosch India,Ahmedabad,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,23000,29000,NSDC Industry Connect
+1179,Solar Panel Array Electrician,Schneider Electric,Ahmedabad,Solar PV Installer & Technician,Solar Panel Array Wiring|Grid Inverter Installation,24000,30000,Apprenticeship India Portal
+1180,BMS Diagnostic Calibration Tech,TVS Motor Company,Ahmedabad,EV Battery Maintenance Specialist,EV Lithium Pack Diagnostics|BMS Sensor Calibration,29000,36000,Direct Corporate Portal
+1181,Advanced CNC Automation Technician,Tata Motors Tech,Pune,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,26000,34000,National Career Service (NCS)
