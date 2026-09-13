@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { fetchWithAuth } from '../lib/api';
+import { subscribeEmploymentSync, notifyEmploymentChange } from '../lib/realtimeSync';
 import { 
   Briefcase, 
   Users, 
@@ -12,7 +13,12 @@ import {
   Building2, 
   FileCheck, 
   UserCheck,
-  ChevronRight
+  ChevronRight,
+  ShieldCheck,
+  XCircle,
+  Clock,
+  Radio,
+  IndianRupee
 } from 'lucide-react';
 
 export const EmployerDashboard = ({ activeTab }) => {
@@ -21,9 +27,26 @@ export const EmployerDashboard = ({ activeTab }) => {
   const [loadingApi, setLoadingApi] = useState(false);
   const [apiError, setApiError] = useState(null);
 
+  // Placement verification queue for logged-in employer
+  const [employerRecords, setEmployerRecords] = useState([]);
+  const [loadingRecords, setLoadingRecords] = useState(false);
+  const [recordActionMsg, setRecordActionMsg] = useState('');
+  const [realtimePulse, setRealtimePulse] = useState(false);
+
   useEffect(() => {
     loadEmployerData();
+    loadEmployerRecords();
   }, [role]);
+
+  // Realtime subscription for instant multi-portal sync
+  useEffect(() => {
+    const unsub = subscribeEmploymentSync((event) => {
+      setRealtimePulse(true);
+      setTimeout(() => setRealtimePulse(false), 2500);
+      loadEmployerRecords();
+    });
+    return () => unsub();
+  }, []);
 
   const loadEmployerData = async () => {
     setLoadingApi(true);
@@ -38,8 +61,41 @@ export const EmployerDashboard = ({ activeTab }) => {
     }
   };
 
+  const loadEmployerRecords = async () => {
+    setLoadingRecords(true);
+    try {
+      const res = await fetchWithAuth('/api/portal/employment/employer-records?employer_id=emp-01', {}, role);
+      setEmployerRecords(res.records || []);
+    } catch (err) {
+      console.warn('Error loading employer records:', err);
+    } finally {
+      setLoadingRecords(false);
+    }
+  };
+
+  const handleVerifyPlacement = async (recordId, action) => {
+    try {
+      const res = await fetchWithAuth('/api/portal/employment/employer-confirm', {
+        method: 'POST',
+        body: JSON.stringify({
+          record_id: recordId,
+          action
+        })
+      }, role);
+
+      if (res.success) {
+        setRecordActionMsg(`Placement record ${action === 'confirm' ? 'Confirmed & Verified' : 'Disputed'}. Synchronized live across all portals.`);
+        setTimeout(() => setRecordActionMsg(''), 4000);
+        notifyEmploymentChange('employer_confirmed', { record_id: recordId, action });
+        loadEmployerRecords();
+      }
+    } catch (err) {
+      alert('Error updating placement verification: ' + err.message);
+    }
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 font-roboto">
       {/* Top Banner */}
       <div className="bg-gradient-to-r from-emerald-950 via-govt-navy to-slate-900 text-white rounded-xl p-6 shadow-govt-card relative overflow-hidden">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 relative z-10">
@@ -49,22 +105,27 @@ export const EmployerDashboard = ({ activeTab }) => {
                 Corporate Recruiter Portal
               </span>
               <span className="text-xs text-emerald-200">Employer ID: EMP-TATA-802</span>
+              {realtimePulse && (
+                <span className="bg-emerald-500 text-white text-[10px] font-bold px-2 py-0.5 rounded animate-pulse flex items-center gap-1">
+                  <Radio className="w-3 h-3" /> Live Synced
+                </span>
+              )}
             </div>
-            <h1 className="text-2xl font-bold font-roboto tracking-tight">
+            <h1 className="text-2xl font-bold tracking-tight">
               {user?.organization_name || 'Tata Advanced Engineering Solutions'}
             </h1>
             <p className="text-sm text-slate-300 mt-1 max-w-2xl">
-              Industry Partner Dashboard • Direct Recruitment of Government-Certified Skill Candidates and Apprentices.
+              Industry Partner Dashboard • Direct Recruitment, Candidate Verification, and Longitudinal Placement Confirmations.
             </p>
           </div>
 
           <button 
-            onClick={loadEmployerData}
+            onClick={() => { loadEmployerData(); loadEmployerRecords(); }}
             disabled={loadingApi}
             className="btn-govt-orange text-xs whitespace-nowrap shadow-md hover:shadow-lg"
           >
             <Sparkles className="w-3.5 h-3.5" />
-            {loadingApi ? 'Syncing Backend...' : 'Sync Express API'}
+            {loadingApi ? 'Syncing Backend...' : 'Refresh Records'}
           </button>
         </div>
       </div>
@@ -74,7 +135,7 @@ export const EmployerDashboard = ({ activeTab }) => {
         <div className="bg-emerald-50 border border-emerald-200 text-emerald-900 px-4 py-2.5 rounded-lg text-xs flex items-center justify-between">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 text-emerald-700" />
-            <span><strong>Employer Privileges Active:</strong> Connected with role <code>employer</code> via Supabase JWT session.</span>
+            <span><strong>Employer Privileges Active:</strong> Connected as <code>EMP-TATA-802</code>. Verified corporate HR audit privileges active.</span>
           </div>
           <span className="font-mono text-[10px] bg-emerald-200 text-emerald-950 px-2 py-0.5 rounded font-bold">HTTP 200 OK</span>
         </div>
@@ -86,7 +147,7 @@ export const EmployerDashboard = ({ activeTab }) => {
           <div>
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Active Openings</p>
             <p className="text-2xl font-bold text-slate-800 mt-1">{apiData?.activeJobOpenings || 14} Jobs</p>
-            <p className="text-[11px] text-emerald-600 font-medium mt-1">4 Cities</p>
+            <p className="text-[11px] text-emerald-600 font-medium mt-1">4 Industrial Clusters</p>
           </div>
           <div className="w-12 h-12 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center">
             <Briefcase className="w-6 h-6" />
@@ -95,23 +156,29 @@ export const EmployerDashboard = ({ activeTab }) => {
 
         <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
           <div>
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Applicants</p>
-            <p className="text-2xl font-bold text-slate-800 mt-1">{apiData?.applicantsTotal || 312} Trainees</p>
-            <p className="text-[11px] text-blue-600 font-medium mt-1">NCVT Certified</p>
+            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Verified Placements</p>
+            <p className="text-2xl font-bold text-emerald-700 mt-1">
+              {employerRecords.filter(r => r.employer_confirmed).length} Confirmed
+            </p>
+            <p className="text-[11px] text-slate-500 font-medium mt-1">
+              {employerRecords.length} Total Claims
+            </p>
           </div>
           <div className="w-12 h-12 rounded-lg bg-blue-50 text-govt-navy flex items-center justify-center">
-            <Users className="w-6 h-6" />
+            <ShieldCheck className="w-6 h-6" />
           </div>
         </div>
 
         <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
           <div>
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Shortlisted</p>
-            <p className="text-2xl font-bold text-slate-800 mt-1">{apiData?.shortlistedCandidates || 45} Candidates</p>
-            <p className="text-[11px] text-purple-600 font-medium mt-1">Interview Scheduled</p>
+            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Pending HR Audits</p>
+            <p className="text-2xl font-bold text-amber-700 mt-1">
+              {employerRecords.filter(r => !r.employer_confirmed).length} Pending
+            </p>
+            <p className="text-[11px] text-amber-600 font-medium mt-1">Action Required</p>
           </div>
-          <div className="w-12 h-12 rounded-lg bg-purple-50 text-purple-700 flex items-center justify-center">
-            <UserCheck className="w-6 h-6" />
+          <div className="w-12 h-12 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center">
+            <Clock className="w-6 h-6" />
           </div>
         </div>
 
@@ -121,13 +188,131 @@ export const EmployerDashboard = ({ activeTab }) => {
             <p className="text-2xl font-bold text-slate-800 mt-1">88 Hired</p>
             <p className="text-[11px] text-emerald-600 font-medium mt-1">FY 2026-27</p>
           </div>
-          <div className="w-12 h-12 rounded-lg bg-amber-50 text-govt-orange flex items-center justify-center">
+          <div className="w-12 h-12 rounded-lg bg-purple-50 text-purple-700 flex items-center justify-center">
             <FileCheck className="w-6 h-6" />
           </div>
         </div>
       </div>
 
-      {/* Main Grid: Active Postings & Verified Candidates Search */}
+      {/* SECTION: PLACEMENT VERIFICATION & CONFIRMATION QUEUE */}
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
+          <div>
+            <div className="flex items-center gap-2">
+              <Building2 className="w-5 h-5 text-emerald-700" />
+              <h2 className="text-base font-bold text-slate-800">Placement Verification & HR Confirmation Queue</h2>
+            </div>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Live records from <code>employment_records</code> where <code>employer_id = 'emp-01'</code>. Confirm or dispute candidate self-reported placements.
+            </p>
+          </div>
+
+          <span className="text-xs font-bold text-emerald-800 bg-emerald-100 px-3 py-1 rounded-md border border-emerald-300">
+            {employerRecords.length} Candidate Records
+          </span>
+        </div>
+
+        {recordActionMsg && (
+          <div className="bg-emerald-50 border border-emerald-300 text-emerald-900 p-3 rounded-lg text-xs flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+            <span>{recordActionMsg}</span>
+          </div>
+        )}
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs">
+            <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase tracking-wider">
+              <tr>
+                <th className="p-3">Candidate</th>
+                <th className="p-3">Skill Trade & District</th>
+                <th className="p-3">Self-Reported Status</th>
+                <th className="p-3">Placement Date</th>
+                <th className="p-3">Salary Band</th>
+                <th className="p-3">Role Match</th>
+                <th className="p-3">Verification Status</th>
+                <th className="p-3 text-right">Corporate Action</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
+              {employerRecords.length === 0 ? (
+                <tr>
+                  <td colSpan="8" className="p-6 text-center text-slate-400">
+                    No candidate placement claims currently registered for this corporate employer.
+                  </td>
+                </tr>
+              ) : (
+                employerRecords.map((r) => (
+                  <tr key={r.id} className="hover:bg-slate-50/80 transition-all">
+                    <td className="p-3">
+                      <div className="font-bold text-slate-800">{r.candidate_name}</div>
+                      <div className="text-[10px] text-slate-400 font-mono">{r.candidate_id}</div>
+                    </td>
+                    <td className="p-3">
+                      <div className="font-semibold text-slate-800">{r.trade}</div>
+                      <div className="text-[11px] text-slate-500">{r.district}</div>
+                    </td>
+                    <td className="p-3">
+                      <span className="bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded text-[11px]">
+                        {r.self_reported_status}
+                      </span>
+                    </td>
+                    <td className="p-3 font-mono">{r.placement_date || 'N/A'}</td>
+                    <td className="p-3 font-mono text-slate-800">{r.salary_band || 'N/A'}</td>
+                    <td className="p-3">
+                      {r.role_match ? (
+                        <span className="text-emerald-700 font-bold">Yes (Match)</span>
+                      ) : (
+                        <span className="text-slate-500">Different Role</span>
+                      )}
+                    </td>
+                    <td className="p-3">
+                      {r.employer_confirmed ? (
+                        <div>
+                          <span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold inline-flex items-center gap-1 border border-emerald-300">
+                            <ShieldCheck className="w-3 h-3 text-emerald-700" /> Confirmed
+                          </span>
+                          {r.employer_confirmed_at && (
+                            <div className="text-[10px] text-slate-400 mt-0.5">
+                              {new Date(r.employer_confirmed_at).toLocaleDateString()}
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-bold inline-flex items-center gap-1 border border-amber-300">
+                          <Clock className="w-3 h-3 text-amber-700" /> Pending Review
+                        </span>
+                      )}
+                    </td>
+                    <td className="p-3 text-right">
+                      <div className="flex items-center justify-end gap-1.5">
+                        <button
+                          onClick={() => handleVerifyPlacement(r.id, 'confirm')}
+                          disabled={r.employer_confirmed}
+                          className={`font-bold text-[11px] px-2.5 py-1 rounded shadow-sm flex items-center gap-1 transition-all ${
+                            r.employer_confirmed
+                              ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                              : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                          }`}
+                        >
+                          <CheckCircle2 className="w-3 h-3" /> Confirm
+                        </button>
+                        <button
+                          onClick={() => handleVerifyPlacement(r.id, 'dispute')}
+                          className="border border-red-200 hover:bg-red-50 text-red-700 font-bold text-[11px] px-2 py-1 rounded transition-all flex items-center gap-1"
+                        >
+                          <XCircle className="w-3 h-3" /> Dispute
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Main Grid: Active Postings & Talent Search */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Active Job Vacancies (2 Cols) */}
         <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-4">
@@ -201,24 +386,24 @@ export const EmployerDashboard = ({ activeTab }) => {
             <span>Search Certified Talent</span>
           </h2>
 
-          <div className="space-y-3">
+          <div className="space-y-3 text-xs">
             <div>
-              <label className="text-xs font-bold text-slate-700 block mb-1">Select Skill / Trade</label>
-              <select className="w-full bg-slate-50 border border-slate-300 text-xs rounded-md p-2 focus:ring-1 focus:ring-govt-navy">
-                <option>CNC Operator (NCVT Grade A)</option>
+              <label className="font-bold text-slate-700 block mb-1">Select Skill / Trade</label>
+              <select className="w-full bg-slate-50 border border-slate-300 rounded-md p-2 focus:ring-1 focus:ring-govt-navy">
+                <option>Advanced CNC Machinist</option>
                 <option>Solar Photovoltaic Technician</option>
-                <option>EV Battery Assembly Technician</option>
+                <option>EV Battery Maintenance Specialist</option>
                 <option>Cybersecurity Junior Analyst</option>
               </select>
             </div>
 
             <div>
-              <label className="text-xs font-bold text-slate-700 block mb-1">Preferred State / Location</label>
-              <select className="w-full bg-slate-50 border border-slate-300 text-xs rounded-md p-2 focus:ring-1 focus:ring-govt-navy">
+              <label className="font-bold text-slate-700 block mb-1">Preferred State / Location</label>
+              <select className="w-full bg-slate-50 border border-slate-300 rounded-md p-2 focus:ring-1 focus:ring-govt-navy">
                 <option>All States (Pan-India)</option>
-                <option>Maharashtra</option>
-                <option>Karnataka</option>
-                <option>Gujarat</option>
+                <option>Maharashtra (Pune / Nashik)</option>
+                <option>Karnataka (Bengaluru)</option>
+                <option>Gujarat (Ahmedabad)</option>
               </select>
             </div>
 

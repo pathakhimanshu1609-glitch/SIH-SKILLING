@@ -11,20 +11,27 @@ import {
   BarChart2, 
   Clock, 
   RotateCcw,
-  Check
+  Check,
+  Briefcase,
+  TrendingUp,
+  AlertTriangle,
+  ExternalLink,
+  Target
 } from 'lucide-react';
 
-export const SkillAssessmentModule = ({ onNavigateScorecard }) => {
+export const SkillAssessmentModule = ({ onNavigateScorecard, onNavigateTab }) => {
   const { user, role } = useAuth();
 
   const [phase, setPhase] = useState('pre'); // 'pre' or 'post'
   const [trade, setTrade] = useState('Advanced CNC Machinist');
+  const [district, setDistrict] = useState(user?.candidateRecord?.district || 'Pune');
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(false);
   
   const [userAnswers, setUserAnswers] = useState({});
   const [submitted, setSubmitted] = useState(false);
   const [quizResults, setQuizResults] = useState(null);
+  const [explainableResults, setExplainableResults] = useState(null);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -35,6 +42,7 @@ export const SkillAssessmentModule = ({ onNavigateScorecard }) => {
     setLoading(true);
     setSubmitted(false);
     setQuizResults(null);
+    setExplainableResults(null);
     setUserAnswers({});
 
     try {
@@ -59,10 +67,15 @@ export const SkillAssessmentModule = ({ onNavigateScorecard }) => {
     setSubmitting(true);
 
     try {
+      const candId = user?.candidateRecord?.id || user?.id || 'cand-01';
+      const userDistrict = user?.candidateRecord?.district || district || 'Pune';
+      
       const res = await fetchWithAuth('/api/portal/assessments/submit', {
         method: 'POST',
         body: JSON.stringify({
-          candidate_id: 'cand-01',
+          candidate_id: candId,
+          trade,
+          district: userDistrict,
           phase,
           answers: userAnswers
         })
@@ -70,6 +83,42 @@ export const SkillAssessmentModule = ({ onNavigateScorecard }) => {
 
       if (res.success) {
         setQuizResults(res.results);
+
+        if (phase === 'post') {
+          // If backend provided explainableMatch directly in response, use it immediately
+          if (res.explainableMatch) {
+            setExplainableResults(res.explainableMatch);
+          } else {
+            // Fallback: fetch explainable match immediately so candidate lands on explainable results
+            try {
+              const matchRes = await fetchWithAuth(
+                `/api/portal/skill-match/gap-analysis?candidate_id=${candId}&trade=${encodeURIComponent(trade)}&district=${encodeURIComponent(userDistrict)}`,
+                {},
+                role
+              );
+              setExplainableResults(matchRes);
+            } catch (mErr) {
+              console.warn('Notice loading fallback explainable match:', mErr);
+            }
+          }
+
+          try {
+            const key = `cand_assessments_${candId}`;
+            const existing = JSON.parse(sessionStorage.getItem(key) || '[]');
+            const updated = existing.filter(item => item.trade !== trade);
+            (res.results || []).forEach(r => {
+              updated.push({
+                trade,
+                skill_name: r.skill_name,
+                phase: 'post',
+                score: r.score,
+                taken_at: new Date().toISOString()
+              });
+            });
+            sessionStorage.setItem(key, JSON.stringify(updated));
+          } catch (e) {}
+        }
+
         setSubmitted(true);
       }
     } catch (err) {
@@ -98,13 +147,13 @@ export const SkillAssessmentModule = ({ onNavigateScorecard }) => {
                 <span className="text-xs text-blue-200">NCVT Skill Standard</span>
               </div>
               <h1 className="text-xl font-bold font-roboto">Per-Skill Competency Assessment</h1>
-              <p className="text-xs text-slate-300">Evaluate technical proficiency pre- and post-training.</p>
+              <p className="text-xs text-slate-300">Evaluate technical proficiency pre- and post-training with explainable job matching.</p>
             </div>
           </div>
 
           <div className="flex gap-2">
             <button
-              onClick={() => setPhase('pre')}
+              onClick={() => { setPhase('pre'); setSubmitted(false); }}
               className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${
                 phase === 'pre' 
                   ? 'bg-govt-orange text-white shadow' 
@@ -114,7 +163,7 @@ export const SkillAssessmentModule = ({ onNavigateScorecard }) => {
               Pre-Training Phase
             </button>
             <button
-              onClick={() => setPhase('post')}
+              onClick={() => { setPhase('post'); setSubmitted(false); }}
               className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${
                 phase === 'post' 
                   ? 'bg-govt-orange text-white shadow' 
@@ -127,19 +176,38 @@ export const SkillAssessmentModule = ({ onNavigateScorecard }) => {
         </div>
       </div>
 
-      {/* Trade Selector Bar */}
+      {/* Trade & District Selector Bar */}
       <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-        <div className="flex items-center gap-2">
-          <span className="font-bold text-slate-700 uppercase">Selected Trade Skill Bundle:</span>
-          <select
-            value={trade}
-            onChange={(e) => setTrade(e.target.value)}
-            className="bg-slate-50 border border-slate-300 font-bold text-govt-navy rounded-md p-1.5 focus:ring-1 focus:ring-govt-navy"
-          >
-            <option value="Advanced CNC Machinist">Advanced CNC Machinist</option>
-            <option value="Solar PV Installer & Technician">Solar PV Installer & Technician</option>
-            <option value="EV Battery Maintenance Specialist">EV Battery Maintenance Specialist</option>
-          </select>
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-slate-700 uppercase">Trade:</span>
+            <select
+              value={trade}
+              onChange={(e) => setTrade(e.target.value)}
+              disabled={submitted}
+              className="bg-slate-50 border border-slate-300 font-bold text-govt-navy rounded-md p-1.5 focus:ring-1 focus:ring-govt-navy"
+            >
+              <option value="Advanced CNC Machinist">Advanced CNC Machinist</option>
+              <option value="Solar PV Installer & Technician">Solar PV Installer & Technician</option>
+              <option value="EV Battery Maintenance Specialist">EV Battery Maintenance Specialist</option>
+            </select>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-slate-700 uppercase">District:</span>
+            <select
+              value={district}
+              onChange={(e) => setDistrict(e.target.value)}
+              disabled={submitted}
+              className="bg-slate-50 border border-slate-300 font-bold text-slate-800 rounded-md p-1.5"
+            >
+              <option value="Pune">Pune</option>
+              <option value="Nashik">Nashik</option>
+              <option value="Thane">Thane</option>
+              <option value="Bengaluru">Bengaluru</option>
+              <option value="Ahmedabad">Ahmedabad</option>
+            </select>
+          </div>
         </div>
 
         <div className="flex items-center gap-2 text-slate-500 font-medium">
@@ -148,35 +216,252 @@ export const SkillAssessmentModule = ({ onNavigateScorecard }) => {
         </div>
       </div>
 
-      {/* Results Box if Submitted */}
+      {/* Explainable Results View when Submitted */}
       {submitted && quizResults && (
-        <div className="bg-emerald-50 border border-emerald-300 rounded-xl p-6 space-y-4 shadow-sm">
-          <div className="flex items-center justify-between pb-3 border-b border-emerald-200">
-            <div className="flex items-center gap-2 text-emerald-900">
-              <CheckCircle2 className="w-6 h-6 text-emerald-600" />
-              <h2 className="text-base font-bold">Assessment Completed ({phase.toUpperCase()}-TRAINING)</h2>
+        <div className="space-y-6 animate-fadeIn">
+          {/* Top Results Banner */}
+          <div className="bg-emerald-50 border border-emerald-300 rounded-xl p-6 space-y-4 shadow-sm">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3 border-b border-emerald-200">
+              <div className="flex items-center gap-2.5 text-emerald-900">
+                <CheckCircle2 className="w-6 h-6 text-emerald-600 flex-shrink-0" />
+                <div>
+                  <h2 className="text-base font-bold">
+                    {phase === 'post' ? 'Post-Training Assessment Completed: Explainable Skill Match Ready!' : 'Pre-Training Assessment Scored'}
+                  </h2>
+                  <p className="text-xs text-emerald-700">
+                    {phase === 'post' 
+                      ? 'Competency threshold: Score ≥ 60% indicates Achieved Skill for job matching.' 
+                      : 'Baseline competency established for your skilling roadmap.'}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                {phase === 'post' && onNavigateTab && (
+                  <button 
+                    onClick={() => onNavigateTab('skill-match')}
+                    className="btn-govt-orange text-xs py-1.5 px-3 flex items-center gap-1 shadow"
+                  >
+                    <Target className="w-3.5 h-3.5" />
+                    <span>View Gap Bar Chart</span>
+                  </button>
+                )}
+                <button 
+                  onClick={onNavigateScorecard}
+                  className="btn-govt-outline text-xs py-1.5 px-3 flex items-center gap-1 shadow bg-white"
+                >
+                  <BarChart2 className="w-3.5 h-3.5" />
+                  <span>Radar Scorecard</span>
+                </button>
+              </div>
             </div>
-            <button 
-              onClick={onNavigateScorecard}
-              className="btn-govt-orange text-xs py-1.5 px-3 flex items-center gap-1 shadow"
-            >
-              <BarChart2 className="w-3.5 h-3.5" />
-              <span>View Radar Scorecard</span>
-            </button>
+
+            {/* Per-Skill Score Breakdown */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {quizResults.map((r, idx) => {
+                const isAchieved = Number(r.score) >= 60;
+                return (
+                  <div key={idx} className="bg-white p-3.5 rounded-lg border border-emerald-200 flex items-center justify-between shadow-2xs">
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <p className="text-xs font-bold text-slate-800">{r.skill_name}</p>
+                        {phase === 'post' && (
+                          <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
+                            isAchieved 
+                              ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' 
+                              : 'bg-amber-100 text-amber-900 border border-amber-300'
+                          }`}>
+                            {isAchieved ? 'Achieved' : 'Needs Upskilling'}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[11px] text-slate-500">{r.correct} of {r.total} Answers Correct</p>
+                    </div>
+                    <span className={`text-base font-bold font-mono px-2.5 py-1 rounded ${
+                      isAchieved ? 'text-emerald-700 bg-emerald-100' : 'text-amber-800 bg-amber-100'
+                    }`}>
+                      {r.score}%
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {quizResults.map((r, idx) => (
-              <div key={idx} className="bg-white p-3.5 rounded-lg border border-emerald-200 flex items-center justify-between">
+          {/* Explainable Skill Recommendations (Exact Reason Text with Demand %) */}
+          {explainableResults?.recommendations && explainableResults.recommendations.length > 0 && (
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                 <div>
-                  <p className="text-xs font-bold text-slate-800">{r.skill_name}</p>
-                  <p className="text-[11px] text-slate-500">{r.correct} of {r.total} Answers Correct</p>
+                  <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-govt-orange" />
+                    <span>Explainable Skill Recommendations</span>
+                  </h3>
+                  <p className="text-xs text-slate-500">Skills recommended based on employer demand frequency in {district}</p>
                 </div>
-                <span className="text-base font-bold font-mono text-emerald-700 bg-emerald-100 px-2.5 py-1 rounded">
-                  {r.score}%
+                <span className="text-[11px] font-bold text-purple-700 bg-purple-100 px-2 py-0.5 rounded">
+                  Demand-Backed
                 </span>
               </div>
-            ))}
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                {explainableResults.recommendations.map((rec, idx) => (
+                  <div key={idx} className="p-3.5 rounded-lg border border-slate-200 bg-slate-50/80 space-y-2.5 flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-[9px] font-mono font-bold text-white bg-govt-navy px-1.5 py-0.5 rounded">
+                          Priority #{idx + 1}
+                        </span>
+                        <span className="text-[10px] font-mono font-bold text-govt-orange bg-orange-50 border border-orange-200 px-1.5 py-0.5 rounded">
+                          {rec.skill_demand_percentage}% Demand
+                        </span>
+                      </div>
+                      <h4 className="text-xs font-bold text-slate-800 mt-1.5">{rec.skill_name}</h4>
+                    </div>
+
+                    <div className="p-2 rounded bg-amber-50 border border-amber-200 text-[11px] text-amber-950 space-y-0.5">
+                      <p className="font-bold flex items-center gap-1 text-[10px] text-amber-900">
+                        <TrendingUp className="w-3 h-3 text-govt-orange" />
+                        <span>Why this skill:</span>
+                      </p>
+                      <p className="font-semibold text-slate-700 leading-tight">{rec.reason}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Explainable Job Opportunities with 'Skills you have' vs 'Skills you're missing' */}
+          {explainableResults?.matchedJobs && explainableResults.matchedJobs.length > 0 && (
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div>
+                  <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
+                    <Briefcase className="w-4 h-4 text-emerald-700" />
+                    <span>Immediate Explainable Job Matches ({district})</span>
+                  </h3>
+                  <p className="text-xs text-slate-500">Live job opportunities mapped against your achieved skills (score ≥ 60%)</p>
+                </div>
+                <span className="text-xs font-bold text-emerald-700 bg-emerald-100 px-2.5 py-1 rounded">
+                  {explainableResults.matchedJobs.length} Positions Available
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {explainableResults.matchedJobs.slice(0, 4).map((job) => {
+                  const matchPct = job.match_percentage !== undefined ? job.match_percentage : (job.matchScorePct || 0);
+                  const matchedSkills = Array.isArray(job.matched_skills) ? job.matched_skills : [];
+                  const missingSkills = Array.isArray(job.missing_skills) ? job.missing_skills : [];
+
+                  return (
+                    <div 
+                      key={job.id || job.job_id}
+                      className="p-4 rounded-xl border border-slate-200 bg-slate-50/60 hover:border-emerald-500/50 space-y-3 transition-all"
+                    >
+                      <div className="flex justify-between items-start gap-2">
+                        <div>
+                          <span className="text-[9px] font-mono text-slate-500 bg-slate-200 px-1.5 py-0.5 rounded">
+                            {job.id || job.job_id} • {job.source}
+                          </span>
+                          <h4 className="text-xs font-bold text-slate-800 mt-1">{job.title}</h4>
+                          <p className="text-[11px] text-slate-600">{job.company_name || job.company} • {job.district || district}</p>
+                        </div>
+
+                        {/* Overall match percentage as a badge */}
+                        <span className={`text-xs font-bold px-2.5 py-1 rounded-full font-mono shadow-2xs ${
+                          matchPct === 100 
+                            ? 'bg-emerald-600 text-white' 
+                            : matchPct >= 60 
+                              ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' 
+                              : matchPct > 0
+                                ? 'bg-amber-100 text-amber-900 border border-amber-300'
+                                : 'bg-rose-100 text-rose-800 border border-rose-200'
+                        }`}>
+                          {matchPct}% Match
+                        </span>
+                      </div>
+
+                      {/* Two visually distinct lists: 'Skills you have' vs 'Skills you're missing' */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 text-[10px]">
+                        {/* Skills you have (green checkmarks) */}
+                        <div className="p-2 rounded bg-emerald-50/80 border border-emerald-200 space-y-1">
+                          <div className="flex items-center gap-1 text-emerald-900 font-bold">
+                            <CheckCircle2 className="w-3 h-3 text-emerald-600 flex-shrink-0" />
+                            <span>Skills you have ({matchedSkills.length}):</span>
+                          </div>
+                          {matchedSkills.length > 0 ? (
+                            <div className="flex flex-wrap gap-1">
+                              {matchedSkills.map((sk, idx) => (
+                                <span key={idx} className="inline-flex items-center gap-1 font-bold text-emerald-800 bg-white px-1.5 py-0.5 rounded border border-emerald-200">
+                                  <Check className="w-2.5 h-2.5 text-emerald-600" />
+                                  <span>{sk}</span>
+                                </span>
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="text-slate-400 italic">None yet</p>
+                          )}
+                        </div>
+
+                        {/* Skills you're missing (red/amber) */}
+                        <div className="p-2 rounded bg-amber-50/80 border border-amber-200 space-y-1">
+                          <div className="flex items-center gap-1 text-amber-900 font-bold">
+                            <AlertTriangle className="w-3 h-3 text-amber-600 flex-shrink-0" />
+                            <span>Skills you're missing ({missingSkills.length}):</span>
+                          </div>
+                          {missingSkills.length > 0 ? (
+                            <div className="flex flex-wrap gap-1">
+                              {missingSkills.map((sk, idx) => (
+                                <span key={idx} className="inline-flex items-center gap-1 font-bold text-amber-900 bg-white px-1.5 py-0.5 rounded border border-amber-300">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                                  <span>{sk}</span>
+                                </span>
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="text-emerald-700 font-bold flex items-center gap-1">
+                              <Check className="w-2.5 h-2.5 text-emerald-600" />
+                              <span>All required skills achieved!</span>
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1.5 border-t border-slate-200/60">
+                        <span className="font-mono font-semibold text-slate-800">{job.salary_range}</span>
+                        <button className="btn-govt-primary text-[10px] py-1 px-2.5 flex items-center gap-1">
+                          <span>Apply Now</span>
+                          <ExternalLink className="w-3 h-3" />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Action Row */}
+          <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+            <button
+              onClick={() => { setSubmitted(false); setUserAnswers({}); }}
+              className="text-xs text-slate-500 hover:text-slate-800 font-medium flex items-center gap-1"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>Retake / Test Another Trade</span>
+            </button>
+
+            <div className="flex items-center gap-3">
+              {onNavigateTab && (
+                <button
+                  onClick={() => onNavigateTab('skill-match')}
+                  className="btn-govt-primary text-xs py-2 px-4 font-bold flex items-center gap-1.5 shadow"
+                >
+                  <Target className="w-4 h-4" />
+                  <span>Go to Skill Match & Gap Analysis</span>
+                </button>
+              )}
+            </div>
           </div>
         </div>
       )}

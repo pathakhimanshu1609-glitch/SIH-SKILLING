@@ -19,6 +19,14 @@ import { Unauthorized } from './pages/Unauthorized';
 const DashboardRouter = () => {
   const { user, role, loading } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [selectedTrade, setSelectedTrade] = useState('Advanced CNC Machinist');
+
+  const handleNavigateTab = (tab, params = {}) => {
+    if (params?.trade) {
+      setSelectedTrade(params.trade);
+    }
+    setActiveTab(tab);
+  };
 
   if (loading) {
     return (
@@ -45,11 +53,16 @@ const DashboardRouter = () => {
     }
 
     if (activeTab === 'assessment') {
-      return <SkillAssessmentModule onNavigateScorecard={() => setActiveTab('scorecard')} />;
+      return (
+        <SkillAssessmentModule 
+          onNavigateScorecard={() => handleNavigateTab('scorecard')} 
+          onNavigateTab={handleNavigateTab}
+        />
+      );
     }
 
     if (activeTab === 'scorecard') {
-      return <SkillScorecardPage />;
+      return <SkillScorecardPage selectedTrade={selectedTrade} onSelectTrade={setSelectedTrade} />;
     }
 
     if (activeTab === 'onboarding' || activeTab === 'enrollment') {
@@ -63,15 +76,15 @@ const DashboardRouter = () => {
     // Role specific dashboard default
     switch (role) {
       case 'candidate':
-        return <CandidateDashboard activeTab={activeTab} onNavigateTab={(tab) => setActiveTab(tab)} />;
+        return <CandidateDashboard activeTab={activeTab} onNavigateTab={handleNavigateTab} selectedTrade={selectedTrade} />;
       case 'training_center':
         return <TrainingCenterDashboard activeTab={activeTab} />;
       case 'government':
-        return <GovernmentDashboard activeTab={activeTab} onNavigateTab={(tab) => setActiveTab(tab)} />;
+        return <GovernmentDashboard activeTab={activeTab} onNavigateTab={handleNavigateTab} />;
       case 'employer':
         return <EmployerDashboard activeTab={activeTab} />;
       default:
-        return <CandidateDashboard activeTab={activeTab} onNavigateTab={(tab) => setActiveTab(tab)} />;
+        return <CandidateDashboard activeTab={activeTab} onNavigateTab={handleNavigateTab} selectedTrade={selectedTrade} />;
     }
   };
 

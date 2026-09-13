@@ -13,24 +13,45 @@ import {
   Info
 } from 'lucide-react';
 
-export const SkillScorecardPage = () => {
+export const SkillScorecardPage = ({ selectedTrade = 'Advanced CNC Machinist', onSelectTrade }) => {
   const { user, role } = useAuth();
+  const [activeTrade, setActiveTrade] = useState(selectedTrade || 'Advanced CNC Machinist');
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    loadAssessmentResults();
-  }, []);
+  const AVAILABLE_TRADES = [
+    'Advanced CNC Machinist',
+    'Solar PV Installer & Technician',
+    'EV Battery Maintenance Specialist'
+  ];
 
-  const loadAssessmentResults = async () => {
+  useEffect(() => {
+    if (selectedTrade) {
+      setActiveTrade(selectedTrade);
+    }
+  }, [selectedTrade]);
+
+  useEffect(() => {
+    loadAssessmentResults(activeTrade);
+  }, [activeTrade]);
+
+  const loadAssessmentResults = async (tradeToLoad) => {
     setLoading(true);
+    const candId = user?.candidateRecord?.id || user?.id || 'cand-01';
     try {
-      const data = await fetchWithAuth('/api/portal/assessments/results?candidate_id=cand-01', {}, role);
+      const data = await fetchWithAuth(`/api/portal/assessments/results?candidate_id=${encodeURIComponent(candId)}&trade=${encodeURIComponent(tradeToLoad)}`, {}, role);
       setResults(data.results || []);
     } catch (err) {
       console.warn('Could not load assessment results:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleTradeChange = (newTrade) => {
+    setActiveTrade(newTrade);
+    if (onSelectTrade) {
+      onSelectTrade(newTrade);
     }
   };
 
@@ -60,9 +81,13 @@ export const SkillScorecardPage = () => {
 
   const rings = [0.2, 0.4, 0.6, 0.8, 1.0];
 
+  const avgPostScore = results.length > 0
+    ? Math.round(results.reduce((sum, r) => sum + (r.post_score || 0), 0) / results.length)
+    : 80;
+
   return (
     <div className="max-w-5xl mx-auto space-y-6 font-roboto">
-      {/* Top Banner */}
+      {/* Top Banner with Trade Scoping */}
       <div className="bg-gradient-to-r from-govt-navy via-slate-900 to-amber-950 text-white rounded-xl p-6 shadow-govt-card relative overflow-hidden">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative z-10">
           <div className="flex items-center gap-3">
@@ -72,19 +97,39 @@ export const SkillScorecardPage = () => {
             <div>
               <div className="flex items-center gap-2 mb-0.5">
                 <span className="bg-govt-orange text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded">
-                  DIGITAL SCORECARD
+                  TRADE SCOPED SCORECARD
                 </span>
                 <span className="text-xs text-amber-200">DigiLocker Verified</span>
               </div>
-              <h1 className="text-xl font-bold">Candidate Skill Competency Radar</h1>
-              <p className="text-xs text-slate-300">Comparative pre- vs post-training evaluation across NCVT trades.</p>
+              <h1 className="text-xl font-bold">Skill Competency Radar: {activeTrade}</h1>
+              <p className="text-xs text-slate-300">Comparative pre- vs post-training evaluation across NCVT standards.</p>
             </div>
           </div>
 
-          <button className="btn-govt-orange text-xs py-2 px-4 flex items-center gap-1 shadow">
-            <Download className="w-3.5 h-3.5" />
-            <span>Download Official PDF</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <button className="btn-govt-orange text-xs py-2 px-4 flex items-center gap-1 shadow">
+              <Download className="w-3.5 h-3.5" />
+              <span>Download Official PDF</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Trade Selector Tabs in Header */}
+        <div className="mt-5 pt-4 border-t border-white/10 flex flex-wrap items-center gap-2">
+          <span className="text-xs font-medium text-slate-300 mr-1">Switch Trade Scope:</span>
+          {AVAILABLE_TRADES.map((t) => (
+            <button
+              key={t}
+              onClick={() => handleTradeChange(t)}
+              className={`text-xs px-3 py-1.5 rounded-lg font-bold transition-all ${
+                activeTrade === t
+                  ? 'bg-govt-orange text-white shadow-sm'
+                  : 'bg-white/10 hover:bg-white/20 text-slate-200'
+              }`}
+            >
+              {t}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -248,14 +293,16 @@ export const SkillScorecardPage = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Award className="w-5 h-5" />
-                <span className="text-xs font-bold uppercase tracking-wider">Level 4 Mastery Certification</span>
+                <span className="text-xs font-bold uppercase tracking-wider">
+                  {avgPostScore >= 60 ? 'NCVT Level 4 Certified' : 'Evaluation in Progress'}
+                </span>
               </div>
               <span className="bg-white text-amber-900 text-[10px] font-bold px-2 py-0.5 rounded uppercase">
-                RECOMMENDED
+                {activeTrade}
               </span>
             </div>
             <p className="text-xs text-amber-100 leading-relaxed">
-              Based on the post-training competency evaluation (avg score &gt; 85%), candidate is certified eligible for NCVT Level 4 Advanced Technician Credentials.
+              Based on the post-training competency evaluation for <strong>{activeTrade}</strong> (average post-assessment score: <strong>{avgPostScore}%</strong>), candidate {avgPostScore >= 60 ? 'has satisfied the ≥60% benchmark and is issued an official NCVT Verified Digital Credential' : 'requires an average score ≥60% across competencies to qualify for official certification'}.
             </p>
           </div>
         </div>

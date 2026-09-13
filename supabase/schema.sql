@@ -156,22 +156,54 @@ CREATE TABLE IF NOT EXISTS public.job_postings (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- 11. Employment Status Table
-CREATE TABLE IF NOT EXISTS public.employment_status (
+-- 11. Unified Employment Records Table (Shared Model Across All Portals)
+CREATE TABLE IF NOT EXISTS public.employment_records (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     candidate_id UUID NOT NULL REFERENCES public.candidates(id) ON DELETE CASCADE,
-    status TEXT NOT NULL CHECK (status IN ('Applied', 'Interviewing', 'Placed', 'Unemployed')),
-    verified_by_employer BOOLEAN DEFAULT FALSE,
-    confirmed_employer_id UUID REFERENCES public.employers(id) ON DELETE SET NULL,
+    training_center_id UUID REFERENCES public.training_centers(id) ON DELETE SET NULL,
+    employer_id UUID REFERENCES public.employers(id) ON DELETE SET NULL,
+    self_reported_status TEXT NOT NULL DEFAULT 'Applied' CHECK (self_reported_status IN ('Applied', 'Interviewing', 'Placed', 'Unemployed')),
+    self_reported_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    employer_confirmed BOOLEAN NOT NULL DEFAULT FALSE,
+    employer_confirmed_at TIMESTAMP WITH TIME ZONE,
     role_match BOOLEAN DEFAULT TRUE,
+    placement_date DATE,
     salary_band TEXT DEFAULT '₹ 20,000 - ₹ 25,000',
-    check_in_date TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
-    check_in_interval INT DEFAULT 30 CHECK (check_in_interval IN (30, 90, 180, 365)),
-    notes TEXT,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+    trade TEXT,
+    district TEXT,
+    scheme TEXT DEFAULT 'PMKVY 4.0',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    UNIQUE(candidate_id)
 );
 
--- Enable RLS & Indexes
+-- 12. Longitudinal Check-Ins Table (30, 90, 180, 365 Days)
+CREATE TABLE IF NOT EXISTS public.checkins (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    record_id UUID NOT NULL REFERENCES public.employment_records(id) ON DELETE CASCADE,
+    interval_day INT NOT NULL CHECK (interval_day IN (30, 90, 180, 365)),
+    due_date DATE NOT NULL,
+    continued_employment_status TEXT DEFAULT 'Still Employed',
+    role_match_confirmation BOOLEAN DEFAULT TRUE,
+    salary_band_change TEXT DEFAULT 'Same',
+    submitted_at TIMESTAMP WITH TIME ZONE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    UNIQUE(record_id, interval_day)
+);
+
+-- Indexes for Fast Multi-Portal Queries
+CREATE INDEX IF NOT EXISTS idx_emp_records_cand ON public.employment_records(candidate_id);
+CREATE INDEX IF NOT EXISTS idx_emp_records_tc ON public.employment_records(training_center_id);
+CREATE INDEX IF NOT EXISTS idx_emp_records_emp ON public.employment_records(employer_id);
+CREATE INDEX IF NOT EXISTS idx_emp_records_status ON public.employment_records(self_reported_status, employer_confirmed);
+CREATE INDEX IF NOT EXISTS idx_checkins_record ON public.checkins(record_id);
+CREATE INDEX IF NOT EXISTS idx_checkins_due ON public.checkins(due_date, submitted_at);
+
+-- Enable Realtime Replication
+ALTER PUBLICATION supabase_realtime ADD TABLE public.employment_records;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.checkins;
+
+-- Enable RLS & Policies
 ALTER TABLE public.job_postings ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Public read job_postings" ON public.job_postings FOR SELECT USING (true);
 CREATE INDEX IF NOT EXISTS idx_jobs_trade_district ON public.job_postings(trade, district);
