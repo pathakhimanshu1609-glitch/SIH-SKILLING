@@ -180,3 +180,29 @@ job_id,title,company,district,trade,required_skills,salary_min,salary_max,source
 1179,Solar Panel Array Electrician,Schneider Electric,Ahmedabad,Solar PV Installer & Technician,Solar Panel Array Wiring|Grid Inverter Installation,24000,30000,Apprenticeship India Portal
 1180,BMS Diagnostic Calibration Tech,TVS Motor Company,Ahmedabad,EV Battery Maintenance Specialist,EV Lithium Pack Diagnostics|BMS Sensor Calibration,29000,36000,Direct Corporate Portal
 1181,Advanced CNC Automation Technician,Tata Motors Tech,Pune,Advanced CNC Machinist,G-Code CNC Programming|Lathe Machine Calibration,26000,34000,National Career Service (NCS)
+
+1182,Robotic Welding Cell Programmer,ABB India,Pune,Industrial Automation & Robotics Technician,Industrial Robotics Programming|PLC & Sensor Interfacing,26000,34000,National Career Service (NCS)
+1183,PLC Automation Maintenance Tech,Siemens India,Pune,Industrial Automation & Robotics Technician,Industrial Robotics Programming|PLC & Sensor Interfacing,25000,32000,NSDC Industry Connect
+1184,Industrial Robot Calibration Engineer,Fanuc India,Pune,Industrial Automation & Robotics Technician,Industrial Robotics Programming|PLC & Sensor Interfacing,28000,36000,Apprenticeship India Portal
+1185,Automated Assembly Line Specialist,Tata Motors,Pune,Industrial Automation & Robotics Technician,Industrial Robotics Programming|PLC & Sensor Interfacing,27000,35000,National Career Service (NCS)
+1186,Mechatronics Systems Technician,Bosch India,Pune,Industrial Automation & Robotics Technician,Industrial Robotics Programming|PLC & Sensor Interfacing,24000,31000,Direct Corporate Portal
+1187,Robotic Welding Cell Programmer,L&T Automation,Ahmedabad,Industrial Automation & Robotics Technician,Industrial Robotics Programming|PLC & Sensor Interfacing,25000,33000,Apprenticeship India Portal
+1188,PLC Automation Maintenance Tech,Schneider Electric,Ahmedabad,Industrial Automation & Robotics Technician,Industrial Robotics Programming|PLC & Sensor Interfacing,26000,34000,NSDC Industry Connect
+1189,Industrial Robot Calibration Engineer,ABB India,Ahmedabad,Industrial Automation & Robotics Technician,Industrial Robotics Programming|PLC & Sensor Interfacing,27000,35000,National Career Service (NCS)
+1190,Automated Assembly Line Specialist,Maruti Suzuki,Ahmedabad,Industrial Automation & Robotics Technician,Industrial Robotics Programming|PLC & Sensor Interfacing,26000,33000,Direct Corporate Portal
+1191,Mechatronics Systems Technician,Siemens India,Ahmedabad,Industrial Automation & Robotics Technician,Industrial Robotics Programming|PLC & Sensor Interfacing,25000,32000,Apprenticeship India Portal
+1192,Robotic Welding Cell Programmer,Tata Motors,Nashik,Industrial Automation & Robotics Technician,Industrial Robotics Programming|PLC & Sensor Interfacing,24000,31000,NSDC Industry Connect
+1193,PLC Automation Maintenance Tech,Bosch India,Nashik,Industrial Automation & Robotics Technician,Industrial Robotics Programming|PLC & Sensor Interfacing,25000,32000,National Career Service (NCS)
+1194,Industrial Robot Calibration Engineer,Fanuc India,Nashik,Industrial Automation & Robotics Technician,Industrial Robotics Programming|PLC & Sensor Interfacing,26000,33000,Apprenticeship India Portal
+1195,Automated Assembly Line Specialist,Mahindra & Mahindra,Nashik,Industrial Automation & Robotics Technician,Industrial Robotics Programming|PLC & Sensor Interfacing,25000,32000,Direct Corporate Portal
+1196,Mechatronics Systems Technician,ABB India,Nashik,Industrial Automation & Robotics Technician,Industrial Robotics Programming|PLC & Sensor Interfacing,24000,30000,National Career Service (NCS)
+1197,Robotic Welding Cell Programmer,Godrej & Boyce,Thane,Industrial Automation & Robotics Technician,Industrial Robotics Programming|PLC & Sensor Interfacing,26000,34000,Apprenticeship India Portal
+1198,PLC Automation Maintenance Tech,Siemens India,Thane,Industrial Automation & Robotics Technician,Industrial Robotics Programming|PLC & Sensor Interfacing,27000,35000,NSDC Industry Connect
+1199,Industrial Robot Calibration Engineer,Schneider Electric,Thane,Industrial Automation & Robotics Technician,Industrial Robotics Programming|PLC & Sensor Interfacing,28000,36000,National Career Service (NCS)
+1200,Automated Assembly Line Specialist,L&T Heavy Engineering,Thane,Industrial Automation & Robotics Technician,Industrial Robotics Programming|PLC & Sensor Interfacing,26000,33000,Direct Corporate Portal
+1201,Mechatronics Systems Technician,Fanuc India,Thane,Industrial Automation & Robotics Technician,Industrial Robotics Programming|PLC & Sensor Interfacing,25000,32000,Apprenticeship India Portal
+1202,Robotic Welding Cell Programmer,ABB India,Bengaluru,Industrial Automation & Robotics Technician,Industrial Robotics Programming|PLC & Sensor Interfacing,28000,36000,National Career Service (NCS)
+1203,PLC Automation Maintenance Tech,Fanuc India,Bengaluru,Industrial Automation & Robotics Technician,Industrial Robotics Programming|PLC & Sensor Interfacing,29000,37000,NSDC Industry Connect
+1204,Industrial Robot Calibration Engineer,KUKA Robotics India,Bengaluru,Industrial Automation & Robotics Technician,Industrial Robotics Programming|PLC & Sensor Interfacing,30000,38000,Apprenticeship India Portal
+1205,Automated Assembly Line Specialist,Bosch India,Bengaluru,Industrial Automation & Robotics Technician,Industrial Robotics Programming|PLC & Sensor Interfacing,27000,35000,Direct Corporate Portal
+1206,Mechatronics Systems Technician,Siemens India,Bengaluru,Industrial Automation & Robotics Technician,Industrial Robotics Programming|PLC & Sensor Interfacing,28000,36000,National Career Service (NCS)

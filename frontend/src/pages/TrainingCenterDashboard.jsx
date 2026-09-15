@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { fetchWithAuth } from '../lib/api';
 import { subscribeEmploymentSync } from '../lib/realtimeSync';
+import { supabase } from '../lib/supabaseClient';
 import { 
   Building2, 
   Users, 
@@ -9,7 +10,6 @@ import {
   BookOpen, 
   CheckCircle2, 
   PlusCircle, 
-  Sparkles, 
   Search, 
   Calendar,
   Layers,
@@ -17,7 +17,11 @@ import {
   Radio,
   Clock,
   Check,
-  Lock
+  Lock,
+  X,
+  AlertCircle,
+  UserPlus,
+  RefreshCw
 } from 'lucide-react';
 
 export const TrainingCenterDashboard = ({ activeTab }) => {
@@ -71,27 +75,135 @@ export const TrainingCenterDashboard = ({ activeTab }) => {
     }
   };
 
+  const [showAddStudentModal, setShowAddStudentModal] = useState(false);
+  const [selectedBatchForStudent, setSelectedBatchForStudent] = useState('B-2026-01');
+  const [studentForm, setStudentForm] = useState({
+    full_name: '',
+    email: '',
+    trade: 'Advanced CNC Machinist',
+    district: 'Pune',
+    state: 'Maharashtra',
+    qualification: 'ITI Machinist Certificate'
+  });
+  const [addingStudent, setAddingStudent] = useState(false);
+  const [studentSuccessToast, setStudentSuccessToast] = useState('');
+  const [studentErrorToast, setStudentErrorToast] = useState('');
+
+  const handleAddStudentSubmit = async (e) => {
+    e.preventDefault();
+    setAddingStudent(true);
+    setStudentErrorToast('');
+    setStudentSuccessToast('');
+
+    try {
+      if (!studentForm.full_name || !studentForm.email) {
+        throw new Error('Please provide both student full name and email.');
+      }
+
+      console.log('Enrolling candidate into Supabase candidates table:', studentForm);
+
+      // 1. Direct insert into live Supabase candidates table
+      const { data: newCandidate, error: candError } = await supabase
+        .from('candidates')
+        .insert([{
+          full_name: studentForm.full_name,
+          email: studentForm.email,
+          preferred_trade: studentForm.trade,
+          district: studentForm.district,
+          state: studentForm.state,
+          qualification: studentForm.qualification,
+          status: 'Enrolled'
+        }])
+        .select()
+        .single();
+
+      if (candError) {
+        console.error('❌ Supabase insert into candidates failed:', candError);
+        throw new Error(`Database insert error: ${candError.message}`);
+      }
+
+      console.log('✅ Student successfully inserted into candidates table:', newCandidate);
+
+      // 2. Link candidate to batch in batch_candidates if batch exists in Supabase
+      try {
+        const { data: batchRow } = await supabase
+          .from('batches')
+          .select('id')
+          .eq('batch_code', selectedBatchForStudent)
+          .maybeSingle();
+
+        if (batchRow?.id) {
+          await supabase.from('batch_candidates').insert([{
+            batch_id: batchRow.id,
+            candidate_id: newCandidate.id,
+            attendance_percentage: 100.0,
+            completion_status: 'Enrolled'
+          }]);
+        }
+      } catch (linkErr) {
+        console.warn('Batch candidate linking note:', linkErr.message);
+      }
+
+      // Update local TC table roster with newly enrolled student
+      setTcRecords(prev => [
+        {
+          id: `rec-cand-${Date.now()}`,
+          candidate_id: newCandidate.id,
+          candidate_name: newCandidate.full_name,
+          trade: newCandidate.preferred_trade,
+          district: newCandidate.district,
+          self_reported_status: 'Enrolled in Training',
+          employer_confirmed: false,
+          claimed_employer: 'Pending Placement',
+          completed_checkins: 0,
+          total_checkins: 4
+        },
+        ...prev
+      ]);
+
+      setStudentSuccessToast(`Student ${newCandidate.full_name} successfully enrolled in ${selectedBatchForStudent}! Row created in Supabase candidates table.`);
+      setStudentForm({
+        full_name: '',
+        email: '',
+        trade: 'Advanced CNC Machinist',
+        district: 'Pune',
+        state: 'Maharashtra',
+        qualification: 'ITI Machinist Certificate'
+      });
+
+      setTimeout(() => {
+        setShowAddStudentModal(false);
+        setStudentSuccessToast('');
+      }, 2000);
+    } catch (err) {
+      console.error('Add Student to Batch Failure:', err);
+      setStudentErrorToast(err.message || 'Failed to add student to batch');
+    } finally {
+      setAddingStudent(false);
+    }
+  };
+
   return (
-    <div className="space-y-6 font-roboto">
+    <div className="space-y-10 sm:space-y-12 font-sans">
       {/* Top Banner */}
-      <div className="bg-gradient-to-r from-purple-950 via-govt-navy to-slate-900 text-white rounded-xl p-6 shadow-govt-card relative overflow-hidden">
+      <div className="bg-[#0B3D6B] border border-[#072847] text-white rounded-[6px] p-4 sm:p-5 relative">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 relative z-10">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="bg-purple-600 text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded">
+              <span className="bg-purple-800 text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded-[4px]">
                 Training Provider Portal
               </span>
-              <span className="text-xs text-purple-200">TC Code: TC-MH-PUNE-0042</span>
+              <span className="text-xs text-purple-200 font-mono">TC Code: TC-MH-PUNE-0042</span>
               {realtimePulse && (
-                <span className="bg-emerald-500 text-white text-[10px] font-bold px-2 py-0.5 rounded animate-pulse flex items-center gap-1">
+                <span className="bg-emerald-700 text-white text-[10px] font-bold px-2 py-0.5 rounded-[4px] animate-pulse flex items-center gap-1">
                   <Radio className="w-3 h-3" /> Live Synced
                 </span>
               )}
             </div>
-            <h1 className="text-2xl font-bold tracking-tight">
+            <h1 className="font-display text-xl font-bold tracking-tight">
               {user?.organization_name || 'Apex Industrial Training Institute'}
             </h1>
-            <p className="text-sm text-slate-300 mt-1 max-w-2xl">
+            <p className="text-xs text-slate-300 mt-0.5 max-w-2xl">
               Center Management Portal • Batch Enrollments, Candidate Longitudinal Tracking, and Employer-Verified Placement Outcomes.
             </p>
           </div>
@@ -99,9 +211,9 @@ export const TrainingCenterDashboard = ({ activeTab }) => {
           <button 
             onClick={() => { loadTcData(); loadTcEmploymentRecords(); }}
             disabled={loadingApi}
-            className="btn-govt-orange text-xs whitespace-nowrap shadow-md hover:shadow-lg"
+            className="btn-govt-orange text-xs whitespace-nowrap"
           >
-            <Sparkles className="w-3.5 h-3.5" />
+            <RefreshCw className={`w-3.5 h-3.5 ${loadingApi ? 'animate-spin' : ''}`} />
             {loadingApi ? 'Syncing Backend...' : 'Refresh Records'}
           </button>
         </div>
@@ -120,7 +232,7 @@ export const TrainingCenterDashboard = ({ activeTab }) => {
 
       {/* Metrics Overview Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-between">
           <div>
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Active Batches</p>
             <p className="text-2xl font-bold text-slate-800 mt-1">{apiData?.activeBatches || 8} Batches</p>
@@ -131,7 +243,7 @@ export const TrainingCenterDashboard = ({ activeTab }) => {
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-between">
           <div>
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Trained Trainees</p>
             <p className="text-2xl font-bold text-slate-800 mt-1">{tcRecords.length > 0 ? tcRecords.length : 240} Candidates</p>
@@ -142,7 +254,7 @@ export const TrainingCenterDashboard = ({ activeTab }) => {
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-between">
           <div>
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Placed Trainees</p>
             <p className="text-2xl font-bold text-slate-800 mt-1">
@@ -157,7 +269,7 @@ export const TrainingCenterDashboard = ({ activeTab }) => {
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-between">
           <div>
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Longitudinal Retention</p>
             <p className="text-2xl font-bold text-slate-800 mt-1">
@@ -172,12 +284,12 @@ export const TrainingCenterDashboard = ({ activeTab }) => {
       </div>
 
       {/* SECTION: CANDIDATE EMPLOYMENT TRACKING (UNIFIED LONGITUDINAL REGISTER) */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-4">
+      <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-6 sm:p-8 space-y-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
           <div>
             <div className="flex items-center gap-2">
               <Building2 className="w-5 h-5 text-purple-700" />
-              <h2 className="text-base font-bold text-slate-800">Candidate Employment & Longitudinal Tracking Register</h2>
+              <h2 className="font-display text-base font-bold text-slate-800">Candidate Employment & Longitudinal Tracking Register</h2>
             </div>
             <p className="text-xs text-slate-500 mt-0.5">
               Read-only view joined on <code>training_center_id: tc-01</code>. Displays candidates' self-reported status, employer-confirmed badge, and check-in completion counts.
@@ -279,19 +391,28 @@ export const TrainingCenterDashboard = ({ activeTab }) => {
       </div>
 
       {/* Active Batches Table */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+      <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-6 sm:p-8 space-y-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4 pb-3 border-b border-slate-100">
           <div>
-            <h2 className="text-base font-bold text-slate-800 flex items-center gap-2">
+            <h2 className="font-display text-base font-bold text-slate-800 flex items-center gap-2">
               <Building2 className="w-4 h-4 text-purple-700" />
               <span>Current Skill Training Batches</span>
             </h2>
             <p className="text-xs text-slate-500">Live roster of registered batches, candidate counts, and assessment dates</p>
           </div>
-          <button className="btn-govt-primary text-xs py-2 px-3">
-            <PlusCircle className="w-3.5 h-3.5" />
-            <span>Create New Batch</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={() => setShowAddStudentModal(true)}
+              className="bg-purple-700 hover:bg-purple-800 text-white text-xs py-2 px-3 rounded-md font-medium flex items-center gap-1.5 shadow-sm transition-all"
+            >
+              <UserPlus className="w-3.5 h-3.5" />
+              <span>Add Student to Batch</span>
+            </button>
+            <button className="btn-govt-primary text-xs py-2 px-3">
+              <PlusCircle className="w-3.5 h-3.5" />
+              <span>Create New Batch</span>
+            </button>
+          </div>
         </div>
 
         <div className="overflow-x-auto">
@@ -317,7 +438,16 @@ export const TrainingCenterDashboard = ({ activeTab }) => {
                     <td className="p-3">
                       <span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">In Training</span>
                     </td>
-                    <td className="p-3 text-right">
+                    <td className="p-3 text-right space-x-2">
+                      <button 
+                        onClick={() => {
+                          setSelectedBatchForStudent(b.batchId);
+                          setShowAddStudentModal(true);
+                        }}
+                        className="text-purple-700 hover:text-purple-900 font-bold hover:underline"
+                      >
+                        + Add Student
+                      </button>
                       <button className="text-blue-600 hover:underline font-bold">Manage Roster</button>
                     </td>
                   </tr>
@@ -330,7 +460,18 @@ export const TrainingCenterDashboard = ({ activeTab }) => {
                     <td className="p-3">30 Candidates</td>
                     <td className="p-3">2026-08-01</td>
                     <td className="p-3"><span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">In Training</span></td>
-                    <td className="p-3 text-right"><button className="text-blue-600 hover:underline font-bold">Manage Roster</button></td>
+                    <td className="p-3 text-right space-x-2">
+                      <button 
+                        onClick={() => {
+                          setSelectedBatchForStudent('B-2026-01');
+                          setShowAddStudentModal(true);
+                        }}
+                        className="text-purple-700 hover:text-purple-900 font-bold hover:underline"
+                      >
+                        + Add Student
+                      </button>
+                      <button className="text-blue-600 hover:underline font-bold">Manage Roster</button>
+                    </td>
                   </tr>
                   <tr className="hover:bg-slate-50/80">
                     <td className="p-3 font-mono font-bold text-govt-navy">B-2026-02</td>
@@ -338,7 +479,18 @@ export const TrainingCenterDashboard = ({ activeTab }) => {
                     <td className="p-3">28 Candidates</td>
                     <td className="p-3">2026-08-15</td>
                     <td className="p-3"><span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">In Training</span></td>
-                    <td className="p-3 text-right"><button className="text-blue-600 hover:underline font-bold">Manage Roster</button></td>
+                    <td className="p-3 text-right space-x-2">
+                      <button 
+                        onClick={() => {
+                          setSelectedBatchForStudent('B-2026-02');
+                          setShowAddStudentModal(true);
+                        }}
+                        className="text-purple-700 hover:text-purple-900 font-bold hover:underline"
+                      >
+                        + Add Student
+                      </button>
+                      <button className="text-blue-600 hover:underline font-bold">Manage Roster</button>
+                    </td>
                   </tr>
                 </>
               )}
@@ -346,6 +498,154 @@ export const TrainingCenterDashboard = ({ activeTab }) => {
           </table>
         </div>
       </div>
+
+      {/* Add Student to Batch Modal */}
+      {showAddStudentModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 sm:p-6 overflow-y-auto">
+          <div className="bg-white rounded-xl shadow-2xl border border-slate-200 max-w-4xl w-full overflow-hidden animate-in fade-in zoom-in-95 duration-150 my-auto relative">
+            <div className="bg-govt-navy text-white px-6 py-4 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <UserPlus className="w-5 h-5 text-govt-gold" />
+                <h3 className="font-display font-bold text-base">Add Student to Batch</h3>
+              </div>
+              <button 
+                onClick={() => setShowAddStudentModal(false)}
+                className="text-slate-300 hover:text-white p-1 rounded-md transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleAddStudentSubmit} className="p-6 space-y-4">
+              {/* Toasts inside modal */}
+              {studentSuccessToast && (
+                <div className="bg-emerald-50 border border-emerald-300 text-emerald-900 px-3.5 py-2.5 rounded-lg text-xs flex items-center gap-2 shadow-sm">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>{studentSuccessToast}</span>
+                </div>
+              )}
+              {studentErrorToast && (
+                <div className="bg-red-50 border border-red-300 text-red-900 px-3.5 py-2.5 rounded-lg text-xs flex items-center gap-2 shadow-sm">
+                  <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+                  <span>{studentErrorToast}</span>
+                </div>
+              )}
+
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-700">Target Training Batch</label>
+                <select
+                  value={selectedBatchForStudent}
+                  onChange={(e) => setSelectedBatchForStudent(e.target.value)}
+                  className="w-full text-xs rounded-md border-slate-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 font-medium"
+                >
+                  <option value="B-2026-01">B-2026-01 (Advanced CNC Machinist Program)</option>
+                  <option value="B-2026-02">B-2026-02 (Solar PV Installer & Technician)</option>
+                  <option value="B-2026-03">B-2026-03 (EV Battery Maintenance Specialist)</option>
+                </select>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-700">Student Full Name *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Rahul Sharma"
+                    value={studentForm.full_name}
+                    onChange={(e) => setStudentForm({ ...studentForm, full_name: e.target.value })}
+                    className="w-full text-xs rounded-md border-slate-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-700">Student Email *</label>
+                  <input
+                    type="email"
+                    required
+                    placeholder="rahul@example.com"
+                    value={studentForm.email}
+                    onChange={(e) => setStudentForm({ ...studentForm, email: e.target.value })}
+                    className="w-full text-xs rounded-md border-slate-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-700">Skill Trade Track</label>
+                <select
+                  value={studentForm.trade}
+                  onChange={(e) => setStudentForm({ ...studentForm, trade: e.target.value })}
+                  className="w-full text-xs rounded-md border-slate-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
+                >
+                  <option value="Advanced CNC Machinist">Advanced CNC Machinist</option>
+                  <option value="Solar PV Installer & Technician">Solar PV Installer & Technician</option>
+                  <option value="EV Battery Maintenance Specialist">EV Battery Maintenance Specialist</option>
+                  <option value="Industrial Automation & Robotics Technician">Industrial Automation & Robotics Technician</option>
+                </select>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-700">District</label>
+                  <input
+                    type="text"
+                    value={studentForm.district}
+                    onChange={(e) => setStudentForm({ ...studentForm, district: e.target.value })}
+                    className="w-full text-xs rounded-md border-slate-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-700">State</label>
+                  <input
+                    type="text"
+                    value={studentForm.state}
+                    onChange={(e) => setStudentForm({ ...studentForm, state: e.target.value })}
+                    className="w-full text-xs rounded-md border-slate-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-700">Qualification</label>
+                <input
+                  type="text"
+                  value={studentForm.qualification}
+                  onChange={(e) => setStudentForm({ ...studentForm, qualification: e.target.value })}
+                  className="w-full text-xs rounded-md border-slate-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setShowAddStudentModal(false)}
+                  className="btn-sid-secondary text-xs py-2 px-4"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={addingStudent}
+                  className="btn-sid-primary text-xs py-2 px-5 flex items-center gap-1.5"
+                >
+                  {addingStudent ? (
+                    <>
+                      <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <span>Enrolling in Supabase...</span>
+                    </>
+                  ) : (
+                    <>
+                      <UserPlus className="w-3.5 h-3.5" />
+                      <span>Insert Student & Enroll</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -11,7 +11,7 @@ import {
   AlertCircle, 
   ArrowRight, 
   Award, 
-  Sparkles,
+  Target,
   Layers
 } from 'lucide-react';
 
@@ -63,18 +63,24 @@ export const CandidateOnboarding = ({ onOnboardingComplete }) => {
     setSuccessMsg('');
 
     try {
-      // 1. Get current authenticated Supabase user
-      const { data: { user: authUser } } = await supabase.auth.getUser();
+      // 1. Check if authenticated Supabase user exists with valid UUID in profiles
+      let validUserId = null;
+      try {
+        const { data: { user: authUser } } = await supabase.auth.getUser();
+        if (authUser?.id && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(authUser.id)) {
+          const { data: prof } = await supabase.from('profiles').select('id').eq('id', authUser.id).maybeSingle();
+          if (prof) validUserId = authUser.id;
+        }
+      } catch (authErr) {
+        console.warn('Auth check notice:', authErr);
+      }
 
-      const targetUserId = authUser?.id || user?.id;
-
-      // 2. Insert/Upsert into candidates table in Supabase
+      // 2. Prepare payload for public.candidates insert
       const candidatePayload = {
-        user_id: targetUserId,
         full_name: formData.full_name,
         email: formData.email,
-        dob: formData.dob,
-        gender: formData.gender,
+        dob: formData.dob || '2004-05-15',
+        gender: formData.gender || 'General',
         qualification: formData.qualification,
         preferred_trade: formData.preferred_trade,
         aadhaar_last4: formData.aadhaar_last4,
@@ -83,41 +89,58 @@ export const CandidateOnboarding = ({ onOnboardingComplete }) => {
         status: 'Onboarded'
       };
 
+      if (validUserId) {
+        candidatePayload.user_id = validUserId;
+      }
+
+      console.log('Submitting candidate to Supabase candidates table:', candidatePayload);
+
+      // 3. Direct insert into live Supabase candidates table
       const { data: insertedCand, error: candError } = await supabase
         .from('candidates')
-        .upsert(candidatePayload, { onConflict: 'user_id' })
+        .insert([candidatePayload])
         .select()
         .single();
 
       if (candError) {
-        console.warn('Supabase DB Insert note:', candError.message);
+        console.error('❌ Supabase candidates insert failed:', candError);
+        throw new Error(`Database insert failed: ${candError.message}`);
       }
 
-      // Also call Express backend API
+      console.log('✅ Candidate successfully inserted into Supabase:', insertedCand);
+
+      // 4. Update top-level AuthContext profile
+      if (updateCandidateProfile) {
+        updateCandidateProfile(insertedCand);
+      }
+
+      // 5. Notify backend API
       try {
         await fetchWithAuth('/api/portal/candidates/onboard', {
           method: 'POST',
           body: JSON.stringify({
-            user_id: targetUserId,
-            ...formData
+            candidate_id: insertedCand.id,
+            user_id: validUserId,
+            ...candidatePayload
           })
         }, role);
       } catch (backendErr) {
-        console.warn('Backend onboard endpoint notice:', backendErr.message);
+        console.warn('Backend sync notice:', backendErr.message);
       }
 
-      setSuccessMsg(`Onboarding complete! Profile created for ${formData.full_name}.`);
+      setSuccessMsg(`Onboarding complete! Candidate profile recorded in live database (ID: ${insertedCand.id}).`);
 
       if (refreshUser) await refreshUser();
 
-      // Redirect to Candidate Dashboard after 1.2 seconds
+      // Redirect to Candidate Dashboard after 1.5 seconds
       setTimeout(() => {
         if (onOnboardingComplete) {
-          onOnboardingComplete();
+          onOnboardingComplete(insertedCand);
         }
-      }, 1200);
+      }, 1500);
 
     } catch (err) {
+      console.error('❌ Candidate Onboarding Submission Error:', err);
       setErrorMsg(err.message || 'Failed to submit candidate onboarding data');
     } finally {
       setSubmitting(false);
@@ -127,21 +150,21 @@ export const CandidateOnboarding = ({ onOnboardingComplete }) => {
   const selectedTradeObject = tradeSkills.find(t => t.trade_name === formData.preferred_trade);
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 font-roboto">
+    <div className="max-w-4xl mx-auto space-y-10 sm:space-y-12 font-sans">
       {/* Banner */}
-      <div className="bg-gradient-to-r from-govt-navy to-slate-900 text-white rounded-xl p-6 shadow-govt-card relative overflow-hidden">
+      <div className="bg-[#0B3D6B] border border-[#072847] text-white rounded-[6px] p-4 sm:p-5 relative">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-lg bg-govt-orange text-white flex items-center justify-center font-bold">
-            <UserCheck className="w-6 h-6" />
+          <div className="w-10 h-10 rounded-[4px] bg-govt-orange text-white flex items-center justify-center font-bold">
+            <UserCheck className="w-5 h-5" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="bg-govt-orange text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded">
+              <span className="bg-govt-orange text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded-[4px]">
                 REQUIRED ONBOARDING
               </span>
-              <span className="text-xs text-blue-200">Supabase Candidates Table Registration</span>
+              <span className="text-xs text-blue-200 font-medium">Official Candidate Profile</span>
             </div>
-            <h1 className="text-xl font-bold font-roboto">Candidate Skill Onboarding Portal</h1>
+            <h1 className="font-display text-xl font-bold tracking-tight mt-0.5">Candidate Skill Onboarding Portal</h1>
             <p className="text-xs text-slate-300">Complete your profile to unlock your personalized Candidate Dashboard.</p>
           </div>
         </div>
@@ -166,13 +189,13 @@ export const CandidateOnboarding = ({ onOnboardingComplete }) => {
       )}
 
       {/* Form Container */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 sm:p-8">
+      <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-6 sm:p-8">
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Section 1: Identity */}
           <div className="space-y-4">
             <div className="pb-2 border-b border-slate-100 flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-govt-navy" />
-              <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider">1. Trainee Identification</h2>
+              <h2 className="font-display text-sm font-bold text-slate-800 uppercase tracking-wider">1. Trainee Identification</h2>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -184,7 +207,7 @@ export const CandidateOnboarding = ({ onOnboardingComplete }) => {
                   required
                   value={formData.full_name}
                   onChange={handleChange}
-                  placeholder="e.g. Ananya Sharma"
+                  placeholder="e.g. Rahul Sharma"
                   className="w-full bg-slate-50 border border-slate-300 text-xs rounded-md p-2.5 text-slate-800 focus:ring-1 focus:ring-govt-navy"
                 />
               </div>
@@ -232,7 +255,7 @@ export const CandidateOnboarding = ({ onOnboardingComplete }) => {
           <div className="space-y-4">
             <div className="pb-2 border-b border-slate-100 flex items-center gap-2">
               <BookOpen className="w-4 h-4 text-govt-orange" />
-              <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider">2. Preferred Trade & Qualification</h2>
+              <h2 className="font-display text-sm font-bold text-slate-800 uppercase tracking-wider">2. Preferred Trade & Qualification</h2>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -275,8 +298,8 @@ export const CandidateOnboarding = ({ onOnboardingComplete }) => {
                 <p className="text-xs font-bold text-slate-800">{selectedTradeObject.trade_name}</p>
                 <div className="flex flex-wrap gap-2 pt-1">
                   {selectedTradeObject.skills?.map((s, idx) => (
-                    <span key={idx} className="text-xs bg-white text-slate-700 border border-slate-200 px-2.5 py-1 rounded font-medium flex items-center gap-1">
-                      <Sparkles className="w-3 h-3 text-govt-orange" />
+                    <span key={idx} className="text-xs bg-white text-slate-700 border border-slate-200 px-2.5 py-1 rounded-[4px] font-medium flex items-center gap-1">
+                      <Target className="w-3 h-3 text-govt-orange" />
                       {s.skill_name || s}
                     </span>
                   ))}
@@ -289,7 +312,7 @@ export const CandidateOnboarding = ({ onOnboardingComplete }) => {
           <div className="space-y-4">
             <div className="pb-2 border-b border-slate-100 flex items-center gap-2">
               <MapPin className="w-4 h-4 text-emerald-600" />
-              <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider">3. Location Details</h2>
+              <h2 className="font-display text-sm font-bold text-slate-800 uppercase tracking-wider">3. Location Details</h2>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -327,9 +350,9 @@ export const CandidateOnboarding = ({ onOnboardingComplete }) => {
             <button
               type="submit"
               disabled={submitting}
-              className="btn-govt-orange text-xs py-2.5 px-6 font-bold uppercase tracking-wider shadow-md hover:shadow-lg"
+              className="btn-sid-primary text-xs py-2.5 px-6 font-bold uppercase tracking-wider"
             >
-              {submitting ? 'Saving to Supabase...' : 'Save Profile & Open Candidate Dashboard'}
+              {submitting ? 'Saving Profile...' : 'Save Profile & Open Candidate Dashboard'}
             </button>
           </div>
         </form>

@@ -5,7 +5,6 @@ import {
   BookOpen, 
   CheckCircle2, 
   HelpCircle, 
-  Sparkles, 
   ArrowRight, 
   Award, 
   BarChart2, 
@@ -131,23 +130,23 @@ export const SkillAssessmentModule = ({ onNavigateScorecard, onNavigateTab }) =>
   const answeredCount = Object.keys(userAnswers).length;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-4xl mx-auto space-y-10 sm:space-y-12 font-sans">
       {/* Header Banner */}
-      <div className="bg-gradient-to-r from-govt-navy to-slate-900 text-white rounded-xl p-6 shadow-govt-card relative overflow-hidden">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative z-10">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-govt-orange text-white flex items-center justify-center font-bold shadow">
+      <div className="bg-[#0B3D6B] border border-[#072847] text-white rounded-xl p-6 sm:p-8 relative shadow-sm overflow-hidden">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 relative z-10">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-govt-orange text-white flex items-center justify-center font-bold shadow-xs">
               <BookOpen className="w-6 h-6" />
             </div>
             <div>
-              <div className="flex items-center gap-2 mb-0.5">
-                <span className="bg-govt-orange text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded">
+              <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                <span className="bg-govt-orange text-white text-[10px] uppercase font-bold px-2.5 py-0.5 rounded tracking-wider">
                   MCQ EXAM MODULE
                 </span>
-                <span className="text-xs text-blue-200">NCVT Skill Standard</span>
+                <span className="text-xs text-blue-200 font-medium">NCVT Skill Standard</span>
               </div>
-              <h1 className="text-xl font-bold font-roboto">Per-Skill Competency Assessment</h1>
-              <p className="text-xs text-slate-300">Evaluate technical proficiency pre- and post-training with explainable job matching.</p>
+              <h1 className="font-display text-2xl font-bold text-white tracking-tight">Per-Skill Competency Assessment</h1>
+              <p className="text-sm text-slate-300 mt-1">Evaluate technical proficiency pre- and post-training with explainable job matching.</p>
             </div>
           </div>
 
@@ -156,7 +155,7 @@ export const SkillAssessmentModule = ({ onNavigateScorecard, onNavigateTab }) =>
               onClick={() => { setPhase('pre'); setSubmitted(false); }}
               className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${
                 phase === 'pre' 
-                  ? 'bg-govt-orange text-white shadow' 
+                  ? 'bg-[#D96B27] text-white shadow' 
                   : 'bg-white/10 text-slate-200 hover:bg-white/20'
               }`}
             >
@@ -166,7 +165,7 @@ export const SkillAssessmentModule = ({ onNavigateScorecard, onNavigateTab }) =>
               onClick={() => { setPhase('post'); setSubmitted(false); }}
               className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${
                 phase === 'post' 
-                  ? 'bg-govt-orange text-white shadow' 
+                  ? 'bg-[#D96B27] text-white shadow' 
                   : 'bg-white/10 text-slate-200 hover:bg-white/20'
               }`}
             >
@@ -190,6 +189,7 @@ export const SkillAssessmentModule = ({ onNavigateScorecard, onNavigateTab }) =>
               <option value="Advanced CNC Machinist">Advanced CNC Machinist</option>
               <option value="Solar PV Installer & Technician">Solar PV Installer & Technician</option>
               <option value="EV Battery Maintenance Specialist">EV Battery Maintenance Specialist</option>
+              <option value="Industrial Automation & Robotics Technician">Industrial Automation & Robotics Technician</option>
             </select>
           </div>
 
@@ -225,7 +225,7 @@ export const SkillAssessmentModule = ({ onNavigateScorecard, onNavigateTab }) =>
               <div className="flex items-center gap-2.5 text-emerald-900">
                 <CheckCircle2 className="w-6 h-6 text-emerald-600 flex-shrink-0" />
                 <div>
-                  <h2 className="text-base font-bold">
+                  <h2 className="font-display text-base font-bold">
                     {phase === 'post' ? 'Post-Training Assessment Completed: Explainable Skill Match Ready!' : 'Pre-Training Assessment Scored'}
                   </h2>
                   <p className="text-xs text-emerald-700">
@@ -239,7 +239,7 @@ export const SkillAssessmentModule = ({ onNavigateScorecard, onNavigateTab }) =>
                 {phase === 'post' && onNavigateTab && (
                   <button 
                     onClick={() => onNavigateTab('skill-match')}
-                    className="btn-govt-orange text-xs py-1.5 px-3 flex items-center gap-1 shadow"
+                    className="btn-sid-primary text-xs py-2 px-3.5 flex items-center gap-1.5 shadow-sm"
                   >
                     <Target className="w-3.5 h-3.5" />
                     <span>View Gap Bar Chart</span>
@@ -247,7 +247,7 @@ export const SkillAssessmentModule = ({ onNavigateScorecard, onNavigateTab }) =>
                 )}
                 <button 
                   onClick={onNavigateScorecard}
-                  className="btn-govt-outline text-xs py-1.5 px-3 flex items-center gap-1 shadow bg-white"
+                  className="btn-sid-secondary text-xs py-2 px-3.5 flex items-center gap-1.5 shadow-xs bg-white"
                 >
                   <BarChart2 className="w-3.5 h-3.5" />
                   <span>Radar Scorecard</span>
@@ -289,11 +289,11 @@ export const SkillAssessmentModule = ({ onNavigateScorecard, onNavigateTab }) =>
 
           {/* Explainable Skill Recommendations (Exact Reason Text with Demand %) */}
           {explainableResults?.recommendations && explainableResults.recommendations.length > 0 && (
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-4">
+            <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-6 sm:p-8 space-y-5">
               <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                 <div>
                   <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-govt-orange" />
+                    <Target className="w-4 h-4 text-govt-orange" />
                     <span>Explainable Skill Recommendations</span>
                   </h3>
                   <p className="text-xs text-slate-500">Skills recommended based on employer demand frequency in {district}</p>
@@ -303,9 +303,9 @@ export const SkillAssessmentModule = ({ onNavigateScorecard, onNavigateTab }) =>
                 </span>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {explainableResults.recommendations.map((rec, idx) => (
-                  <div key={idx} className="p-3.5 rounded-lg border border-slate-200 bg-slate-50/80 space-y-2.5 flex flex-col justify-between">
+                  <div key={idx} className="p-5 rounded-xl border border-slate-200 bg-white hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 space-y-3 flex flex-col justify-between shadow-xs">
                     <div>
                       <div className="flex items-center justify-between">
                         <span className="text-[9px] font-mono font-bold text-white bg-govt-navy px-1.5 py-0.5 rounded">
@@ -429,7 +429,7 @@ export const SkillAssessmentModule = ({ onNavigateScorecard, onNavigateTab }) =>
 
                       <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1.5 border-t border-slate-200/60">
                         <span className="font-mono font-semibold text-slate-800">{job.salary_range}</span>
-                        <button className="btn-govt-primary text-[10px] py-1 px-2.5 flex items-center gap-1">
+                        <button className="btn-sid-primary text-[10px] py-1 px-3 flex items-center gap-1 shadow-2xs">
                           <span>Apply Now</span>
                           <ExternalLink className="w-3 h-3" />
                         </button>
@@ -445,7 +445,7 @@ export const SkillAssessmentModule = ({ onNavigateScorecard, onNavigateTab }) =>
           <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
             <button
               onClick={() => { setSubmitted(false); setUserAnswers({}); }}
-              className="text-xs text-slate-500 hover:text-slate-800 font-medium flex items-center gap-1"
+              className="text-xs text-slate-500 hover:text-slate-800 font-medium flex items-center gap-1 transition-colors"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span>Retake / Test Another Trade</span>
@@ -455,7 +455,7 @@ export const SkillAssessmentModule = ({ onNavigateScorecard, onNavigateTab }) =>
               {onNavigateTab && (
                 <button
                   onClick={() => onNavigateTab('skill-match')}
-                  className="btn-govt-primary text-xs py-2 px-4 font-bold flex items-center gap-1.5 shadow"
+                  className="btn-sid-primary text-xs py-2.5 px-4 font-bold flex items-center gap-1.5 shadow-sm"
                 >
                   <Target className="w-4 h-4" />
                   <span>Go to Skill Match & Gap Analysis</span>
@@ -469,12 +469,12 @@ export const SkillAssessmentModule = ({ onNavigateScorecard, onNavigateTab }) =>
       {/* Questions Container */}
       {!submitted && (
         <form onSubmit={handleSubmitQuiz} className="space-y-6">
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-6">
+          <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-6 sm:p-8 space-y-6">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-500 font-display">
                 {trade} • Question Set
               </span>
-              <span className="text-xs font-bold text-govt-navy font-mono bg-blue-50 px-2.5 py-1 rounded">
+              <span className="text-xs font-bold text-govt-navy font-mono bg-blue-50 px-2.5 py-1 rounded-md border border-blue-100">
                 Answered: {answeredCount} / {questions.length}
               </span>
             </div>
@@ -487,8 +487,8 @@ export const SkillAssessmentModule = ({ onNavigateScorecard, onNavigateTab }) =>
             ) : (
               <div className="space-y-6">
                 {questions.map((q, qIdx) => (
-                  <div key={q.id} className="p-4 rounded-lg bg-slate-50/70 border border-slate-200 space-y-3">
-                    <div className="flex items-start gap-2">
+                  <div key={q.id} className="p-5 rounded-xl bg-slate-50/70 border border-slate-200 space-y-3.5">
+                    <div className="flex items-start gap-2.5">
                       <span className="bg-govt-navy text-white text-[11px] font-bold px-2 py-0.5 rounded font-mono">
                         Q{qIdx + 1}
                       </span>
@@ -496,29 +496,36 @@ export const SkillAssessmentModule = ({ onNavigateScorecard, onNavigateTab }) =>
                         <span className="text-[10px] uppercase font-bold text-purple-700 bg-purple-100 px-2 py-0.5 rounded ml-1">
                           {q.skill_name}
                         </span>
-                        <h3 className="text-sm font-bold text-slate-800 mt-1">{q.question}</h3>
+                        <h3 className="text-sm font-bold font-display text-slate-900 mt-1">{q.question}</h3>
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                       {q.options.map((opt, optIdx) => {
                         const isSelected = userAnswers[q.id] === optIdx;
                         return (
                           <div
                             key={optIdx}
                             onClick={() => handleOptionSelect(q.id, optIdx)}
-                            className={`p-3 rounded-md border text-xs cursor-pointer flex items-center gap-3 transition-all ${
+                            className={`p-3.5 rounded-xl border text-xs cursor-pointer flex items-center justify-between transition-all ${
                               isSelected 
-                                ? 'border-govt-navy bg-blue-50/80 font-bold text-govt-navy ring-1 ring-govt-navy' 
-                                : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-100'
+                                ? 'border-govt-orange/60 bg-white shadow-xs font-medium text-slate-900 ring-1 ring-govt-orange/40' 
+                                : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50/80'
                             }`}
                           >
-                            <div className={`w-4 h-4 rounded-full flex items-center justify-center border text-[10px] font-bold ${
-                              isSelected ? 'bg-govt-navy text-white border-govt-navy' : 'border-slate-300 bg-slate-100 text-slate-600'
-                            }`}>
-                              {String.fromCharCode(65 + optIdx)}
+                            <div className="flex items-center gap-3">
+                              <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                                isSelected ? 'bg-govt-orange text-white' : 'border border-slate-300 bg-slate-100 text-slate-600'
+                              }`}>
+                                {String.fromCharCode(65 + optIdx)}
+                              </div>
+                              <span>{opt}</span>
                             </div>
-                            <span>{opt}</span>
+                            <div className={`w-4 h-4 rounded-full border flex items-center justify-center flex-shrink-0 transition-colors ${
+                              isSelected ? 'border-govt-orange bg-govt-orange' : 'border-slate-300 bg-white'
+                            }`}>
+                              {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                            </div>
                           </div>
                         );
                       })}
@@ -532,7 +539,7 @@ export const SkillAssessmentModule = ({ onNavigateScorecard, onNavigateTab }) =>
               <button
                 type="button"
                 onClick={() => setUserAnswers({})}
-                className="text-xs text-slate-500 hover:text-slate-800 font-medium flex items-center gap-1"
+                className="text-xs text-slate-500 hover:text-slate-800 font-medium flex items-center gap-1 transition-colors"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
                 <span>Clear Selection</span>
@@ -541,7 +548,7 @@ export const SkillAssessmentModule = ({ onNavigateScorecard, onNavigateTab }) =>
               <button
                 type="submit"
                 disabled={submitting || answeredCount === 0}
-                className="btn-govt-orange text-xs py-2.5 px-6 font-bold uppercase tracking-wider shadow-md hover:shadow-lg disabled:opacity-50"
+                className="btn-sid-primary text-xs py-3 px-6 font-bold uppercase tracking-wider shadow-sm disabled:opacity-50"
               >
                 {submitting ? 'Submitting Score...' : `Submit ${phase.toUpperCase()}-Assessment`}
               </button>

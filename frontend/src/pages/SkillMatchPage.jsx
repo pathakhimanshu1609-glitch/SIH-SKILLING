@@ -8,32 +8,43 @@ import {
   AlertTriangle, 
   CheckCircle2, 
   MapPin, 
-  Sparkles, 
+  Target, 
   Filter, 
   ArrowUpRight, 
   ArrowDownRight,
   ExternalLink,
   Award,
-  Check
+  Check,
+  ArrowRight
 } from 'lucide-react';
 
-export const SkillMatchPage = () => {
-  const { user, role } = useAuth();
+export const SkillMatchPage = ({ onNavigateTab }) => {
+  const { user, role, candidateProfile } = useAuth();
 
   const [trade, setTrade] = useState('Advanced CNC Machinist');
   const [district, setDistrict] = useState('Pune');
   const [gapData, setGapData] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  // Resolved dynamic candidate ID from session
+  const candidateId = candidateProfile?.id || user?.candidateRecord?.id || user?.id || 'cand-01';
 
   useEffect(() => {
     loadGapAnalysis();
-  }, [trade, district]);
+  }, [trade, district, candidateId]);
+
+  useEffect(() => {
+    setIsMounted(false);
+    const timer = setTimeout(() => setIsMounted(true), 120);
+    return () => clearTimeout(timer);
+  }, [trade, district, gapData]);
 
   const loadGapAnalysis = async () => {
     setLoading(true);
     try {
       const data = await fetchWithAuth(
-        `/api/portal/skill-match/gap-analysis?candidate_id=cand-01&trade=${encodeURIComponent(trade)}&district=${encodeURIComponent(district)}`,
+        `/api/portal/skill-match/gap-analysis?candidate_id=${encodeURIComponent(candidateId)}&trade=${encodeURIComponent(trade)}&district=${encodeURIComponent(district)}`,
         {},
         role
       );
@@ -50,48 +61,55 @@ export const SkillMatchPage = () => {
   const totalAnalyzed = gapData?.totalJobsAnalyzed || 0;
   const totalDataset = gapData?.totalDatasetRows || 180;
 
+  // Candidate has completed at least one post-assessment for the currently selected trade
+  const hasCompletedPostAssessment = Boolean(
+    gapData?.has_post_assessment && 
+    skillGapVector.some(sk => sk.hasPostScore)
+  );
+
   return (
-    <div className="max-w-5xl mx-auto space-y-6 font-roboto">
+    <div className="max-w-5xl mx-auto space-y-10 sm:space-y-12 font-sans">
       {/* Top Banner */}
-      <div className="bg-gradient-to-r from-govt-navy via-slate-900 to-emerald-950 text-white rounded-xl p-6 shadow-govt-card relative overflow-hidden">
+      <div className="bg-[#0B3D6B] border border-[#072847] text-white rounded-[6px] p-4 sm:p-5 relative">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 relative z-10">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-govt-orange text-white flex items-center justify-center font-bold shadow">
-              <TrendingUp className="w-6 h-6" />
+            <div className="w-10 h-10 rounded-[4px] bg-govt-orange text-white flex items-center justify-center font-bold">
+              <TrendingUp className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2 mb-0.5">
-                <span className="bg-govt-orange text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded">
+                <span className="bg-govt-orange text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded-[4px]">
                   SKILL GAP & MATCH ENGINE
                 </span>
-                <span className="text-xs text-emerald-200">Seeded Dataset: {totalDataset} Active Jobs</span>
+                <span className="text-xs text-amber-200 font-mono">Real-time Verified Calculation</span>
               </div>
               <h1 className="text-xl font-bold">Candidate Skill vs. Market Demand Analysis</h1>
-              <p className="text-xs text-slate-300">Comparing candidate post-assessment skill scores against industry vacancy frequencies.</p>
+              <p className="text-xs text-slate-300">Comparing candidate post-assessment skill scores against genuine employer vacancy frequencies.</p>
             </div>
           </div>
 
-          <div className="bg-white/10 px-3.5 py-2 rounded-lg border border-white/20 text-xs">
-            <p className="text-[10px] uppercase font-bold text-emerald-300">Analyzed Vacancies</p>
-            <p className="text-lg font-bold text-white font-mono">{totalAnalyzed} Local Jobs</p>
+          <div className="bg-white/10 px-3.5 py-2 rounded-[4px] border border-white/20 text-xs">
+            <p className="text-[10px] uppercase font-bold text-emerald-300">Analyzed Postings ({district})</p>
+            <p className="text-lg font-bold text-white font-mono">{totalAnalyzed} Live Jobs</p>
           </div>
         </div>
       </div>
 
       {/* Filter Control Bar */}
-      <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
-        <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+      <div className="bg-white p-6 sm:p-7 rounded-xl border border-slate-200 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
+        <div className="flex flex-wrap items-center gap-4 w-full sm:w-auto">
           <div className="flex items-center gap-2">
             <Filter className="w-4 h-4 text-govt-navy" />
-            <span className="font-bold text-slate-700">Filter Trade:</span>
+            <span className="font-bold text-slate-700">Target Trade:</span>
             <select
               value={trade}
               onChange={(e) => setTrade(e.target.value)}
-              className="bg-slate-50 border border-slate-300 font-bold text-govt-navy rounded-md p-1.5 focus:ring-1 focus:ring-govt-navy"
+              className="bg-slate-50 border border-slate-300 font-bold text-govt-navy rounded-[6px] p-1.5 focus:ring-1 focus:ring-govt-navy cursor-pointer"
             >
               <option value="Advanced CNC Machinist">Advanced CNC Machinist</option>
               <option value="Solar PV Installer & Technician">Solar PV Installer & Technician</option>
               <option value="EV Battery Maintenance Specialist">EV Battery Maintenance Specialist</option>
+              <option value="Industrial Automation & Robotics Technician">Industrial Automation & Robotics Technician</option>
             </select>
           </div>
 
@@ -101,7 +119,7 @@ export const SkillMatchPage = () => {
             <select
               value={district}
               onChange={(e) => setDistrict(e.target.value)}
-              className="bg-slate-50 border border-slate-300 font-bold text-slate-800 rounded-md p-1.5"
+              className="bg-slate-50 border border-slate-300 font-bold text-slate-800 rounded-[6px] p-1.5 cursor-pointer"
             >
               <option value="Pune">Pune</option>
               <option value="Nashik">Nashik</option>
@@ -112,97 +130,156 @@ export const SkillMatchPage = () => {
           </div>
         </div>
 
-        <button onClick={loadGapAnalysis} className="btn-govt-outline text-xs py-1.5 px-3">
+        <button onClick={loadGapAnalysis} className="btn-govt-outline text-xs py-2 px-4 rounded-[8px]">
           Refresh Analysis
         </button>
       </div>
 
-      {/* Dual Bar Chart Section */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-6">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pb-4 border-b border-slate-100">
+      {/* Dual Bar Chart Section OR Empty State */}
+      <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-6 sm:p-8 space-y-5">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pb-4 border-b border-slate-200">
           <div>
             <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
               <BarChart2 className="w-4 h-4 text-govt-navy" />
               <span>Skill Match & Demand Gap Bar Chart</span>
             </h2>
-            <p className="text-xs text-slate-500">Dual-bar comparison: Candidate Skill Competency Score vs. Industry Demand Frequency %</p>
+            <p className="text-xs text-slate-500">Dual-bar comparison: Candidate Post-Assessment Competency (%) vs. Industry Demand Frequency (%)</p>
           </div>
 
           {/* Bar Chart Legend */}
-          <div className="flex items-center gap-4 text-xs font-bold">
-            <div className="flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded bg-govt-navy inline-block"></span>
-              <span className="text-slate-700">Candidate Skill Score (%)</span>
+          {hasCompletedPostAssessment && (
+            <div className="flex items-center gap-4 text-xs font-bold">
+              <div className="flex items-center gap-1.5">
+                <span className="w-3 h-3 rounded-[2px] bg-[#0B3D6B] inline-block" />
+                <span className="text-slate-700">Candidate Post Score (%)</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="w-3 h-3 rounded-[2px] bg-[#FF6B00] inline-block" />
+                <span className="text-slate-900">Industry Demand (%)</span>
+              </div>
             </div>
-            <div className="flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded bg-govt-orange inline-block"></span>
-              <span className="text-slate-900">Market Demand Frequency (%)</span>
-            </div>
-          </div>
+          )}
         </div>
 
         {loading ? (
           <div className="py-12 text-center text-slate-400 text-xs space-y-2">
-            <div className="w-8 h-8 rounded-full border-2 border-govt-orange border-t-transparent animate-spin mx-auto"></div>
+            <div className="w-8 h-8 rounded-full border-2 border-govt-orange border-t-transparent animate-spin mx-auto" />
             <p>Evaluating candidate skill vectors against {totalDataset} job postings...</p>
           </div>
+        ) : !hasCompletedPostAssessment ? (
+          /* EMPTY STATE: CANDIDATE HAS ZERO POST-ASSESSMENTS FOR SELECTED TRADE */
+          <div className="py-8 px-4 text-center max-w-xl mx-auto space-y-4">
+            <div className="w-14 h-14 rounded-[4px] bg-slate-100 border border-slate-300 text-[#0B3D6B] flex items-center justify-center mx-auto">
+              <Target className="w-7 h-7 text-[#0B3D6B]" />
+            </div>
+
+            <div className="space-y-1.5">
+              <span className="text-[10px] font-bold uppercase tracking-widest bg-slate-100 text-slate-600 px-2.5 py-0.5 rounded-[4px] border border-slate-200 font-mono">
+                POST-ASSESSMENT REQUIRED
+              </span>
+              <h3 className="text-base sm:text-lg font-bold text-[#0B3D6B]">
+                Complete your post-training assessment to see your skill gap analysis
+              </h3>
+              <p className="text-xs text-slate-600 leading-relaxed max-w-md mx-auto">
+                No completed post-training evaluation was found for <strong>{trade}</strong>. Complete the standardized MCQ post-assessment to benchmark your competency against live employer vacancy requirements.
+              </p>
+            </div>
+
+            <div className="pt-2">
+              <button
+                onClick={() => onNavigateTab ? onNavigateTab('assessment') : window.location.assign('/dashboard')}
+                className="btn-govt-orange text-xs py-2 px-5 font-bold inline-flex items-center gap-2 rounded-[4px]"
+              >
+                <Target className="w-4 h-4" />
+                <span>Take Skill MCQ Assessment</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
         ) : (
-          <div className="space-y-6">
+          /* DUAL BAR CHART RENDER */
+          <div className="space-y-4">
             {skillGapVector.map((sk) => {
+              const hasPost = sk.hasPostScore && sk.candidateScore !== null;
               const candScore = sk.candidateScore;
               const demandFreq = sk.demandFrequency;
               const gap = sk.gapScore;
 
               return (
-                <div key={sk.skill_id} className="p-4 rounded-lg bg-slate-50/70 border border-slate-200 space-y-3">
+                <div 
+                  key={sk.skill_id} 
+                  className={`p-3.5 rounded-[4px] border transition-colors space-y-2.5 ${
+                    hasPost ? 'bg-slate-50 border-slate-300' : 'bg-slate-50/50 border-slate-200'
+                  }`}
+                >
                   <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
                     <div>
-                      <span className="text-[10px] font-mono font-bold text-purple-700 bg-purple-100 px-2 py-0.5 rounded">
+                      <span className="text-[10px] font-mono font-bold text-slate-700 bg-slate-200 px-2 py-0.5 rounded-[4px]">
                         {sk.category}
                       </span>
-                      <h3 className="text-sm font-bold text-slate-800 mt-1">{sk.skill_name}</h3>
+                      <h3 className={`text-sm font-bold mt-1 ${hasPost ? 'text-slate-800' : 'text-slate-500'}`}>
+                        {sk.skill_name}
+                      </h3>
                     </div>
 
                     {/* Gap Score Badge */}
                     <div className="flex items-center gap-2">
-                      <span className={`text-xs font-bold px-2.5 py-1 rounded flex items-center gap-1 ${
-                        gap >= 0 
-                          ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' 
-                          : 'bg-amber-100 text-amber-900 border border-amber-300'
-                      }`}>
-                        {gap >= 0 ? <ArrowUpRight className="w-3.5 h-3.5" /> : <ArrowDownRight className="w-3.5 h-3.5 text-amber-700" />}
-                        <span>Gap Score: {gap > 0 ? `+${gap}%` : `${gap}%`}</span>
-                      </span>
+                      {hasPost ? (
+                        <span className={`text-xs font-bold font-mono px-2.5 py-0.5 rounded-[4px] border flex items-center gap-1 ${
+                          gap >= 0 
+                            ? 'bg-emerald-50 text-emerald-800 border-emerald-300' 
+                            : 'bg-amber-50 text-amber-900 border-amber-300'
+                        }`}>
+                          {gap >= 0 ? <ArrowUpRight className="w-3.5 h-3.5" /> : <ArrowDownRight className="w-3.5 h-3.5 text-amber-700" />}
+                          <span>Gap Score: {gap > 0 ? `+${gap}%` : `${gap}%`}</span>
+                        </span>
+                      ) : (
+                        <span className="text-[11px] font-medium px-2 py-0.5 rounded-[4px] bg-slate-100 text-slate-500 border border-slate-200 font-mono">
+                          Not assessed yet
+                        </span>
+                      )}
                     </div>
                   </div>
 
                   {/* Dual Bar Visualizations */}
                   <div className="space-y-2 pt-1">
-                    {/* Bar 1: Candidate Score */}
+                    {/* Bar 1: Candidate Post-Assessment Competency */}
                     <div>
-                      <div className="flex justify-between text-[11px] font-bold text-slate-700 mb-1">
+                      <div className="flex justify-between text-[11px] font-semibold text-slate-700 mb-1">
                         <span>Candidate Post-Assessment Competency</span>
-                        <span className="text-govt-navy font-mono">{candScore}%</span>
+                        {hasPost ? (
+                          <span className="text-[#0B3D6B] font-mono font-bold">{candScore}%</span>
+                        ) : (
+                          <span className="text-slate-400 font-sans italic text-xs">Not assessed yet</span>
+                        )}
                       </div>
-                      <div className="w-full bg-slate-200 h-3 rounded-full overflow-hidden">
-                        <div 
-                          className="bg-govt-navy h-full rounded-full transition-all duration-500"
-                          style={{ width: `${candScore}%` }}
-                        ></div>
+                      <div className="w-full bg-slate-200 h-2.5 rounded-[2px] overflow-hidden">
+                        {hasPost ? (
+                          <div 
+                            className="bg-[#0B3D6B] h-full rounded-[2px] transition-all duration-700 ease-out"
+                            style={{ width: isMounted ? `${Math.min(100, Math.max(0, candScore))}%` : '0%' }}
+                          />
+                        ) : (
+                          <div className="bg-slate-300 h-full w-0" />
+                        )}
                       </div>
                     </div>
 
-                    {/* Bar 2: Market Demand Frequency */}
+                    {/* Bar 2: Industry Demand Frequency */}
                     <div>
-                      <div className="flex justify-between text-[11px] font-bold text-slate-700 mb-1">
+                      <div className="flex justify-between text-[11px] font-semibold text-slate-700 mb-1">
                         <span>Industry Demand Frequency ({district})</span>
-                        <span className="text-govt-orange font-mono">{demandFreq}%</span>
+                        <span className={`font-mono font-bold ${hasPost ? 'text-[#FF6B00]' : 'text-slate-500'}`}>
+                          {demandFreq}%
+                        </span>
                       </div>
-                      <div className="w-full bg-slate-200 h-3 rounded-full overflow-hidden">
+                      <div className="w-full bg-slate-200 h-2.5 rounded-[2px] overflow-hidden">
                         <div 
-                          className="bg-govt-orange h-full rounded-full transition-all duration-500"
-                          style={{ width: `${demandFreq}%` }}
-                        ></div>
+                          className={`h-full rounded-[2px] transition-all duration-700 ease-out ${
+                            hasPost ? 'bg-[#FF6B00]' : 'bg-slate-400'
+                          }`}
+                          style={{ width: isMounted ? `${Math.min(100, Math.max(0, demandFreq))}%` : '0%' }}
+                        />
                       </div>
                     </div>
                   </div>
@@ -215,11 +292,11 @@ export const SkillMatchPage = () => {
 
       {/* Top Recommended Skills Based on Local Market Demand */}
       {gapData?.recommendations && gapData.recommendations.length > 0 && (
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-4">
+        <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-6 sm:p-8 space-y-5">
           <div className="flex items-center justify-between pb-3 border-b border-slate-100">
             <div>
               <h2 className="text-base font-bold text-slate-800 flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-govt-orange" />
+                <Target className="w-4 h-4 text-govt-orange" />
                 <span>Top Recommended Upskilling Priorities</span>
               </h2>
               <p className="text-xs text-slate-500">
@@ -235,7 +312,7 @@ export const SkillMatchPage = () => {
             {gapData.recommendations.map((rec, idx) => (
               <div 
                 key={idx} 
-                className="p-4 rounded-xl border border-slate-200 bg-slate-50/70 hover:border-govt-orange/50 transition-all flex flex-col justify-between space-y-3 shadow-2xs"
+                className="p-5 rounded-xl border border-slate-200 bg-white hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex flex-col justify-between space-y-3 shadow-xs"
               >
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">

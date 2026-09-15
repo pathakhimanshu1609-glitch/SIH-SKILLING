@@ -9,7 +9,6 @@ import {
   IndianRupee, 
   Users, 
   CheckCircle2, 
-  Sparkles, 
   FileSpreadsheet, 
   Filter,
   Check,
@@ -28,7 +27,10 @@ import {
   Send,
   DollarSign,
   Radio,
-  Clock
+  Clock,
+  Briefcase,
+  Calendar,
+  Search
 } from 'lucide-react';
 
 export const GovernmentDashboard = ({ activeTab = 'dashboard', onNavigateTab }) => {
@@ -198,26 +200,26 @@ export const GovernmentDashboard = ({ activeTab = 'dashboard', onNavigateTab }) 
   };
 
   return (
-    <div className="space-y-6 font-roboto">
+    <div className="space-y-10 sm:space-y-12 font-sans">
       {/* Top Banner */}
-      <div className="bg-gradient-to-r from-govt-navy via-slate-900 to-amber-950 text-white rounded-xl p-6 shadow-govt-card relative overflow-hidden">
+      <div className="bg-[#0B3D6B] border border-[#072847] text-white rounded-[6px] p-4 sm:p-5 relative">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 relative z-10">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="bg-govt-orange text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded">
+              <span className="bg-govt-orange text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded-[4px]">
                 NATIONAL GOVT ADMIN PORTAL
               </span>
               <span className="text-xs text-amber-200">Ministry of Skill Development & Entrepreneurship</span>
               {realtimePulse && (
-                <span className="bg-emerald-500 text-white text-[10px] font-bold px-2 py-0.5 rounded animate-pulse flex items-center gap-1">
+                <span className="bg-emerald-700 text-white text-[10px] font-bold px-2 py-0.5 rounded-[4px] animate-pulse flex items-center gap-1">
                   <Radio className="w-3 h-3" /> Live Synced
                 </span>
               )}
             </div>
-            <h1 className="text-2xl font-bold tracking-tight">
+            <h1 className="font-display text-xl font-bold tracking-tight">
               Executive Skilling & Employment Dashboard
             </h1>
-            <p className="text-sm text-slate-300 mt-1 max-w-2xl">
+            <p className="text-xs text-slate-300 mt-0.5 max-w-2xl">
               National Skilling Mission Analytics • Real-time District Performance, Training Center Verification & Budget Allocation.
             </p>
           </div>
@@ -226,7 +228,7 @@ export const GovernmentDashboard = ({ activeTab = 'dashboard', onNavigateTab }) 
           <div className="flex flex-wrap gap-2">
             <button 
               onClick={handleExportCSV}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2 px-3 rounded shadow flex items-center gap-1.5 transition-all"
+              className="bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs py-2 px-3 rounded-[4px] flex items-center gap-1.5 transition-all"
             >
               <FileSpreadsheet className="w-4 h-4" />
               <span>Export Excel CSV</span>
@@ -234,7 +236,7 @@ export const GovernmentDashboard = ({ activeTab = 'dashboard', onNavigateTab }) 
 
             <button 
               onClick={handleExportPDF}
-              className="btn-govt-orange text-xs py-2 px-3 shadow flex items-center gap-1.5"
+              className="btn-govt-orange text-xs py-2 px-3 flex items-center gap-1.5"
             >
               <Download className="w-4 h-4" />
               <span>Export PDF Report</span>
@@ -359,7 +361,7 @@ export const GovernmentDashboard = ({ activeTab = 'dashboard', onNavigateTab }) 
             <div>
               <div className="flex items-center gap-2">
                 <Building2 className="w-5 h-5 text-govt-navy" />
-                <h2 className="text-base font-bold text-slate-800">Training Center Accreditation & Verification Queue</h2>
+                <h2 className="font-display text-base font-bold text-slate-800">Training Center Accreditation & Verification Queue</h2>
               </div>
               <p className="text-xs text-slate-500 mt-0.5">Review, audit infrastructure credentials, and approve accreditation applications.</p>
             </div>
@@ -550,7 +552,7 @@ export const GovernmentDashboard = ({ activeTab = 'dashboard', onNavigateTab }) 
             <div>
               <div className="flex items-center gap-2">
                 <ShieldCheck className="w-5 h-5 text-indigo-700" />
-                <h2 className="text-base font-bold text-slate-800">National Policy Standards & Governance Compliance</h2>
+                <h2 className="font-display text-base font-bold text-slate-800">National Policy Standards & Governance Compliance</h2>
               </div>
               <p className="text-xs text-slate-500 mt-0.5">NCVT Qualification Framework, Aadhaar Biometric Audit Logs, and Corporate Placement Certification Rules.</p>
             </div>
@@ -634,7 +636,7 @@ export const GovernmentDashboard = ({ activeTab = 'dashboard', onNavigateTab }) 
             return (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {/* KPI 1: Total Placements */}
-                <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+                <div className="bg-white p-6 sm:p-7 rounded-xl border border-slate-200 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-between">
                   <div>
                     <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Placements</p>
                     <p className="text-2xl font-bold text-slate-800 mt-1">{sum.total_placements} Candidates</p>
@@ -648,7 +650,7 @@ export const GovernmentDashboard = ({ activeTab = 'dashboard', onNavigateTab }) 
                 </div>
 
                 {/* KPI 2: Employer-Verified % */}
-                <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+                <div className="bg-white p-6 sm:p-7 rounded-xl border border-slate-200 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-between">
                   <div>
                     <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">% Employer-Verified</p>
                     <p className="text-2xl font-bold text-emerald-700 mt-1">{sum.verified_percentage}%</p>
@@ -662,7 +664,7 @@ export const GovernmentDashboard = ({ activeTab = 'dashboard', onNavigateTab }) 
                 </div>
 
                 {/* KPI 3: % of Due Check-Ins Completed */}
-                <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+                <div className="bg-white p-6 sm:p-7 rounded-xl border border-slate-200 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-between">
                   <div>
                     <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">% Due Check-Ins Done</p>
                     <p className="text-2xl font-bold text-purple-700 mt-1">{sum.checkin_completion_percentage}%</p>
@@ -676,7 +678,7 @@ export const GovernmentDashboard = ({ activeTab = 'dashboard', onNavigateTab }) 
                 </div>
 
                 {/* KPI 4: Longitudinal Horizon */}
-                <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+                <div className="bg-white p-6 sm:p-7 rounded-xl border border-slate-200 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-between">
                   <div>
                     <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Longitudinal Horizon</p>
                     <p className="text-xl font-bold text-slate-800 mt-1">30d / 90d / 180d / 365d</p>
@@ -693,10 +695,10 @@ export const GovernmentDashboard = ({ activeTab = 'dashboard', onNavigateTab }) 
           })()}
 
           {/* SKILL DEMAND-VS-SUPPLY DUAL BAR CHART */}
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-4">
+          <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-6 sm:p-8 space-y-4">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
               <div>
-                <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                <h2 className="font-display text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
                   <BarChart2 className="w-4 h-4 text-govt-navy" />
                   <span>Skill Demand vs. Supply Visual Analytics</span>
                 </h2>
@@ -955,60 +957,60 @@ export const GovernmentDashboard = ({ activeTab = 'dashboard', onNavigateTab }) 
 
       {/* MODAL 1: VIEW TC AUDIT DETAILS */}
       {selectedTcModal && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl max-w-lg w-full p-6 space-y-4 shadow-xl border border-slate-200">
-            <div className="flex justify-between items-start pb-3 border-b border-slate-100">
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+          <div className="bg-white rounded-xl max-w-4xl w-full p-6 sm:p-8 space-y-5 shadow-2xl border border-slate-200 my-auto relative animate-fade-in-up">
+            <div className="flex justify-between items-start pb-4 border-b border-slate-100">
               <div>
                 <span className="bg-purple-100 text-purple-800 text-[10px] font-bold px-2 py-0.5 rounded uppercase">
                   {selectedTcModal.id} • Audit Inspection
                 </span>
-                <h3 className="text-base font-bold text-slate-800 mt-1">{selectedTcModal.center_name}</h3>
+                <h3 className="font-display text-lg font-bold text-slate-800 mt-1">{selectedTcModal.center_name}</h3>
               </div>
-              <button onClick={() => setSelectedTcModal(null)} className="text-slate-400 hover:text-slate-700">
+              <button onClick={() => setSelectedTcModal(null)} className="text-slate-400 hover:text-slate-700 p-1">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="space-y-3 text-xs text-slate-700">
-              <div className="grid grid-cols-2 gap-2 bg-slate-50 p-3 rounded-lg border border-slate-200">
+            <div className="space-y-4 text-xs text-slate-700">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 bg-slate-50 p-4 rounded-lg border border-slate-200">
                 <div>
-                  <span className="text-slate-400 block">State & District</span>
+                  <span className="text-slate-400 block text-[11px]">State & District</span>
                   <span className="font-bold text-slate-800">{selectedTcModal.district}, {selectedTcModal.state}</span>
                 </div>
                 <div>
-                  <span className="text-slate-400 block">Accreditation Grade</span>
+                  <span className="text-slate-400 block text-[11px]">Accreditation Grade</span>
                   <span className="font-bold text-emerald-700">{selectedTcModal.grade}</span>
                 </div>
                 <div>
-                  <span className="text-slate-400 block">Lab Seat Capacity</span>
+                  <span className="text-slate-400 block text-[11px]">Lab Seat Capacity</span>
                   <span className="font-bold font-mono">{selectedTcModal.capacity} Trainees</span>
                 </div>
                 <div>
-                  <span className="text-slate-400 block">Specialization Trade</span>
+                  <span className="text-slate-400 block text-[11px]">Specialization Trade</span>
                   <span className="font-bold text-purple-700">{selectedTcModal.trade}</span>
                 </div>
               </div>
 
-              <div className="p-3 bg-blue-50/70 border border-blue-200 rounded-lg space-y-1">
+              <div className="p-4 bg-blue-50/70 border border-blue-200 rounded-lg space-y-1.5">
                 <span className="font-bold text-govt-navy block">Infrastructure Audit Checklist:</span>
-                <p className="text-[11px] text-slate-600">✓ Biometric Aadhaar Device Synced</p>
-                <p className="text-[11px] text-slate-600">✓ NCVT Certified Instructors Onboarded (4 Trainers)</p>
-                <p className="text-[11px] text-slate-600">✓ Industry Practical Lab Inspection Passed</p>
+                <p className="text-[11px] text-slate-600">✓ Biometric Aadhaar Device Synced with National MSDE Server</p>
+                <p className="text-[11px] text-slate-600">✓ NCVT Certified Instructors Onboarded (4 Qualified Trainers)</p>
+                <p className="text-[11px] text-slate-600">✓ Industry Practical Lab Inspection Passed with Emergency Protocol</p>
               </div>
             </div>
 
-            <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
+            <div className="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
               {selectedTcModal.status === 'Pending Audit' && (
                 <>
                   <button
                     onClick={() => handleRejectTc(selectedTcModal.id)}
-                    className="border border-slate-300 hover:bg-red-50 text-slate-700 font-bold text-xs py-2 px-4 rounded-lg"
+                    className="btn-sid-secondary text-xs py-2 px-4"
                   >
                     Return for Audit
                   </button>
                   <button
                     onClick={() => handleApproveTc(selectedTcModal.id)}
-                    className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2 px-4 rounded-lg shadow"
+                    className="btn-sid-primary text-xs py-2 px-5"
                   >
                     Grant Accreditation
                   </button>
@@ -1017,7 +1019,7 @@ export const GovernmentDashboard = ({ activeTab = 'dashboard', onNavigateTab }) 
               {selectedTcModal.status !== 'Pending Audit' && (
                 <button
                   onClick={() => setSelectedTcModal(null)}
-                  className="bg-govt-navy text-white font-bold text-xs py-2 px-4 rounded-lg"
+                  className="btn-sid-secondary text-xs py-2 px-4"
                 >
                   Close
                 </button>
@@ -1029,16 +1031,16 @@ export const GovernmentDashboard = ({ activeTab = 'dashboard', onNavigateTab }) 
 
       {/* MODAL 2: RELEASE TRANCHE FUND INSTALLMENT */}
       {releaseFundModal && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl max-w-md w-full p-6 space-y-4 shadow-xl border border-slate-200">
-            <div className="flex justify-between items-start pb-3 border-b border-slate-100">
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+          <div className="bg-white rounded-xl max-w-4xl w-full p-6 sm:p-8 space-y-5 shadow-2xl border border-slate-200 my-auto relative animate-fade-in-up">
+            <div className="flex justify-between items-start pb-4 border-b border-slate-100">
               <div>
                 <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded uppercase">
                   Treasury Fund Release
                 </span>
-                <h3 className="text-base font-bold text-slate-800 mt-1">Disburse Funding Tranche</h3>
+                <h3 className="font-display text-lg font-bold text-slate-800 mt-1">Disburse Funding Tranche</h3>
               </div>
-              <button onClick={() => setReleaseFundModal(false)} className="text-slate-400 hover:text-slate-700">
+              <button onClick={() => setReleaseFundModal(false)} className="text-slate-400 hover:text-slate-700 p-1">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -1049,7 +1051,7 @@ export const GovernmentDashboard = ({ activeTab = 'dashboard', onNavigateTab }) 
                 <select
                   value={selectedScheme}
                   onChange={(e) => setSelectedScheme(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-300 font-bold text-slate-800 rounded-lg p-2 focus:ring-1 focus:ring-govt-navy"
+                  className="w-full bg-slate-50 border border-slate-300 font-bold text-slate-800 rounded-lg p-2.5 focus:ring-1 focus:ring-govt-navy"
                 >
                   {fundsData.map(f => (
                     <option key={f.id} value={f.scheme}>{f.scheme} (Allocated: ₹ {f.allocated} Cr)</option>
@@ -1066,26 +1068,26 @@ export const GovernmentDashboard = ({ activeTab = 'dashboard', onNavigateTab }) 
                   max="50"
                   value={releaseAmount}
                   onChange={(e) => setReleaseAmount(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-300 font-mono font-bold text-slate-800 rounded-lg p-2 focus:ring-1 focus:ring-govt-navy"
+                  className="w-full bg-slate-50 border border-slate-300 font-mono font-bold text-slate-800 rounded-lg p-2.5 focus:ring-1 focus:ring-govt-navy"
                   required
                 />
               </div>
 
-              <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-[11px] text-amber-900">
+              <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-lg text-[11px] text-amber-900">
                 ⚠️ Disbursed funds will be automatically credited to accredited training center bank accounts via PFMS Gateway.
               </div>
 
-              <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
+              <div className="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
                 <button
                   type="button"
                   onClick={() => setReleaseFundModal(false)}
-                  className="border border-slate-300 text-slate-700 font-bold text-xs py-2 px-4 rounded-lg"
+                  className="btn-sid-secondary text-xs py-2 px-4"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2 px-5 rounded-lg shadow"
+                  className="btn-sid-primary text-xs py-2 px-5"
                 >
                   Confirm Fund Release
                 </button>

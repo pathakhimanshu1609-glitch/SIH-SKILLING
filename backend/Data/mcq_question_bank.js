@@ -260,6 +260,92 @@ export const questionBank = [
       },
     ],
   },
+
+  // ---------------- INDUSTRIAL AUTOMATION & ROBOTICS TECHNICIAN ----------------
+  {
+    trade: "Industrial Automation & Robotics Technician",
+    skill: "Industrial Robotics Programming",
+    questions: [
+      {
+        question: "What is the primary method used to program point-to-point waypoints for an industrial articulated robot?",
+        options: ["Teach Pendant lead-through or jog programming", "Voice commands", "Replacing the servo motors", "Adjusting supply air pressure"],
+        correct_index: 0,
+      },
+      {
+        question: "What does the Tool Center Point (TCP) define in robotic automation?",
+        options: ["The robot's base coordinate", "The precise working point and orientation of the end-effector", "The controller operating frequency", "The hydraulic pump pressure"],
+        correct_index: 1,
+      },
+      {
+        question: "Which coordinate system moves relative to the tool mounted at the end of the robot arm?",
+        options: ["World Coordinate System", "Base Coordinate System", "Tool Coordinate System", "Joint Coordinate System"],
+        correct_index: 2,
+      },
+    ],
+  },
+  {
+    trade: "Industrial Automation & Robotics Technician",
+    skill: "PLC & Sensor Interfacing",
+    questions: [
+      {
+        question: "Which programming language standard (IEC 61131-3) resembles electrical relay logic circuits?",
+        options: ["Structured Text (ST)", "Ladder Diagram (LD)", "Instruction List (IL)", "Sequential Function Chart (SFC)"],
+        correct_index: 1,
+      },
+      {
+        question: "What type of sensor is typically used to detect metallic objects without physical contact in automated transfer lines?",
+        options: ["Inductive proximity sensor", "Thermocouple", "Ultrasonic sensor", "Barometric pressure sensor"],
+        correct_index: 0,
+      },
+      {
+        question: "What is the function of an optocoupler/optical isolator in PLC I/O modules?",
+        options: ["To convert AC to DC power", "To protect sensitive controller electronics from high-voltage field spikes", "To increase machine speed", "To store program backup"],
+        correct_index: 1,
+      },
+    ],
+  },
+  {
+    trade: "Industrial Automation & Robotics Technician",
+    skill: "Robotic Arm Calibration",
+    questions: [
+      {
+        question: "Why must zero-position mastering/calibration be performed on an industrial robot?",
+        options: ["To establish absolute joint encoder alignment with mechanical reference marks", "To calibrate the paint finish", "To change electrical phases", "To increase payload capacity"],
+        correct_index: 0,
+      },
+      {
+        question: "Which tool or method is commonly utilized to recalibrate robotic TCP accuracy?",
+        options: ["Four-point or six-point needle reference calibration method", "Tape measure only", "Plumb line", "Bubble level"],
+        correct_index: 0,
+      },
+      {
+        question: "What symptom typically indicates robotic axis backlash or calibration drift?",
+        options: ["Inconsistent repeatability during repetitive pick-and-place cycles", "Higher ambient temperature", "Different PLC input LED colors", "Faster cycle time"],
+        correct_index: 0,
+      },
+    ],
+  },
+  {
+    trade: "Industrial Automation & Robotics Technician",
+    skill: "Automated Cell Safety Protocols",
+    questions: [
+      {
+        question: "What safety device automatically halts robotic motion when an operator enters the hazard perimeter?",
+        options: ["Safety light curtain or interlocked perimeter guard", "Standard room lighting", "Proximity badge reader only", "Air ventilation fan"],
+        correct_index: 0,
+      },
+      {
+        question: "What is an E-Stop (Emergency Stop) circuit required to do under ISO 13849/IEC 62061 safety standards?",
+        options: ["Pause the video display", "Hard-wired immediate category 0/1 power cut to all actuators", "Send an email alert only", "Slow down the cycle by 10%"],
+        correct_index: 1,
+      },
+      {
+        question: "What should technicians always engage before entering a live robot cell during teaching mode?",
+        options: ["Three-position enabling device (deadman switch)", "Wireless headset", "Safety sunglasses", "Mobile phone charger"],
+        correct_index: 0,
+      },
+    ],
+  },
 ];
 
 export default questionBank;

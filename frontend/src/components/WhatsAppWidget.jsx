@@ -8,17 +8,32 @@ import {
   Bot, 
   Phone, 
   MoreVertical, 
-  Sparkles,
+  HelpCircle,
   X,
   Minimize2
 } from 'lucide-react';
 import { fetchWithAuth } from '../lib/api';
 
-export const WhatsAppWidget = ({ candidateName: propCandidateName }) => {
+export const WhatsAppWidget = ({ 
+  candidateName: propCandidateName,
+  isOpen: controlledIsOpen,
+  onClose,
+  isFloatingTriggerHidden = false
+}) => {
   const { user } = useAuth();
   const activeCandidateName = propCandidateName || user?.full_name || 'Trainee';
 
-  const [isOpen, setIsOpen] = useState(true);
+  const [internalIsOpen, setInternalIsOpen] = useState(false);
+  const isOpen = controlledIsOpen !== undefined ? controlledIsOpen : internalIsOpen;
+
+  const handleClose = () => {
+    if (onClose) {
+      onClose();
+    } else {
+      setInternalIsOpen(false);
+    }
+  };
+
   const [lang, setLang] = useState('hi'); // 'hi' | 'mr' | 'en'
   const [inputText, setInputText] = useState('');
   const [sending, setSending] = useState(false);
@@ -116,9 +131,12 @@ export const WhatsAppWidget = ({ candidateName: propCandidateName }) => {
   };
 
   if (!isOpen) {
+    if (isFloatingTriggerHidden || controlledIsOpen !== undefined) {
+      return null;
+    }
     return (
       <button
-        onClick={() => setIsOpen(true)}
+        onClick={() => setInternalIsOpen(true)}
         className="fixed bottom-6 right-6 z-50 bg-[#25D366] hover:bg-[#20ba5a] text-white p-4 rounded-full shadow-2xl flex items-center gap-2 font-bold text-xs transition-all hover:scale-105"
       >
         <MessageSquare className="w-6 h-6 fill-white" />
@@ -128,7 +146,7 @@ export const WhatsAppWidget = ({ candidateName: propCandidateName }) => {
   }
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 w-80 sm:w-96 bg-[#efeae2] rounded-2xl shadow-2xl border border-slate-300 overflow-hidden font-roboto flex flex-col h-[520px]">
+    <div className="fixed bottom-6 right-6 z-50 w-80 sm:w-96 bg-[#efeae2] rounded-[6px] shadow-2xl border border-slate-300 overflow-hidden font-sans flex flex-col h-[520px]">
       {/* Official WhatsApp Green Header */}
       <div className="bg-[#075e54] text-white p-3 flex items-center justify-between shadow">
         <div className="flex items-center gap-2.5">
@@ -161,7 +179,7 @@ export const WhatsAppWidget = ({ candidateName: propCandidateName }) => {
           </select>
 
           <button 
-            onClick={() => setIsOpen(false)}
+            onClick={handleClose}
             className="p-1 text-white/80 hover:text-white transition-colors"
           >
             <Minimize2 className="w-4 h-4" />
@@ -201,7 +219,7 @@ export const WhatsAppWidget = ({ candidateName: propCandidateName }) => {
       <div className="bg-[#f0f2f5] px-3 py-2 border-t border-slate-200/80 space-y-1.5">
         <div className="flex items-center justify-between text-[10px] font-bold text-slate-500 uppercase">
           <span>Quick Menu Keys</span>
-          <Sparkles className="w-3 h-3 text-[#25D366]" />
+          <HelpCircle className="w-3 h-3 text-[#25D366]" />
         </div>
 
         <div className="grid grid-cols-4 gap-1 text-[11px]">

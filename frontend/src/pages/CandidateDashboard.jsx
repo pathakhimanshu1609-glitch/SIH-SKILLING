@@ -10,7 +10,7 @@ import {
   ExternalLink, 
   FileText, 
   IndianRupee, 
-  Sparkles, 
+  Target, 
   TrendingUp, 
   UserCheck, 
   ArrowRight,
@@ -29,14 +29,19 @@ import {
   Lock,
   Unlock,
   Layers,
-  ChevronRight
+  ChevronRight,
+  GraduationCap
 } from 'lucide-react';
+import { LockedCompetencyIllustration } from '../components/common/TwoToneIllustrations';
+import { RecommendedJobsPage } from './RecommendedJobsPage';
+import { MyApplicationsPage } from './MyApplicationsPage';
+import { useCountUp } from '../hooks/useCountUp';
 
 /**
  * Format candidate ID to guarantee a clean, government-standard format (CAND-{year}-{serial}).
  * Never outputs raw fallback strings like 'CAND-usr-cand'.
  */
-export const formatCandidateId = (rawId, registrationYear = 2026) => {
+const formatCandidateId = (rawId, registrationYear = 2026) => {
   if (!rawId) return `CAND-${registrationYear}-0042`;
   
   // If already in clean CAND-YYYY-NNNN format, preserve it
@@ -62,15 +67,27 @@ export const formatCandidateId = (rawId, registrationYear = 2026) => {
 };
 
 export const CandidateDashboard = ({ activeTab, onNavigateTab }) => {
-  const { user, role } = useAuth();
+  const { user, role, candidateProfile: contextCandProfile, isProfileLoading } = useAuth();
 
-  const [candidateProfile, setCandidateProfile] = useState(null);
-  const [loadingCand, setLoadingCand] = useState(true);
+  // Active candidate profile resolved synchronously from top-level AuthContext
+  const activeCandidate = contextCandProfile || user?.candidateProfile || user?.candidateRecord || {
+    id: user?.id || 'cand-01',
+    user_id: user?.id || 'usr-cand',
+    full_name: user?.full_name || 'Candidate Trainee',
+    email: user?.email || 'candidate@skilling.gov.in',
+    preferred_trade: 'Advanced CNC Machinist',
+    district: 'Pune',
+    qualification: 'ITI Machinist Certificate',
+    state: 'Maharashtra',
+    aadhaar_last4: '8842'
+  };
+
+  const [loadingCand, setLoadingCand] = useState(false);
   const [dbStats, setDbStats] = useState({
-    activeCoursesCount: 0,
-    certificatesCount: 0,
-    stipendAmount: '₹ 0',
-    jobMatchesCount: 0
+    activeCoursesCount: activeCandidate.id === 'cand-01' ? 1 : 0,
+    certificatesCount: activeCandidate.id === 'cand-01' ? 1 : 0,
+    stipendAmount: activeCandidate.id === 'cand-01' ? '₹ 2,250' : '₹ 0',
+    jobMatchesCount: activeCandidate.id === 'cand-01' ? 3 : 0
   });
 
   const [recommendations, setRecommendations] = useState([]);
@@ -78,64 +95,51 @@ export const CandidateDashboard = ({ activeTab, onNavigateTab }) => {
   const [appliedJobs, setAppliedJobs] = useState([]);
   const [matchedJobs, setMatchedJobs] = useState([]);
   const [certifications, setCertifications] = useState([]);
-  const [loadingCerts, setLoadingCerts] = useState(true);
+  const [loadingCerts, setLoadingCerts] = useState(false);
 
-  // New states for Journey Tracker, Skill Snapshot & Longitudinal Placement
+  // States for Journey Tracker, Skill Snapshot & Longitudinal Placement
   const [assessmentSkills, setAssessmentSkills] = useState([]);
   const [employmentRecord, setEmploymentRecord] = useState(null);
+  const [journeyData, setJourneyData] = useState(null);
+
+  // Animated stat values & bar entrance state
+  const animatedCourses = useCountUp(dbStats.activeCoursesCount, 600);
+  const animatedCerts = useCountUp(dbStats.certificatesCount, 600);
+  const animatedJobs = useCountUp(dbStats.jobMatchesCount, 600);
+  const [isBarsMounted, setIsBarsMounted] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsBarsMounted(true), 120);
+    return () => clearTimeout(timer);
+  }, [assessmentSkills]);
 
   const loadCandidateProfileAndStats = async () => {
     setLoadingCand(true);
     try {
-      // 1. Fetch current authenticated user
-      const { data: { user: authUser } } = await supabase.auth.getUser().catch(() => ({ data: {} }));
-      const currentUserId = authUser?.id || user?.id;
+      const candId = activeCandidate.id || user?.id || 'cand-01';
+      const trade = activeCandidate.preferred_trade || 'Advanced CNC Machinist';
+      const district = activeCandidate.district || 'Pune';
 
-      const initialProfile = user?.candidateRecord || {
-        id: user?.id || 'cand-01',
-        user_id: currentUserId || 'usr-demo',
-        full_name: user?.full_name || 'Ananya Sharma',
-        email: user?.email || 'ananya.sharma@skilling.gov.in',
-        preferred_trade: 'Advanced CNC Machinist',
-        district: 'Pune',
-        qualification: 'ITI Machinist Certificate',
-        state: 'Maharashtra',
-        aadhaar_last4: '8842'
-      };
-
-      let candProfileData = initialProfile;
-
-      // 2. Query candidates profile by user_id
-      if (currentUserId) {
-        const { data: candRow } = await supabase
-          .from('candidates')
-          .select('*')
-          .eq('user_id', currentUserId)
-          .maybeSingle();
-
-        if (candRow) {
-          candProfileData = candRow;
-        }
-      }
-
-      setCandidateProfile(candProfileData);
-
-      // 3. Fetch stats, assessment results, and employment record in parallel
-      const candId = candProfileData.id;
-      const trade = candProfileData.preferred_trade || 'Advanced CNC Machinist';
-      const district = candProfileData.district || 'Pune';
-
-      const [batchRes, assessRes, matchRes, recRes, assessResultsRes, empRecordRes] = await Promise.all([
+      // Parallel queries strictly filtered by candId
+      const [batchRes, assessRes, matchRes, recRes, assessResultsRes, empRecordRes, journeyRes] = await Promise.all([
         supabase.from('batch_candidates').select('batch_id').eq('candidate_id', candId).catch(() => null),
         supabase.from('skill_assessments').select('*').eq('candidate_id', candId).catch(() => null),
         fetchWithAuth(`/api/portal/skill-match/gap-analysis?candidate_id=${candId}&trade=${encodeURIComponent(trade)}&district=${encodeURIComponent(district)}`, {}, role).catch(() => null),
         fetchWithAuth(`/api/portal/candidate/skill-recommendations?candidate_id=${candId}&trade=${encodeURIComponent(trade)}&district=${encodeURIComponent(district)}`, {}, role).catch(() => null),
         fetchWithAuth(`/api/portal/assessments/results?candidate_id=${candId}&trade=${encodeURIComponent(trade)}`, {}, role).catch(() => null),
-        fetchWithAuth(`/api/portal/employment/record?candidate_id=${candId}`, {}, role).catch(() => null)
+        fetchWithAuth(`/api/portal/employment/record?candidate_id=${candId}`, {}, role).catch(() => null),
+        fetchWithAuth(`/api/portal/candidate/journey?candidate_id=${candId}`, {}, role).catch(() => null)
       ]);
 
-      const activeBatchesCount = batchRes?.data?.length !== undefined ? batchRes.data.length : 1;
-      const passedCerts = assessRes?.data?.filter(a => a.phase === 'post' && Number(a.score) >= 60).length || 1;
+      // Strict per-candidate counting: never default to 1 for unassigned candidates
+      const activeBatchesCount = batchRes?.data && batchRes.data.length > 0 
+        ? batchRes.data.length 
+        : (candId === 'cand-01' ? 1 : 0);
+
+      const passedCerts = assessRes?.data && assessRes.data.length > 0
+        ? assessRes.data.filter(a => a.phase === 'post' && Number(a.score) >= 60).length
+        : (candId === 'cand-01' ? 1 : 0);
+
       const jobs = matchRes?.matchedJobs || [];
       const recs = recRes?.recommendations || [];
 
@@ -150,11 +154,11 @@ export const CandidateDashboard = ({ activeTab, onNavigateTab }) => {
       setMatchedJobs(jobs);
       setRecommendations(recs);
 
-      // Store assessment skills for skill competency snapshot
+      // Store assessment skills for skill competency snapshot strictly per-candidate
       if (assessResultsRes?.results && Array.isArray(assessResultsRes.results) && assessResultsRes.results.length > 0) {
         setAssessmentSkills(assessResultsRes.results);
-      } else if (passedCerts > 0) {
-        // Fallback baseline for demo candidate
+      } else if (candId === 'cand-01') {
+        // Baseline for demo candidate 1 only
         setAssessmentSkills([
           { skill_name: 'CNC Programming (G-code)', pre_score: 45, post_score: 85, score: 85 },
           { skill_name: 'Machine Setup & Calibration', pre_score: 40, post_score: 75, score: 75 },
@@ -170,9 +174,14 @@ export const CandidateDashboard = ({ activeTab, onNavigateTab }) => {
         setEmploymentRecord(empRecordRes.record);
       }
 
-      const cacheKey = `cand_dash_cache_${currentUserId}`;
+      // Store journey progression
+      if (journeyRes?.steps) {
+        setJourneyData(journeyRes);
+      }
+
+      const cacheKey = `cand_dash_cache_${candId}`;
       sessionStorage.setItem(cacheKey, JSON.stringify({
-        candProfileData,
+        activeCandidate,
         dbStats: updatedStats,
         matchedJobs: jobs,
         recommendations: recs
@@ -255,8 +264,8 @@ export const CandidateDashboard = ({ activeTab, onNavigateTab }) => {
         } catch (e) {}
       }
 
-      // 4. Default baseline assessment results for demo candidate
-      if (rawAssessments.length === 0 && (!candIdToUse || candIdToUse === 'cand-01' || String(candIdToUse).includes('cand-01') || String(candIdToUse).includes('usr-demo'))) {
+      // 4. Baseline assessment results for demo candidate 1 only
+      if (rawAssessments.length === 0 && candIdToUse === 'cand-01') {
         rawAssessments = [
           { trade: 'Advanced CNC Machinist', skill_name: 'CNC Programming (G-code)', phase: 'post', score: 85, taken_at: '2026-09-01T10:00:00Z' },
           { trade: 'Advanced CNC Machinist', skill_name: 'Machine Setup & Calibration', phase: 'post', score: 75, taken_at: '2026-09-01T10:30:00Z' },
@@ -309,47 +318,15 @@ export const CandidateDashboard = ({ activeTab, onNavigateTab }) => {
   };
 
   useEffect(() => {
-    // Immediate hydration from cache if available
-    const cacheKey = `cand_dash_cache_${user?.id || 'demo'}`;
-    const cachedStr = sessionStorage.getItem(cacheKey);
-
-    if (cachedStr) {
-      try {
-        const cached = JSON.parse(cachedStr);
-        if (cached && cached.candProfileData) {
-          setCandidateProfile(cached.candProfileData);
-          setDbStats(cached.dbStats);
-          setMatchedJobs(cached.matchedJobs || []);
-          setRecommendations(cached.recommendations || []);
-          setLoadingCand(false);
-        }
-      } catch (e) {}
-    }
-
-    // Auto-load data on mount
     loadCandidateProfileAndStats();
-  }, [user?.id, role]);
+  }, [activeCandidate.id, role]);
 
   useEffect(() => {
-    const cid = candidateProfile?.id || user?.candidateRecord?.id || user?.id || 'cand-01';
-    loadCandidateCertifications(cid, candidateProfile?.preferred_trade);
-  }, [activeTab, candidateProfile?.id]);
+    loadCandidateCertifications(activeCandidate.id, activeCandidate.preferred_trade);
+  }, [activeTab, activeCandidate.id]);
 
-  // Active candidate profile & formatted candidate ID
-  const activeCandidate = candidateProfile || user?.candidateRecord || {
-    id: user?.id || 'cand-01',
-    user_id: user?.id || 'usr-demo',
-    full_name: user?.full_name || 'Ananya Sharma',
-    email: user?.email || 'ananya.sharma@skilling.gov.in',
-    preferred_trade: 'Advanced CNC Machinist',
-    district: 'Pune',
-    qualification: 'ITI Machinist Certificate',
-    state: 'Maharashtra',
-    aadhaar_last4: '8842'
-  };
-
-  const candName = activeCandidate.full_name || user?.full_name || 'Trainee Candidate';
-  const candEmail = activeCandidate.email || user?.email || 'trainee@skilling.gov.in';
+  const candName = user?.full_name || activeCandidate.full_name || 'Trainee Candidate';
+  const candEmail = user?.email || activeCandidate.email || 'trainee@skilling.gov.in';
   const candTrade = activeCandidate.preferred_trade || 'Advanced CNC Machinist';
   const candDistrict = activeCandidate.district || 'Pune';
   
@@ -365,37 +342,46 @@ export const CandidateDashboard = ({ activeTab, onNavigateTab }) => {
   // 5. Placement: has an employment_records row (placed / employer verified)
   // -------------------------------------------------------------
   const hasOnboarded = Boolean(activeCandidate?.preferred_trade || activeCandidate?.full_name);
-  const hasPreAssessment = assessmentSkills.some(s => s.pre_score !== undefined && s.pre_score !== null && s.pre_score > 0) || assessmentSkills.length > 0;
-  const isEnrolledInTraining = dbStats.activeCoursesCount > 0;
-  const hasPostAssessment = (dbStats.certificatesCount > 0) || assessmentSkills.some(s => s.post_score !== undefined && s.post_score !== null && s.post_score >= 60);
-  const hasPlacement = employmentRecord?.self_reported_status === 'Placed';
+  const hasPreAssessment = journeyData?.hasPreAssessment !== undefined 
+    ? journeyData.hasPreAssessment 
+    : (assessmentSkills.some(s => s.pre_score !== undefined && s.pre_score !== null && s.pre_score > 0) || (activeCandidate.id === 'cand-01'));
+  const isEnrolledInTraining = journeyData?.isEnrolledInTraining !== undefined 
+    ? journeyData.isEnrolledInTraining 
+    : (dbStats.activeCoursesCount > 0);
+  const hasPostAssessment = journeyData?.hasPostAssessment !== undefined 
+    ? journeyData.hasPostAssessment 
+    : ((dbStats.certificatesCount > 0) || assessmentSkills.some(s => s.post_score !== undefined && s.post_score !== null && s.post_score >= 60));
+  const hasPlacement = journeyData?.hasPlacement !== undefined 
+    ? journeyData.hasPlacement 
+    : (employmentRecord?.self_reported_status === 'Placed');
 
-  let activeStep = 1;
-  if (hasPlacement) {
-    activeStep = 5;
-  } else if (hasPostAssessment) {
-    activeStep = 5; // Ready for placement
-  } else if (isEnrolledInTraining) {
-    activeStep = 4; // In training, post-assessment exam is next
-  } else if (hasPreAssessment) {
-    activeStep = 3; // Pre-assessment done, training is next
-  } else if (hasOnboarded) {
-    activeStep = 2; // Onboarded, pre-assessment is next
+  let activeStep = journeyData?.activeStep || 1;
+  if (!journeyData) {
+    if (hasPlacement) {
+      activeStep = 5;
+    } else if (hasPostAssessment) {
+      activeStep = 5; // Ready for placement
+    } else if (isEnrolledInTraining) {
+      activeStep = 4; // In training, post-assessment exam is next
+    } else if (hasPreAssessment) {
+      activeStep = 3; // Pre-assessment done, training is next
+    } else if (hasOnboarded) {
+      activeStep = 2; // Onboarded, pre-assessment is next
+    }
   }
 
-  const journeySteps = [
-    { step: 1, title: 'Onboarded', desc: 'Profile Registered', isDone: true },
+  const journeySteps = journeyData?.steps || [
+    { step: 1, title: 'Onboarded', desc: 'Profile Registered', isDone: hasOnboarded },
     { step: 2, title: 'Pre-assessment', desc: 'Skill Baseline', isDone: hasPreAssessment },
     { step: 3, title: 'Training', desc: 'Workshop Batch', isDone: isEnrolledInTraining && (hasPostAssessment || hasPlacement) },
     { step: 4, title: 'Post-assessment', desc: 'NCVT Certified', isDone: hasPostAssessment },
     { step: 5, title: 'Placement', desc: 'Industry Hired', isDone: hasPlacement }
   ];
 
-  // Dynamic Next-Step Banner Configuration
   const getNextStepConfig = () => {
     if (activeStep === 2) {
       return {
-        icon: <Sparkles className="w-5 h-5 text-govt-orange" />,
+        icon: <Target className="w-5 h-5 text-govt-orange" />,
         badge: 'ACTION REQUIRED • STEP 2',
         title: 'Take your pre-training skill assessment',
         description: `Establish your baseline competency in ${candTrade}. Takes 5 minutes and personalizes your curriculum modules.`,
@@ -456,8 +442,8 @@ export const CandidateDashboard = ({ activeTab, onNavigateTab }) => {
   // TAB 1: ENROLLED COURSES
   if (activeTab === 'courses') {
     return (
-      <div className="space-y-6 font-roboto">
-        <div className="bg-gradient-to-r from-govt-navy to-slate-900 text-white rounded-xl p-6 shadow-govt-card">
+      <div className="space-y-4 font-sans">
+        <div className="bg-[#0B3D6B] border border-[#072847] text-white rounded-[6px] p-4 sm:p-5">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold">
               <BookOpen className="w-6 h-6" />
@@ -466,7 +452,7 @@ export const CandidateDashboard = ({ activeTab, onNavigateTab }) => {
               <span className="bg-blue-600 text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded">
                 ENROLLED SKILL SCHEMES
               </span>
-              <h1 className="text-xl font-bold mt-0.5">Enrolled Courses for {candName}</h1>
+              <h1 className="font-display text-xl font-bold mt-0.5">Enrolled Courses for {candName}</h1>
               <p className="text-xs text-slate-300">Registered Trade: {candTrade} • District: {candDistrict}</p>
             </div>
           </div>
@@ -493,7 +479,7 @@ export const CandidateDashboard = ({ activeTab, onNavigateTab }) => {
             </div>
             <div className="flex justify-between text-slate-700">
               <span>Qualification Level:</span>
-              <span className="font-bold">{candidateProfile?.qualification || 'ITI Certificate'}</span>
+              <span className="font-bold">{activeCandidate?.qualification || 'ITI Certificate'}</span>
             </div>
           </div>
 
@@ -501,7 +487,7 @@ export const CandidateDashboard = ({ activeTab, onNavigateTab }) => {
             onClick={() => onNavigateTab && onNavigateTab('assessment')}
             className="w-full btn-govt-primary text-xs py-2 flex items-center justify-center gap-1.5"
           >
-            <Sparkles className="w-3.5 h-3.5 text-govt-orange" />
+            <Target className="w-3.5 h-3.5 text-govt-orange" />
             <span>Take Trade Skill MCQ Assessment</span>
           </button>
         </div>
@@ -512,18 +498,18 @@ export const CandidateDashboard = ({ activeTab, onNavigateTab }) => {
   // TAB 2: CERTIFICATIONS
   if (activeTab === 'certifications') {
     return (
-      <div className="space-y-6 font-roboto">
-        <div className="bg-gradient-to-r from-amber-900 via-govt-navy to-slate-900 text-white rounded-xl p-6 shadow-govt-card">
+      <div className="space-y-4 font-sans">
+        <div className="bg-[#0B3D6B] border border-[#072847] text-white rounded-[6px] p-4 sm:p-5">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-lg bg-govt-orange text-white flex items-center justify-center font-bold shadow">
-                <Award className="w-6 h-6" />
+              <div className="w-10 h-10 rounded-[4px] bg-govt-orange text-white flex items-center justify-center font-bold">
+                <Award className="w-5 h-5" />
               </div>
               <div>
-                <span className="bg-govt-orange text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded">
+                <span className="bg-[#D96B27] text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded-[4px]">
                   DIGITAL CREDENTIALS
                 </span>
-                <h1 className="text-xl font-bold mt-0.5">Skill Certifications for {candName}</h1>
+                <h1 className="font-display text-xl font-bold mt-0.5">Skill Certifications for {candName}</h1>
                 <p className="text-xs text-slate-300">
                   Verified NCVT credentials issued to <strong>{candEmail}</strong> • {certifications.length} Qualifying Trade{certifications.length === 1 ? '' : 's'} (≥60% passing benchmark)
                 </p>
@@ -532,9 +518,9 @@ export const CandidateDashboard = ({ activeTab, onNavigateTab }) => {
 
             <button 
               onClick={() => onNavigateTab && onNavigateTab('assessment')}
-              className="btn-govt-orange text-xs py-2 px-4 flex items-center gap-1.5 shadow whitespace-nowrap"
+              className="btn-govt-orange text-xs py-2 px-4 flex items-center gap-1.5 whitespace-nowrap"
             >
-              <Sparkles className="w-3.5 h-3.5" />
+              <Target className="w-3.5 h-3.5" />
               <span>Take New Trade Assessment</span>
             </button>
           </div>
@@ -554,7 +540,7 @@ export const CandidateDashboard = ({ activeTab, onNavigateTab }) => {
                 key={cert.id || cert.trade}
                 className="bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-all p-6 flex flex-col justify-between space-y-5 relative overflow-hidden group"
               >
-                <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-govt-orange via-amber-500 to-govt-navy" />
+                <div className="absolute top-0 left-0 right-0 h-1 bg-[#0B3D6B]" />
 
                 <div className="space-y-4">
                   <div className="flex items-start justify-between gap-3">
@@ -567,7 +553,7 @@ export const CandidateDashboard = ({ activeTab, onNavigateTab }) => {
                           NCVT Level 4
                         </span>
                       </div>
-                      <h3 className="text-lg font-bold text-slate-900 font-roboto leading-snug group-hover:text-govt-navy transition-colors">
+                      <h3 className="text-base font-bold text-slate-900 font-sans leading-snug group-hover:text-govt-navy transition-colors">
                         {cert.trade}
                       </h3>
                       <p className="text-xs text-slate-500">National Council for Vocational Training Certificate</p>
@@ -651,7 +637,7 @@ export const CandidateDashboard = ({ activeTab, onNavigateTab }) => {
               <span className="text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 px-3 py-1 rounded-full border border-slate-200">
                 NCVT Certification Gateway
               </span>
-              <h3 className="text-xl font-bold text-slate-800 font-roboto">
+              <h3 className="font-display text-xl font-bold text-slate-800">
                 No Skill Certifications Earned Yet
               </h3>
               <p className="text-sm text-slate-600 max-w-md mx-auto leading-relaxed">
@@ -674,9 +660,9 @@ export const CandidateDashboard = ({ activeTab, onNavigateTab }) => {
 
             <button 
               onClick={() => onNavigateTab && onNavigateTab('assessment')}
-              className="btn-govt-orange text-xs py-2.5 px-6 font-bold shadow inline-flex items-center gap-2"
+              className="btn-govt-orange text-xs py-2 px-5 font-bold inline-flex items-center gap-2"
             >
-              <Sparkles className="w-4 h-4" />
+              <Target className="w-4 h-4" />
               <span>Take Post-Training Assessment Now</span>
             </button>
           </div>
@@ -687,136 +673,27 @@ export const CandidateDashboard = ({ activeTab, onNavigateTab }) => {
 
   // TAB 3: RECOMMENDED JOBS
   if (activeTab === 'jobs') {
-    return (
-      <div className="space-y-6 font-roboto">
-        <div className="bg-gradient-to-r from-emerald-950 via-govt-navy to-slate-900 text-white rounded-xl p-6 shadow-govt-card">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-bold">
-              <Briefcase className="w-6 h-6" />
-            </div>
-            <div>
-              <span className="bg-emerald-600 text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded">
-                EXPLAINABLE REAL JOB MATCHES
-              </span>
-              <h1 className="text-xl font-bold mt-0.5">Vacancies for {candTrade} in {candDistrict}</h1>
-              <p className="text-xs text-slate-300">Detailed breakdown of skills you have vs. skills you're missing for candidate {candName}.</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="space-y-4">
-          {matchedJobs.map((job) => {
-            const hasApplied = appliedJobs.includes(job.id || job.job_id);
-            const matchPct = job.match_percentage !== undefined ? job.match_percentage : (job.matchScorePct || 0);
-            const matchedSkills = Array.isArray(job.matched_skills) ? job.matched_skills : [];
-            const missingSkills = Array.isArray(job.missing_skills) ? job.missing_skills : [];
-
-            return (
-              <div key={job.id || job.job_id} className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3.5">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                  <div className="space-y-1">
-                    <span className="text-[10px] font-mono font-bold bg-slate-200 text-slate-700 px-2 py-0.5 rounded">
-                      {job.id || `JOB-${job.job_id}`} • {job.source || 'NCS'}
-                    </span>
-                    <h3 className="text-base font-bold text-slate-800">{job.title}</h3>
-                    <p className="text-xs text-slate-600">{job.company_name || job.company} • {job.district || candDistrict}</p>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <span className={`text-xs font-bold px-2.5 py-1 rounded-full font-mono shadow-xs flex items-center gap-1 ${
-                      matchPct === 100 
-                        ? 'bg-emerald-600 text-white' 
-                        : matchPct >= 60 
-                          ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' 
-                          : matchPct > 0
-                            ? 'bg-amber-100 text-amber-900 border border-amber-300'
-                            : 'bg-rose-100 text-rose-800 border border-rose-200'
-                    }`}>
-                      <span>{matchPct}% Match</span>
-                    </span>
-
-                    {hasApplied ? (
-                      <button disabled className="bg-emerald-100 text-emerald-800 text-xs font-bold py-1.5 px-3.5 rounded flex items-center gap-1 cursor-default">
-                        <Check className="w-3.5 h-3.5" /> Applied
-                      </button>
-                    ) : (
-                      <button 
-                        onClick={() => handleApplyJob(job.id || job.job_id)}
-                        className="btn-govt-orange text-xs py-1.5 px-4 font-bold shadow-xs"
-                      >
-                        Apply Now
-                      </button>
-                    )}
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 text-xs">
-                  <div className="p-2.5 rounded-lg bg-emerald-50/80 border border-emerald-200 space-y-1.5">
-                    <div className="flex items-center gap-1 text-emerald-900 font-bold text-[11px]">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
-                      <span>Skills you have ({matchedSkills.length}):</span>
-                    </div>
-                    {matchedSkills.length > 0 ? (
-                      <div className="flex flex-wrap gap-1">
-                        {matchedSkills.map((sk, idx) => (
-                          <span key={idx} className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-800 bg-white px-2 py-0.5 rounded border border-emerald-200 shadow-2xs">
-                            <Check className="w-2.5 h-2.5 text-emerald-600" />
-                            <span>{sk}</span>
-                          </span>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-[10px] text-slate-400 italic">No skills achieved yet</p>
-                    )}
-                  </div>
-
-                  <div className="p-2.5 rounded-lg bg-amber-50/80 border border-amber-200 space-y-1.5">
-                    <div className="flex items-center gap-1 text-amber-900 font-bold text-[11px]">
-                      <AlertTriangle className="w-3.5 h-3.5 text-amber-600 flex-shrink-0" />
-                      <span>Skills you're missing ({missingSkills.length}):</span>
-                    </div>
-                    {missingSkills.length > 0 ? (
-                      <div className="flex flex-wrap gap-1">
-                        {missingSkills.map((sk, idx) => (
-                          <span key={idx} className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-900 bg-white px-2 py-0.5 rounded border border-amber-300 shadow-2xs">
-                            <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                            <span>{sk}</span>
-                          </span>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-[10px] text-emerald-700 font-bold flex items-center gap-1">
-                        <Check className="w-3 h-3 text-emerald-600" />
-                        <span>All required skills achieved!</span>
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-                <div className="text-[11px] text-slate-500 pt-1 flex justify-between items-center border-t border-slate-100">
-                  <span>Salary Range: <strong className="font-mono text-slate-800">{job.salary_range}</strong></span>
-                  <span className="text-slate-400">Total Skills: {job.required_skills?.length || (matchedSkills.length + missingSkills.length)}</span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    );
+    return <RecommendedJobsPage onNavigateTab={onNavigateTab} />;
   }
+
+  // TAB 4: MY APPLICATIONS
+  if (activeTab === 'applications') {
+    return <MyApplicationsPage onNavigateTab={onNavigateTab} />;
+  }
+
 
   // -----------------------------------------------------------------
   // DEFAULT TAB: CANDIDATE OVERVIEW DASHBOARD (REDESIGNED)
   // -----------------------------------------------------------------
   return (
-    <div className="space-y-6 font-roboto">
+    <div className="space-y-12 font-sans">
       {/* 1. TOP HEADER BANNER (NO SUPABASE REFERENCES, CLEAN VERIFIED BADGE, PROPER CANDIDATE ID) */}
-      <div className="bg-gradient-to-r from-govt-navy via-slate-900 to-slate-950 text-white rounded-xl p-6 shadow-govt-card relative overflow-hidden">
+      <div className="bg-[#0B3D6B] border border-[#072847] text-white rounded-[6px] p-4 sm:p-5 relative">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 relative z-10">
           <div>
             <div className="flex items-center gap-2 mb-1.5 flex-wrap">
               {/* Clean Verified Badge with No Backend Name */}
-              <span className="bg-emerald-600 text-white text-[10px] uppercase font-bold px-2.5 py-1 rounded inline-flex items-center gap-1 shadow-xs">
+              <span className="bg-emerald-700 text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded-[4px] inline-flex items-center gap-1">
                 <ShieldCheck className="w-3.5 h-3.5" />
                 Verified Candidate
               </span>
@@ -825,16 +702,16 @@ export const CandidateDashboard = ({ activeTab, onNavigateTab }) => {
                 ID: {candId}
               </span>
             </div>
-            <h1 className="text-2xl font-bold font-roboto tracking-tight">
+            <h1 className="font-display text-2xl font-bold tracking-tight">
               Welcome, {candName}
             </h1>
-            <p className="text-sm text-slate-300 mt-1 max-w-2xl">
+            <p className="text-xs text-slate-300 mt-1 max-w-2xl">
               Registered Email: <strong>{candEmail}</strong> • Trade: <strong>{candTrade}</strong> ({candDistrict})
             </p>
           </div>
 
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1.5 text-xs text-blue-200 bg-white/10 px-3 py-1.5 rounded-lg backdrop-blur-xs font-medium border border-white/10">
+            <div className="flex items-center gap-1.5 text-xs text-blue-200 bg-white/10 px-3 py-1.5 rounded-[4px] font-medium border border-white/10">
               <Clock className="w-3.5 h-3.5 text-blue-300" />
               <span>Profile Active & Auto-Synced</span>
             </div>
@@ -843,18 +720,18 @@ export const CandidateDashboard = ({ activeTab, onNavigateTab }) => {
       </div>
 
       {/* 2. FIVE-STEP HORIZONTAL JOURNEY TRACKER */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-5">
+      <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-6 sm:p-8 space-y-5">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
           <div>
             <div className="flex items-center gap-2">
               <Layers className="w-5 h-5 text-govt-navy" />
-              <h2 className="text-base font-bold text-slate-800">Skilling & Employment Journey</h2>
+              <h2 className="font-display text-base font-bold text-slate-800">Skilling & Employment Journey</h2>
             </div>
             <p className="text-xs text-slate-500 mt-0.5">
               Live milestone progression from onboarding to employer placement
             </p>
           </div>
-          <span className="text-xs font-bold text-govt-navy bg-blue-50 border border-blue-200 px-3 py-1 rounded-full font-mono">
+          <span className="text-xs font-bold text-[#D96B27] bg-[#FFF5EE] border border-[#D96B27]/30 px-3 py-1 rounded-full font-mono">
             Step {activeStep} of 5: {journeySteps[activeStep - 1]?.title}
           </span>
         </div>
@@ -867,7 +744,7 @@ export const CandidateDashboard = ({ activeTab, onNavigateTab }) => {
             
             {/* Active colored progress line */}
             <div 
-              className="absolute left-10 top-5 h-1 bg-gradient-to-r from-emerald-500 to-govt-navy transition-all duration-500 z-0"
+              className="absolute left-10 top-5 h-1 bg-[#D96B27] transition-all duration-500 z-0"
               style={{ width: `${Math.max(0, Math.min(100, ((activeStep - 1) / 4) * 100))}%` }}
             />
 
@@ -879,13 +756,16 @@ export const CandidateDashboard = ({ activeTab, onNavigateTab }) => {
               return (
                 <div key={s.step} className="relative z-10 flex flex-col items-center group">
                   {/* Step Node Icon */}
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-xs transition-all shadow-sm ${
-                    isCompleted
-                      ? 'bg-emerald-600 text-white ring-4 ring-emerald-100'
-                      : isCurrent
-                      ? 'bg-govt-navy text-white ring-4 ring-blue-200 ring-offset-2 ring-offset-white'
-                      : 'bg-white text-slate-400 border-2 border-slate-300'
-                  }`}>
+                  <div 
+                    className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-xs transition-all duration-300 shadow-sm ${
+                      isCompleted
+                        ? 'bg-emerald-600 text-white ring-4 ring-emerald-100'
+                        : isCurrent
+                        ? 'bg-[#D96B27] text-white ring-4 ring-[#D96B27]/30 ring-offset-2 ring-offset-white'
+                        : 'bg-white text-slate-400 border-2 border-slate-300'
+                    }`}
+                    style={{ transitionDelay: `${s.step * 80}ms` }}
+                  >
                     {isCompleted ? (
                       <Check className="w-5 h-5 stroke-[3]" />
                     ) : isCurrent ? (
@@ -898,7 +778,7 @@ export const CandidateDashboard = ({ activeTab, onNavigateTab }) => {
                   {/* Step Labels */}
                   <div className="text-center mt-2.5">
                     <p className={`text-xs font-bold ${
-                      isCurrent ? 'text-govt-navy' : isCompleted ? 'text-slate-800' : 'text-slate-400'
+                      isCurrent ? 'text-[#D96B27]' : isCompleted ? 'text-slate-800' : 'text-slate-400'
                     }`}>
                       {s.title}
                     </p>
@@ -906,7 +786,7 @@ export const CandidateDashboard = ({ activeTab, onNavigateTab }) => {
                       isCompleted 
                         ? 'text-emerald-700 bg-emerald-50 font-bold border border-emerald-200' 
                         : isCurrent 
-                        ? 'text-blue-700 bg-blue-50 font-bold border border-blue-200' 
+                        ? 'text-[#D96B27] bg-[#FFF5EE] font-bold border border-[#D96B27]/30' 
                         : 'text-slate-400 bg-slate-50'
                     }`}>
                       {isCompleted ? 'Completed' : isCurrent ? 'Current Step' : 'Upcoming'}
@@ -920,7 +800,7 @@ export const CandidateDashboard = ({ activeTab, onNavigateTab }) => {
       </div>
 
       {/* 3. DYNAMIC 'NEXT STEP' BANNER BASED ON CURRENT STEP */}
-      <div className="bg-gradient-to-r from-blue-50/90 via-indigo-50/70 to-purple-50/90 border border-blue-200/90 rounded-xl p-5 shadow-xs">
+      <div className="bg-white border border-slate-200 rounded-xl p-6 sm:p-7 shadow-xs">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-start gap-3.5">
             <div className="w-11 h-11 rounded-xl bg-govt-navy text-white flex items-center justify-center flex-shrink-0 shadow-sm mt-0.5">
@@ -933,7 +813,7 @@ export const CandidateDashboard = ({ activeTab, onNavigateTab }) => {
                 </span>
                 <span className="text-xs text-slate-500 font-medium">Recommended Single Action</span>
               </div>
-              <h3 className="text-base font-bold text-slate-900">{nextStepConfig.title}</h3>
+              <h3 className="font-display text-base font-bold text-slate-900">{nextStepConfig.title}</h3>
               <p className="text-xs text-slate-600 max-w-2xl leading-relaxed">{nextStepConfig.description}</p>
             </div>
           </div>
@@ -955,13 +835,13 @@ export const CandidateDashboard = ({ activeTab, onNavigateTab }) => {
         {/* Card 1: Active Schemes */}
         <div 
           onClick={() => onNavigateTab && onNavigateTab('courses')}
-          className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between cursor-pointer hover:border-blue-500/50 transition-all group"
+          className="bg-white p-6 rounded-xl border border-slate-200 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-between cursor-pointer group"
         >
           <div>
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Active Schemes</p>
             {dbStats.activeCoursesCount > 0 ? (
               <>
-                <p className="text-2xl font-bold text-slate-800 mt-1">{dbStats.activeCoursesCount} Program</p>
+                <p className="text-2xl font-bold text-slate-800 mt-1 font-mono">{animatedCourses} Program</p>
                 <p className="text-[11px] text-emerald-600 font-medium mt-1">{candTrade}</p>
               </>
             ) : (
@@ -982,13 +862,13 @@ export const CandidateDashboard = ({ activeTab, onNavigateTab }) => {
         {/* Card 2: Certificates */}
         <div 
           onClick={() => onNavigateTab && onNavigateTab(dbStats.certificatesCount > 0 ? 'certifications' : 'assessment')}
-          className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between cursor-pointer hover:border-amber-500/50 transition-all group"
+          className="bg-white p-6 rounded-xl border border-slate-200 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-between cursor-pointer group"
         >
           <div>
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Certificates</p>
             {dbStats.certificatesCount > 0 ? (
               <>
-                <p className="text-2xl font-bold text-slate-800 mt-1">{dbStats.certificatesCount} Verified</p>
+                <p className="text-2xl font-bold text-slate-800 mt-1 font-mono">{animatedCerts} Verified</p>
                 <p className="text-[11px] text-blue-600 font-medium mt-1">NCVT Credentials</p>
               </>
             ) : (
@@ -1009,7 +889,7 @@ export const CandidateDashboard = ({ activeTab, onNavigateTab }) => {
         {/* Card 3: Direct Stipend */}
         <div 
           onClick={() => onNavigateTab && onNavigateTab('courses')}
-          className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between cursor-pointer hover:border-emerald-500/50 transition-all group"
+          className="bg-white p-6 rounded-xl border border-slate-200 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-between cursor-pointer group"
         >
           <div>
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Direct Stipend (DBT)</p>
@@ -1036,13 +916,13 @@ export const CandidateDashboard = ({ activeTab, onNavigateTab }) => {
         {/* Card 4: Job Matches */}
         <div 
           onClick={() => onNavigateTab && onNavigateTab(dbStats.jobMatchesCount > 0 ? 'jobs' : 'assessment')}
-          className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between cursor-pointer hover:border-purple-500/50 transition-all group"
+          className="bg-white p-6 rounded-xl border border-slate-200 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-between cursor-pointer group"
         >
           <div>
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Job Matches</p>
             {dbStats.jobMatchesCount > 0 ? (
               <>
-                <p className="text-2xl font-bold text-slate-800 mt-1">{dbStats.jobMatchesCount} Roles</p>
+                <p className="text-2xl font-bold text-slate-800 mt-1 font-mono">{animatedJobs} Roles</p>
                 <p className="text-[11px] text-slate-500 mt-1">{candDistrict} Region</p>
               </>
             ) : (
@@ -1062,12 +942,12 @@ export const CandidateDashboard = ({ activeTab, onNavigateTab }) => {
       </div>
 
       {/* 5. SKILL COMPETENCY SNAPSHOT PREVIEW (BAR VISUALIZATION OR LOCKED PLACEHOLDER) */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-4">
+      <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-6 sm:p-8 space-y-5">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
           <div>
             <div className="flex items-center gap-2">
               <BarChart2 className="w-5 h-5 text-govt-navy" />
-              <h2 className="text-base font-bold text-slate-800">Skill Competency Snapshot</h2>
+              <h2 className="font-display text-base font-bold text-slate-800">Skill Competency Snapshot</h2>
             </div>
             <p className="text-xs text-slate-500 mt-0.5">
               Proficiency breakdown across core {candTrade} assessment modules
@@ -1126,14 +1006,14 @@ export const CandidateDashboard = ({ activeTab, onNavigateTab }) => {
 
                     <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden border border-slate-200/60">
                       <div 
-                        className={`h-full rounded-full transition-all duration-500 ${
+                        className={`h-full rounded-full transition-all duration-700 ease-out ${
                           isProficient 
                             ? 'bg-emerald-600' 
                             : isCompetent 
                             ? 'bg-blue-600' 
                             : 'bg-amber-500'
                         }`} 
-                        style={{ width: `${Math.min(100, Math.max(5, scoreVal))}%` }} 
+                        style={{ width: isBarsMounted ? `${Math.min(100, Math.max(5, scoreVal))}%` : '0%' }} 
                       />
                     </div>
                   </div>
@@ -1161,34 +1041,22 @@ export const CandidateDashboard = ({ activeTab, onNavigateTab }) => {
           </div>
         ) : (
           /* State B: Grayed-Out / Locked Placeholder Version */
-          <div className="relative p-5 rounded-xl bg-slate-50/80 border border-dashed border-slate-300 space-y-4">
-            <div className="space-y-3 opacity-40 select-none">
-              {['Core Machine Tooling & Operations', 'Engineering Metrology & Tolerancing', 'Industrial Workshop Protocols'].map((name, idx) => (
-                <div key={idx} className="space-y-1">
-                  <div className="flex justify-between text-xs text-slate-600 font-medium">
-                    <span>{name}</span>
-                    <span className="font-mono">-- %</span>
-                  </div>
-                  <div className="w-full bg-slate-200 h-2.5 rounded-full" />
-                </div>
-              ))}
+          <div className="p-6 sm:p-10 rounded-xl bg-slate-50 border border-dashed border-slate-300 text-center space-y-4">
+            <div className="flex justify-center mx-auto">
+              <LockedCompetencyIllustration className="w-20 h-20" />
             </div>
-
-            <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 bg-white p-3.5 rounded-lg border border-slate-200 shadow-xs">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center flex-shrink-0">
-                  <Lock className="w-4 h-4" />
-                </div>
-                <div>
-                  <p className="text-xs font-bold text-slate-800">Skill snapshot is locked</p>
-                  <p className="text-[11px] text-slate-500">Take your first 5-minute MCQ assessment to generate real competency bars.</p>
-                </div>
-              </div>
+            <div className="space-y-1.5 max-w-md mx-auto">
+              <p className="text-base font-bold text-slate-800">Skill Competency Unlocks After Assessment</p>
+              <p className="text-xs text-slate-500">
+                Complete your trade MCQ assessment for {candTrade} to generate your verified competency breakdown, radar charts, and job recommendations.
+              </p>
+            </div>
+            <div>
               <button
                 onClick={() => onNavigateTab && onNavigateTab('assessment')}
-                className="btn-govt-orange text-xs py-1.5 px-4 font-bold whitespace-nowrap shadow-xs"
+                className="btn-govt-orange text-xs py-2 px-4 font-bold whitespace-nowrap"
               >
-                <Sparkles className="w-3.5 h-3.5" />
+                <Target className="w-3.5 h-3.5" />
                 <span>Take Assessment</span>
               </button>
             </div>
@@ -1196,21 +1064,21 @@ export const CandidateDashboard = ({ activeTab, onNavigateTab }) => {
         )}
       </div>
 
-      {/* 6. TOP 3 RECOMMENDED UPSKILLING PRIORITIES WIDGET (WITH 'Personalized for you' LABEL) */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-4">
-        <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+      {/* 6. TOP 3 RECOMMENDED UPSKILLING PRIORITIES WIDGET */}
+      <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-6 sm:p-8 space-y-5">
+        <div className="flex items-center justify-between pb-2 border-b border-slate-200">
           <div>
-            <h2 className="text-base font-bold text-slate-800 flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-govt-orange" />
+            <h2 className="font-display text-base font-bold text-slate-800 flex items-center gap-2">
+              <Target className="w-4 h-4 text-govt-orange" />
               <span>Top 3 Recommended Upskilling Priorities</span>
             </h2>
             <p className="text-xs text-slate-500">
               Ranked for {candName} ({candTrade} in {candDistrict})
             </p>
           </div>
-          <span className="text-xs font-bold text-purple-700 bg-purple-100 px-2.5 py-1 rounded flex items-center gap-1">
-            <Sparkles className="w-3 h-3 text-purple-600" />
-            Personalized for you
+          <span className="text-xs font-bold text-slate-700 bg-slate-100 border border-slate-300 px-2.5 py-0.5 rounded-[4px] flex items-center gap-1">
+            <Target className="w-3 h-3 text-govt-orange" />
+            Curriculum Priorities
           </span>
         </div>
 
@@ -1218,7 +1086,7 @@ export const CandidateDashboard = ({ activeTab, onNavigateTab }) => {
           {recommendations.map((rec, idx) => (
             <div 
               key={rec.skill_id || rec.skill_name || idx} 
-              className="p-4 rounded-xl border border-slate-200 bg-slate-50/70 hover:border-govt-orange/50 transition-all space-y-3 flex flex-col justify-between"
+              className="p-5 rounded-xl border border-slate-200 bg-white hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 space-y-3 flex flex-col justify-between"
             >
               <div className="space-y-2">
                 <div className="flex items-center justify-between">

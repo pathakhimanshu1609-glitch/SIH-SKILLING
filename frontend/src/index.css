@@ -2,61 +2,575 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  /* Skill India Digital Brand Palette */
+  --sid-orange: #D96B27;
+  --sid-orange-hover: #C35919;
+  --sid-orange-light: #FFF5EE;
+  --sid-navy: #0B3D6B;
+  --sid-navy-dark: #072847;
+  --sid-navy-light: #14538E;
+  --sid-gold: #C9A227;
+  --sid-bg-neutral: #F8F8F9;
+  --sid-border: #E2E8F0;
+  --radius-btn: 6px;
+  --radius-card: 8px;
+
+  /* Backward Compatibility Tokens */
+  --govt-navy: #0B3D6B;
+  --govt-navy-dark: #072847;
+  --govt-gold: #C9A227;
+  --govt-orange: #D96B27;
+  --bg-govt: #F8F8F9;
+  --border-govt: #E2E8F0;
+}
+
 @layer base {
   body {
-    @apply bg-[#F4F7FA] text-slate-800 font-roboto;
+    @apply bg-[#F8F8F9] text-slate-800 font-sans antialiased;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  /* Display Font (Poppins) for Headlines & Section Titles */
+  h1, h2, h3, h4, .font-display, .font-heading {
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+    letter-spacing: -0.015em;
+  }
+
+  h1 {
+    font-size: 2rem; /* 32px standard; overridden by text-4xl/5xl/6xl for hero */
+    line-height: 2.5rem;
+    font-weight: 700;
+  }
+
+  h2 {
+    font-size: 1.5rem; /* 24px */
+    line-height: 2rem;
+    font-weight: 700;
+  }
+
+  h3 {
+    font-size: 1.125rem; /* 18px */
+    line-height: 1.625rem;
+    font-weight: 600;
+  }
+
+  /* Monospace pairing strictly for IDs, timestamps, scores, and raw data */
+  code, kbd, samp, pre, .font-mono, [data-mono="true"], td.font-mono, th.font-mono {
+    font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+  }
+
+  /* Standardized form inputs */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="search"],
+  input[type="tel"],
+  input[type="date"],
+  select,
+  textarea {
+    border-radius: 6px !important;
+    border-color: #CBD5E1 !important;
+    font-family: 'Inter', sans-serif !important;
+    font-size: 0.875rem !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02) !important;
+  }
+
+  input:focus,
+  select:focus,
+  textarea:focus {
+    border-color: #D96B27 !important;
+    outline: none !important;
+    box-shadow: 0 0 0 2px rgba(217, 107, 39, 0.15) !important;
+  }
+
+  /* Standardized Lucide Icon Weight App-Wide */
+  .lucide, svg.lucide {
+    stroke-width: 1.75px;
   }
 }
 
-/* Custom Scrollbar for Portal Layout */
+/* ------------------------------------------------------------- */
+/* UNHURRIED SECTION SPACING & LAYOUT RHYTHM                     */
+/* ------------------------------------------------------------- */
+.section-landing-major {
+  padding-top: 5rem;
+  padding-bottom: 6rem;
+}
+
+@media (min-width: 640px) {
+  .section-landing-major {
+    padding-top: 6rem;
+    padding-bottom: 7rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .section-landing-major {
+    padding-top: 6.5rem;
+    padding-bottom: 8rem;
+  }
+}
+
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: #F1F5F9;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: #CBD5E1;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #94A3B8;
 }
 
-/* Badge & Accent Utilities */
+/* ------------------------------------------------------------- */
+/* SKILL INDIA DIGITAL STANDARDIZED BUTTONS & CTAs               */
+/* ------------------------------------------------------------- */
+
+/* ------------------------------------------------------------- */
+/* SKILL INDIA DIGITAL STANDARDIZED BUTTONS & CTAs               */
+/* ------------------------------------------------------------- */
+
+/* TIER 1: Primary Filled Solid Button (Warm Burnt-Saffron #D96B27) */
+.btn-govt-primary,
+.btn-govt-orange,
+.btn-sid-primary,
+.btn-sid-solid,
+.btn-solid {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  background-color: #D96B27 !important;
+  background-image: none !important;
+  color: #FFFFFF !important;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0.5rem 1.125rem;
+  border-radius: 8px !important;
+  border: 1px solid #D96B27 !important;
+  box-shadow: 0 1px 2px rgba(217, 107, 39, 0.2) !important;
+  transition: all 180ms cubic-bezier(0.4, 0, 0.2, 1) !important;
+  cursor: pointer;
+  user-select: none;
+}
+
+.btn-govt-primary:hover,
+.btn-govt-orange:hover,
+.btn-sid-primary:hover,
+.btn-sid-solid:hover,
+.btn-solid:hover {
+  background-color: #C35919 !important;
+  border-color: #C35919 !important;
+  box-shadow: 0 4px 14px rgba(217, 107, 39, 0.3) !important;
+  transform: translateY(-1px);
+  filter: brightness(1.03);
+}
+
+.btn-govt-primary:active,
+.btn-govt-orange:active,
+.btn-sid-primary:active,
+.btn-sid-solid:active,
+.btn-solid:active {
+  transform: translateY(0);
+  filter: brightness(0.97);
+  box-shadow: 0 1px 2px rgba(217, 107, 39, 0.2) !important;
+}
+
+.btn-govt-primary:disabled,
+.btn-govt-orange:disabled,
+.btn-sid-primary:disabled,
+.btn-sid-solid:disabled,
+.btn-solid:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+/* TIER 2: Secondary Outlined Button (Navy Blue #0B3D6B / White BG) */
+.btn-govt-outline,
+.btn-sid-secondary,
+.btn-sid-outline,
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  background-color: #FFFFFF !important;
+  background-image: none !important;
+  color: #0B3D6B !important;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0.5rem 1.125rem;
+  border-radius: 8px !important;
+  border: 1.5px solid #0B3D6B !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03) !important;
+  transition: all 180ms ease-in-out !important;
+  cursor: pointer;
+  user-select: none;
+}
+
+.btn-govt-outline:hover,
+.btn-sid-secondary:hover,
+.btn-sid-outline:hover,
+.btn-outline:hover {
+  background-color: #F8FAFC !important;
+  border-color: #072847 !important;
+  color: #072847 !important;
+  box-shadow: 0 3px 10px rgba(11, 61, 107, 0.1) !important;
+  transform: translateY(-1px);
+  filter: brightness(1.02);
+}
+
+.btn-govt-outline:active,
+.btn-sid-secondary:active,
+.btn-sid-outline:active,
+.btn-outline:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03) !important;
+}
+
+.btn-govt-outline:disabled,
+.btn-sid-secondary:disabled,
+.btn-sid-outline:disabled,
+.btn-outline:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* TIER 2-B: Outlined Orange Variant */
+.btn-sid-outline-orange {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  background-color: #FFFFFF !important;
+  background-image: none !important;
+  color: #D96B27 !important;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0.5rem 1.125rem;
+  border-radius: 8px !important;
+  border: 1.5px solid #D96B27 !important;
+  box-shadow: 0 1px 2px rgba(217, 107, 39, 0.08) !important;
+  transition: all 180ms ease-in-out !important;
+  cursor: pointer;
+  user-select: none;
+}
+
+.btn-sid-outline-orange:hover {
+  background-color: #FFF5EE !important;
+  border-color: #C35919 !important;
+  color: #C35919 !important;
+  box-shadow: 0 3px 10px rgba(217, 107, 39, 0.18) !important;
+  transform: translateY(-1px);
+}
+
+.btn-sid-outline-orange:active {
+  transform: translateY(0);
+}
+
+/* ------------------------------------------------------------- */
+/* STANDARDIZED CARD SYSTEM (24-32px padding, light border, lift)*/
+/* ------------------------------------------------------------- */
+.card-sid,
+.sid-card {
+  background-color: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 1.5rem; /* 24px */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  transition: all 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (min-width: 640px) {
+  .card-sid,
+  .sid-card {
+    padding: 1.75rem; /* 28px */
+  }
+}
+
+.card-sid:hover,
+.sid-card:hover,
+.card-lift:hover {
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.07), 0 4px 10px -2px rgba(0, 0, 0, 0.03);
+  transform: translateY(-2px);
+}
+
+/* ------------------------------------------------------------- */
+/* STANDARDIZED MODAL SYSTEM (~900-1000px, dimmed backdrop)     */
+/* ------------------------------------------------------------- */
+.modal-sid-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background-color: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(4px);
+  overflow-y: auto;
+}
+
+.modal-sid-content {
+  background-color: #FFFFFF;
+  border-radius: 12px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  border: 1px solid #E2E8F0;
+  width: 100%;
+  max-width: 960px;
+  position: relative;
+  overflow: hidden;
+  margin: auto;
+}
+
+/* ------------------------------------------------------------- */
+/* SECTION EYEBROWS & BADGES                                     */
+/* ------------------------------------------------------------- */
+
+/* Eyebrows with uppercase letter-tracking */
+.sid-eyebrow,
+.section-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem; /* 12px */
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #D96B27;
+}
+
 .govt-badge {
-  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium uppercase tracking-wider;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-family: 'Inter', sans-serif;
 }
 
 .govt-badge-candidate {
-  @apply bg-blue-100 text-blue-800 border border-blue-200;
+  background-color: #EFF6FF;
+  color: #1E40AF;
+  border: 1px solid #BFDBFE;
 }
 
 .govt-badge-training_center {
-  @apply bg-purple-100 text-purple-800 border border-purple-200;
+  background-color: #FAF5FF;
+  color: #6B21A8;
+  border: 1px solid #E9D5FF;
 }
 
 .govt-badge-government {
-  @apply bg-amber-100 text-amber-900 border border-amber-300 font-bold;
+  background-color: #FFFBEB;
+  color: #92400E;
+  border: 1px solid #FCD34D;
+  font-weight: 700;
 }
 
 .govt-badge-employer {
-  @apply bg-emerald-100 text-emerald-800 border border-emerald-200;
+  background-color: #ECFDF5;
+  color: #065F46;
+  border: 1px solid #A7F3D0;
 }
 
-/* Govt Button Standard Styles */
-.btn-govt-primary {
-  @apply bg-govt-navy hover:bg-govt-navy-dark text-white font-medium px-4 py-2 rounded shadow transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50;
+/* Neutral Background Striping */
+.bg-sid-neutral {
+  background-color: #F8F8F9 !important;
 }
 
-.btn-govt-orange {
-  @apply bg-govt-orange hover:bg-govt-orange-hover text-white font-medium px-4 py-2 rounded shadow transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50;
+/* ------------------------------------------------------------- */
+/* CLEAN STRUCTURED DATA TABLES                                  */
+/* ------------------------------------------------------------- */
+.table-govt {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid #E2E8F0;
+  background-color: #FFFFFF;
+  font-size: 0.875rem;
+  text-align: left;
 }
 
-.btn-govt-outline {
-  @apply border border-govt-navy text-govt-navy hover:bg-govt-navy/5 font-medium px-4 py-2 rounded transition-all duration-200 flex items-center justify-center gap-2;
+.table-govt th {
+  background-color: #F8FAFC;
+  color: #475569;
+  font-weight: 600;
+  padding: 0.625rem 0.875rem;
+  border-bottom: 1px solid #E2E8F0;
+  border-right: 1px solid #F1F5F9;
+  text-transform: uppercase;
+  font-size: 0.6875rem;
+  letter-spacing: 0.05em;
+  font-family: 'Inter', sans-serif;
 }
+
+.table-govt th:last-child {
+  border-right: none;
+}
+
+.table-govt td {
+  padding: 0.625rem 0.875rem;
+  border-bottom: 1px solid #E2E8F0;
+  border-right: 1px solid #F8FAFC;
+  color: #1E293B;
+  vertical-align: middle;
+  font-family: 'Inter', sans-serif;
+}
+
+.table-govt td:last-child {
+  border-right: none;
+}
+
+.table-govt tr:last-child td {
+  border-bottom: none;
+}
+
+.table-govt tr:hover td {
+  background-color: #F8F9FA;
+}
+
+/* ------------------------------------------------------------- */
+/* ANIMATIONS & INTERACTIVE VISUALS                              */
+/* ------------------------------------------------------------- */
+
+/* Ken-Burns Subtle Breathing Effect */
+@keyframes kenburns {
+  0% {
+    transform: scale(1.0) translate(0, 0);
+  }
+  50% {
+    transform: scale(1.06) translate(-0.8%, -0.4%);
+  }
+  100% {
+    transform: scale(1.0) translate(0, 0);
+  }
+}
+
+.animate-kenburns {
+  animation: kenburns 24s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+/* Infinite Marquee */
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 32s linear infinite;
+}
+
+.animate-marquee:hover,
+.marquee-container:hover .animate-marquee {
+  animation-play-state: paused;
+}
+
+/* Pulse Glow for Diagnostic Card & Badges */
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(217, 107, 39, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 16px 4px rgba(217, 107, 39, 0.25);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 2.5s infinite;
+}
+
+/* Smooth Fade/Slide Up */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Smooth Dropdown Enter (180ms ease-out) */
+@keyframes dropdownEnter {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-dropdown-enter {
+  animation: dropdownEnter 180ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transform-origin: top right;
+}
+
+/* Hero & Card Overlays */
+.hero-gradient-overlay {
+  background: linear-gradient(135deg, rgba(7, 40, 71, 0.94) 0%, rgba(11, 61, 107, 0.88) 50%, rgba(7, 40, 71, 0.96) 100%) !important;
+}
+
+.quiz-accent-card {
+  background: linear-gradient(135deg, #E07A38 0%, #D96B27 50%, #C35919 100%) !important;
+  color: #FFFFFF !important;
+}
+
+/* Accessibility: Universal Reduced Motion Compliance */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .animate-kenburns,
+  .animate-marquee,
+  .animate-pulse-glow,
+  .animate-fade-in-up,
+  .animate-dropdown-enter {
+    animation: none !important;
+    transform: none !important;
+  }
+}
+

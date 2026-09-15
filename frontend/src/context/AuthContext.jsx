@@ -8,25 +8,34 @@ const getInitialUser = () => {
     const cachedUserStr = localStorage.getItem('nsp_portal_user');
     if (cachedUserStr) {
       const cached = JSON.parse(cachedUserStr);
-      if (cached && cached.full_name) {
+      if (cached && (cached.full_name || cached.email || cached.id)) {
         return cached;
       }
     }
   } catch (e) {
     console.warn('Failed to parse initial cached user:', e);
   }
-  return {
-    id: 'usr-cand-himanshu',
-    full_name: 'HIMANSHU PATHAK',
-    email: 'pathakhimanshu1609@gmail.com',
-    role: 'candidate',
-    organization_name: 'National Skill Candidate'
-  };
+  return null;
+};
+
+const getInitialCandidateProfile = () => {
+  try {
+    const cachedUserStr = localStorage.getItem('nsp_portal_user');
+    if (cachedUserStr) {
+      const cached = JSON.parse(cachedUserStr);
+      if (cached?.candidateProfile) return cached.candidateProfile;
+      if (cached?.candidateRecord) return cached.candidateRecord;
+      if (cached?.role === 'candidate' && (cached?.preferred_trade || cached?.id)) return cached;
+    }
+  } catch (e) {}
+  return null;
 };
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(getInitialUser);
-  const [role, setRole] = useState(() => getInitialUser().role || 'candidate');
+  const [role, setRole] = useState(() => getInitialUser()?.role || null);
+  const [candidateProfile, setCandidateProfile] = useState(getInitialCandidateProfile);
+  const [isProfileLoading, setIsProfileLoading] = useState(false);
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -64,6 +73,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const fetchUserProfile = async (authUser) => {
+    setIsProfileLoading(true);
     try {
       // 1. Fetch profile from public.profiles table
       const { data: profile } = await supabase
@@ -72,7 +82,7 @@ export const AuthProvider = ({ children }) => {
         .eq('id', authUser.id)
         .maybeSingle();
 
-      const assignedRole = profile?.role || authUser.user_metadata?.role || 'candidate';
+      const assignedRole = profile?.role || authUser.user_metadata?.role || role || 'candidate';
 
       // 2. Fetch candidate row if role is candidate
       let candidateData = null;
@@ -80,7 +90,7 @@ export const AuthProvider = ({ children }) => {
         const { data: candRow } = await supabase
           .from('candidates')
           .select('*')
-          .eq('user_id', authUser.id)
+          .or(`user_id.eq.${authUser.id},id.eq.${authUser.id}`)
           .maybeSingle();
         
         candidateData = candRow || null;
@@ -107,6 +117,10 @@ export const AuthProvider = ({ children }) => {
             
           candidateData = createdCand || null;
         }
+
+        if (candidateData) {
+          setCandidateProfile(candidateData);
+        }
       }
 
       const fullUser = {
@@ -115,7 +129,8 @@ export const AuthProvider = ({ children }) => {
         full_name: candidateData?.full_name || profile?.full_name || authUser.user_metadata?.full_name || authUser.email.split('@')[0],
         role: assignedRole,
         organization_name: profile?.organization_name || authUser.user_metadata?.organization_name || '',
-        candidateRecord: candidateData,
+        candidateRecord: candidateData || candidateProfile,
+        candidateProfile: candidateData || candidateProfile,
         ...profile
       };
 
@@ -124,63 +139,43 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('nsp_portal_user', JSON.stringify(fullUser));
     } catch (err) {
       console.warn('Could not fetch DB profile:', err);
-      const assignedRole = authUser.user_metadata?.role || 'candidate';
-      const fallbackUser = {
-        id: authUser.id,
-        email: authUser.email,
-        role: assignedRole,
-        full_name: authUser.user_metadata?.full_name || authUser.email.split('@')[0]
-      };
-      setUser(fallbackUser);
-      setRole(assignedRole);
-      localStorage.setItem('nsp_portal_user', JSON.stringify(fallbackUser));
+    } finally {
+      setIsProfileLoading(false);
     }
+  };
+
+  const updateCandidateProfile = (updates) => {
+    setCandidateProfile(prev => {
+      const updated = { ...prev, ...updates };
+      setUser(curr => {
+        const u = { ...curr, candidateProfile: updated, candidateRecord: updated };
+        localStorage.setItem('nsp_portal_user', JSON.stringify(u));
+        return u;
+      });
+      return updated;
+    });
   };
 
   const switchDemoRole = async (targetRole) => {
     setLoading(true);
     setRole(targetRole);
 
-    const roleProfiles = {
-      candidate: {
-        id: 'usr-cand-demo',
-        full_name: 'Ananya Sharma',
-        email: 'ananya.sharma@skilling.gov.in',
-        role: 'candidate',
-        organization_name: 'Apex ITI Trainee'
-      },
-      training_center: {
-        id: 'usr-tc-demo',
-        full_name: 'Sunil Verma (Center Director)',
-        email: 'director@apexskilling.edu.in',
-        role: 'training_center',
-        organization_name: 'Apex Industrial Skilling Institute'
-      },
-      government: {
-        id: 'usr-govt-demo',
-        full_name: 'Ramesh Deshmukh (IAS)',
-        email: 'deshmukh.r@msde.gov.in',
-        role: 'government',
-        organization_name: 'Ministry of Skill Development & Entrepreneurship'
-      },
-      employer: {
-        id: 'usr-emp-demo',
-        full_name: 'Vikram Mehta (Head HR)',
-        email: 'careers@techcorp-india.com',
-        role: 'employer',
-        organization_name: 'TechCorp Engineering Solutions'
-      }
+    const currentUser = user || {
+      id: `usr-${Date.now()}`,
+      email: `${targetRole}@skilling.gov.in`,
+      full_name: 'Portal User'
     };
 
-    const targetUser = roleProfiles[targetRole] || {
-      id: user?.id || 'demo-user',
-      full_name: user?.full_name || `${targetRole.toUpperCase()} User`,
-      email: user?.email || `user@${targetRole}.gov.in`,
-      role: targetRole
+    const updatedUser = {
+      ...currentUser,
+      role: targetRole,
+      organization_name: targetRole === 'candidate' 
+        ? 'National Skilling Candidate' 
+        : (currentUser.organization_name || `${targetRole.replace('_', ' ').toUpperCase()} Organization`)
     };
 
-    setUser(targetUser);
-    localStorage.setItem('nsp_portal_user', JSON.stringify(targetUser));
+    setUser(updatedUser);
+    localStorage.setItem('nsp_portal_user', JSON.stringify(updatedUser));
     setLoading(false);
   };
 
@@ -255,8 +250,21 @@ export const AuthProvider = ({ children }) => {
     return { data: { user: createdUser }, error: null };
   };
 
-  const signIn = async ({ email, password }) => {
-    if (isSupabaseConfigured()) {
+  const signIn = async (credentials, maybePassword, maybeRole) => {
+    let email = '';
+    let password = '';
+    let explicitRole = null;
+    if (typeof credentials === 'object' && credentials !== null) {
+      email = credentials.email || '';
+      password = credentials.password || '';
+      explicitRole = credentials.role || null;
+    } else {
+      email = credentials || '';
+      password = maybePassword || '';
+      explicitRole = maybeRole || null;
+    }
+
+    if (isSupabaseConfigured() && email && password) {
       try {
         const { data, error } = await supabase.auth.signInWithPassword({
           email,
@@ -264,25 +272,67 @@ export const AuthProvider = ({ children }) => {
         });
 
         if (!error && data?.user) {
+          if (explicitRole) {
+            setRole(explicitRole);
+            await supabase.from('profiles').upsert({ id: data.user.id, role: explicitRole }).catch(() => {});
+          }
           await fetchUserProfile(data.user);
+          if (explicitRole) {
+            setRole(explicitRole);
+          }
           return { data, error: null };
         }
+        if (error) {
+          console.warn('Supabase sign-in response:', error.message);
+        }
       } catch (netErr) {
-        console.warn('Supabase Sign In notice (using direct portal auth):', netErr.message);
+        console.warn('Supabase Sign In notice (using direct portal auth):', netErr?.message);
       }
     }
 
-    // Fallback: Authenticate locally
+    // Fallback: Authenticate locally so candidates/admins can always access in dev/offline
+    const rawName = email ? email.split('@')[0] : 'Portal User';
+    const formattedName = rawName.replace(/[._-]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    
+    let userRole = explicitRole || 'candidate';
+    if (!explicitRole) {
+      if (email.includes('admin') || email.includes('govt')) userRole = 'government';
+      else if (email.includes('trainer') || email.includes('center') || email.includes('institute')) userRole = 'training_center';
+      else if (email.includes('employer') || email.includes('hr') || email.includes('corp')) userRole = 'employer';
+    }
+
+    const orgNameByRole = {
+      candidate: 'National Skilling Candidate',
+      training_center: 'Apex Industrial Training Institute',
+      employer: 'Tata Motors Limited',
+      government: 'Ministry of Skill Development & Entrepreneurship'
+    };
+
     const signedUser = {
       id: `usr-${Date.now()}`,
-      email,
-      full_name: email.split('@')[0].replace('.', ' ').toUpperCase(),
-      role: 'candidate',
-      organization_name: ''
+      email: email || `${userRole}@skilling.gov.in`,
+      full_name: formattedName || 'Portal User',
+      role: userRole,
+      organization_name: orgNameByRole[userRole] || 'Partner Organization',
+      candidateRecord: {
+        id: `cand-${Date.now()}`,
+        user_id: `usr-${Date.now()}`,
+        full_name: formattedName || 'Portal User',
+        email: email || 'user@skilling.gov.in',
+        preferred_trade: 'Advanced CNC Machinist',
+        district: 'Pune',
+        state: 'Maharashtra',
+        qualification: 'ITI Machinist Certificate',
+        status: 'Registered',
+        is_verified: true,
+        aadhaar_last4: '8842'
+      }
     };
+    signedUser.candidateProfile = signedUser.candidateRecord;
 
     setUser(signedUser);
     setRole(signedUser.role);
+    setCandidateProfile(signedUser.candidateRecord);
     localStorage.setItem('nsp_portal_user', JSON.stringify(signedUser));
 
     return { data: { user: signedUser }, error: null };
@@ -295,18 +345,23 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('nsp_portal_user');
     setUser(null);
     setRole(null);
+    setCandidateProfile(null);
     setSession(null);
   };
 
   const value = {
     user,
     role,
+    candidateProfile,
+    isProfileLoading,
     session,
     loading,
     signUp,
     signIn,
     signOut,
     switchDemoRole,
+    updateCandidateProfile,
+    refreshCandidateProfile: () => user && fetchUserProfile({ id: user.id, email: user.email }),
     refreshUser: () => user && fetchUserProfile({ id: user.id, email: user.email })
   };
 

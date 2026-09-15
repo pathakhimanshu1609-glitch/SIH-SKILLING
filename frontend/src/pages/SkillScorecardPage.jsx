@@ -6,7 +6,6 @@ import {
   BarChart2, 
   TrendingUp, 
   CheckCircle2, 
-  Sparkles, 
   ShieldCheck, 
   Download, 
   ArrowUpRight,
@@ -22,7 +21,8 @@ export const SkillScorecardPage = ({ selectedTrade = 'Advanced CNC Machinist', o
   const AVAILABLE_TRADES = [
     'Advanced CNC Machinist',
     'Solar PV Installer & Technician',
-    'EV Battery Maintenance Specialist'
+    'EV Battery Maintenance Specialist',
+    'Industrial Automation & Robotics Technician'
   ];
 
   useEffect(() => {
@@ -86,28 +86,28 @@ export const SkillScorecardPage = ({ selectedTrade = 'Advanced CNC Machinist', o
     : 80;
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6 font-roboto">
+    <div className="max-w-5xl mx-auto space-y-10 sm:space-y-12 font-sans">
       {/* Top Banner with Trade Scoping */}
-      <div className="bg-gradient-to-r from-govt-navy via-slate-900 to-amber-950 text-white rounded-xl p-6 shadow-govt-card relative overflow-hidden">
+      <div className="bg-[#0B3D6B] border border-[#072847] text-white rounded-[6px] p-4 sm:p-5 relative">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative z-10">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-govt-orange text-white flex items-center justify-center font-bold shadow">
-              <BarChart2 className="w-6 h-6" />
+            <div className="w-10 h-10 rounded-[4px] bg-govt-orange text-white flex items-center justify-center font-bold">
+              <BarChart2 className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2 mb-0.5">
-                <span className="bg-govt-orange text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded">
+                <span className="bg-govt-orange text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded-[4px]">
                   TRADE SCOPED SCORECARD
                 </span>
                 <span className="text-xs text-amber-200">DigiLocker Verified</span>
               </div>
-              <h1 className="text-xl font-bold">Skill Competency Radar: {activeTrade}</h1>
+              <h1 className="font-display text-xl font-bold">Skill Competency Radar: {activeTrade}</h1>
               <p className="text-xs text-slate-300">Comparative pre- vs post-training evaluation across NCVT standards.</p>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
-            <button className="btn-govt-orange text-xs py-2 px-4 flex items-center gap-1 shadow">
+            <button className="btn-sid-primary text-xs py-2 px-3.5 flex items-center gap-1.5 font-bold">
               <Download className="w-3.5 h-3.5" />
               <span>Download Official PDF</span>
             </button>
@@ -115,16 +115,16 @@ export const SkillScorecardPage = ({ selectedTrade = 'Advanced CNC Machinist', o
         </div>
 
         {/* Trade Selector Tabs in Header */}
-        <div className="mt-5 pt-4 border-t border-white/10 flex flex-wrap items-center gap-2">
+        <div className="mt-4 pt-3 border-t border-white/10 flex flex-wrap items-center gap-2">
           <span className="text-xs font-medium text-slate-300 mr-1">Switch Trade Scope:</span>
           {AVAILABLE_TRADES.map((t) => (
             <button
               key={t}
               onClick={() => handleTradeChange(t)}
-              className={`text-xs px-3 py-1.5 rounded-lg font-bold transition-all ${
+              className={`text-xs px-2.5 py-1 rounded-[4px] font-bold transition-all ${
                 activeTrade === t
-                  ? 'bg-govt-orange text-white shadow-sm'
-                  : 'bg-white/10 hover:bg-white/20 text-slate-200'
+                  ? 'bg-govt-orange text-white'
+                  : 'bg-white/10 text-slate-200 hover:bg-white/20'
               }`}
             >
               {t}
@@ -137,9 +137,9 @@ export const SkillScorecardPage = ({ selectedTrade = 'Advanced CNC Machinist', o
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         
         {/* Radar Chart SVG Widget */}
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-4 flex flex-col items-center">
+        <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-6 sm:p-8 space-y-4 flex flex-col items-center">
           <div className="w-full flex items-center justify-between border-b border-slate-100 pb-3">
-            <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+            <h2 className="font-display text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
               <BarChart2 className="w-4 h-4 text-govt-navy" />
               <span>Skill Radar Analysis</span>
             </h2>
@@ -233,7 +233,7 @@ export const SkillScorecardPage = ({ selectedTrade = 'Advanced CNC Machinist', o
                     y={y}
                     textAnchor="middle"
                     dominantBaseline="middle"
-                    className="text-[10px] font-bold fill-slate-700 font-roboto"
+                    className="text-[10px] font-bold fill-slate-700 font-sans"
                   >
                     {item.skill_name.length > 18 ? `${item.skill_name.substring(0, 16)}...` : item.skill_name}
                   </text>
@@ -250,8 +250,8 @@ export const SkillScorecardPage = ({ selectedTrade = 'Advanced CNC Machinist', o
         {/* Skill Growth Table & Certification Card */}
         <div className="space-y-6">
           {/* Skill Score Growth Table */}
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-4">
-            <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2 pb-3 border-b border-slate-100">
+          <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-6 sm:p-8 space-y-4">
+            <h2 className="font-display text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2 pb-3 border-b border-slate-100">
               <TrendingUp className="w-4 h-4 text-emerald-600" />
               <span>Competency Breakdown & Improvement</span>
             </h2>
@@ -289,15 +289,15 @@ export const SkillScorecardPage = ({ selectedTrade = 'Advanced CNC Machinist', o
           </div>
 
           {/* Competency Level & Certification Badge */}
-          <div className="bg-gradient-to-r from-amber-500 to-govt-orange text-white rounded-xl p-5 shadow-sm space-y-2">
+          <div className="bg-[#072847] border border-[#C9A227] text-white rounded-xl p-5 sm:p-6 space-y-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Award className="w-5 h-5" />
-                <span className="text-xs font-bold uppercase tracking-wider">
+                <Award className="w-5 h-5 text-[#C9A227]" />
+                <span className="font-display text-xs font-bold uppercase tracking-wider">
                   {avgPostScore >= 60 ? 'NCVT Level 4 Certified' : 'Evaluation in Progress'}
                 </span>
               </div>
-              <span className="bg-white text-amber-900 text-[10px] font-bold px-2 py-0.5 rounded uppercase">
+              <span className="bg-[#C9A227] text-[#072847] text-[10px] font-bold px-2 py-0.5 rounded-[4px] uppercase font-mono">
                 {activeTrade}
               </span>
             </div>

@@ -1,30 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { fetchWithAuth } from '../lib/api';
-import { WhatsAppWidget } from '../components/WhatsAppWidget';
 import { subscribeEmploymentSync, notifyEmploymentChange } from '../lib/realtimeSync';
 import { 
   Briefcase, 
   CheckCircle2, 
   Clock, 
   ShieldCheck, 
-  AlertTriangle, 
   Building2, 
   Users, 
   Calendar, 
-  TrendingUp, 
   FileCheck, 
-  XCircle, 
-  Sparkles,
-  ChevronRight,
-  HelpCircle,
-  IndianRupee,
-  MessageSquare,
-  Lock,
-  Unlock,
-  Radio,
-  Check,
-  AlertCircle
+  ChevronDown,
+  ChevronUp,
+  Settings,
+  Lock, 
+  Unlock, 
+  Check, 
+  AlertCircle,
+  X,
+  ArrowRight,
+  TrendingUp,
+  Award
 } from 'lucide-react';
 
 export const EmploymentStatusPage = () => {
@@ -38,11 +35,15 @@ export const EmploymentStatusPage = () => {
   const [tcRecords, setTcRecords] = useState([]);
   const [employerQueue, setEmployerQueue] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [whatsAppNotice, setWhatsAppNotice] = useState('');
-  const [realtimePulse, setRealtimePulse] = useState(false);
+
+  // Dev tools panel toggle (relocated off the main candidate page)
+  const [showDevPanel, setShowDevPanel] = useState(false);
 
   // Date Simulation toggle (Reference date default is 2026-09-13)
   const [simulatedDateStr, setSimulatedDateStr] = useState('2026-09-13');
+
+  // Collapsible Status Update Row (Closed by default)
+  const [showStatusUpdate, setShowStatusUpdate] = useState(false);
 
   // Candidate Self-Report Form State
   const [formData, setFormData] = useState({
@@ -70,11 +71,9 @@ export const EmploymentStatusPage = () => {
     loadStatusData();
   }, [role, selectedCandidateId]);
 
-  // Subscribe to realtime updates across tabs & Supabase
+  // Subscribe to realtime updates across tabs
   useEffect(() => {
-    const unsubscribe = subscribeEmploymentSync((event) => {
-      setRealtimePulse(true);
-      setTimeout(() => setRealtimePulse(false), 2500);
+    const unsubscribe = subscribeEmploymentSync(() => {
       loadStatusData();
     });
 
@@ -120,26 +119,6 @@ export const EmploymentStatusPage = () => {
     }
   };
 
-  const handleTriggerWhatsAppPrompt = async (intervalDay = 30) => {
-    try {
-      const res = await fetchWithAuth('/api/whatsapp/send-prompt', {
-        method: 'POST',
-        body: JSON.stringify({
-          mobile: '+91 98765 43210',
-          promptType: `${intervalDay}_day`,
-          lang: 'hi'
-        })
-      }, role);
-
-      if (res.success) {
-        setWhatsAppNotice(`WhatsApp Day-${intervalDay} longitudinal retention prompt sent to candidate (+91 98765 43210)! Check live WhatsApp simulator on bottom right.`);
-        setTimeout(() => setWhatsAppNotice(''), 6000);
-      }
-    } catch (err) {
-      alert('WhatsApp Dispatch Error: ' + err.message);
-    }
-  };
-
   const handleSelfReportSubmit = async (e) => {
     e.preventDefault();
     setSubmittingSelfReport(true);
@@ -160,11 +139,12 @@ export const EmploymentStatusPage = () => {
       if (res.success) {
         setRecord(res.record);
         setCheckins(res.checkins || []);
-        setSelfReportMsg(`Status successfully saved as '${res.record.self_reported_status}'. ${res.checkins_generated ? '4 Longitudinal retention check-in milestones (Day 30, 90, 180, 365) auto-generated in Supabase!' : ''}`);
+        setSelfReportMsg(`Status successfully updated to '${res.record.self_reported_status}'.`);
         notifyEmploymentChange('candidate_self_report', { candidate_id: selectedCandidateId, status: res.record.self_reported_status });
+        setTimeout(() => setShowStatusUpdate(false), 1500);
       }
     } catch (err) {
-      alert('Error updating self-report: ' + err.message);
+      alert('Error updating status: ' + err.message);
     } finally {
       setSubmittingSelfReport(false);
     }
@@ -211,7 +191,7 @@ export const EmploymentStatusPage = () => {
 
       if (res.success) {
         setCheckins(res.checkins || []);
-        setCheckInMsg(`Day ${intervalDays} longitudinal retention survey saved! Status: ${formVals.continued_employment_status}.`);
+        setCheckInMsg(`Day ${intervalDays} check-in successfully submitted! Thank you for keeping your record verified.`);
         notifyEmploymentChange('checkin_submitted', { record_id: record?.id, interval_day: intervalDays });
         loadStatusData();
       }
@@ -243,474 +223,456 @@ export const EmploymentStatusPage = () => {
     }
   };
 
+  // Find due checkin or next unlocking checkin for concise text
+  const milestones = [30, 90, 180, 365];
+  const dueMilestone = milestones.find(m => getCheckinStatus(m).state === 'due');
+  const nextLockedMilestone = milestones.find(m => getCheckinStatus(m).state === 'locked');
+  const allCompleted = milestones.every(m => getCheckinStatus(m).state === 'completed');
+
+  const currentEmployerName = record?.employer_name || 
+    employers.find(e => e.id === (record?.employer_id || formData.confirmed_employer_id))?.company_name || 
+    'Tata Advanced Engineering Solutions';
+
   return (
-    <div className="max-w-5xl mx-auto space-y-6 font-roboto relative">
-      {/* Top Banner */}
-      <div className="bg-gradient-to-r from-govt-navy via-slate-900 to-purple-950 text-white rounded-xl p-6 shadow-govt-card relative overflow-hidden">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative z-10">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-govt-orange text-white flex items-center justify-center font-bold shadow">
-              <Briefcase className="w-6 h-6" />
+    <div className="max-w-5xl mx-auto space-y-10 sm:space-y-12 font-sans relative">
+      
+      {/* ------------------------------------------------------------- */}
+      {/* 1. TOP HEADER BANNER (NO DATABASE JARGON, NO DUPLICATE BUTTONS)*/}
+      {/* ------------------------------------------------------------- */}
+      <div className="bg-[#0B3D6B] border border-[#072847] text-white rounded-[6px] p-4 sm:p-5 relative">
+        <div className="flex items-center justify-between gap-4 relative z-10">
+          <div className="flex items-center gap-3.5">
+            <div className="w-10 h-10 rounded-[4px] bg-white/10 border border-[#C9A227]/40 flex items-center justify-center font-bold text-[#C9A227]">
+              <Briefcase className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2 mb-0.5">
-                <span className="bg-govt-orange text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded">
-                  UNIFIED EMPLOYMENT TRACKING
+                <span className="bg-[#C9A227] text-govt-navy text-[10px] uppercase font-extrabold px-2 py-0.5 rounded tracking-wider">
+                  CAREER MILESTONES
                 </span>
-                <span className="text-xs text-purple-200">Supabase Realtime Sync</span>
-                {realtimePulse && (
-                  <span className="bg-emerald-500 text-white text-[10px] font-bold px-2 py-0.5 rounded animate-pulse flex items-center gap-1">
-                    <Radio className="w-3 h-3 animate-spin" /> Live Synced
-                  </span>
-                )}
               </div>
-              <h1 className="text-xl font-bold">Placement Verification & Longitudinal Check-Ins</h1>
-              <p className="text-xs text-slate-300">Single shared data model (`employment_records` & `checkins`) across Candidate, Employer, and Training Center portals.</p>
+              <h1 className="font-display text-xl font-bold tracking-tight">Placement Verification & Check-Ins</h1>
+              <p className="text-xs text-slate-300 mt-0.5">
+                Official record of verified employment, corporate retention, and longitudinal career growth.
+              </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          {/* Discreet Gear Icon Trigger for Testing Tools (Dev Panel) */}
+          {import.meta.env.DEV && (
             <button
-              onClick={() => handleTriggerWhatsAppPrompt(30)}
-              className="bg-[#25D366] hover:bg-[#20ba5a] text-white font-bold text-xs py-2 px-3.5 rounded-lg shadow-md flex items-center gap-1.5 transition-all"
+              onClick={() => setShowDevPanel(true)}
+              title="Developer Testing & Simulation Panel"
+              className="p-2 rounded-lg bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white transition-all text-xs flex items-center gap-1.5"
             >
-              <MessageSquare className="w-4 h-4 fill-white" />
-              <span>WhatsApp Bot Simulator</span>
+              <Settings className="w-4 h-4 text-[#C9A227]" />
+              <span className="hidden sm:inline font-medium text-[11px]">Testing Tools</span>
             </button>
-          </div>
+          )}
         </div>
       </div>
 
-      {/* Candidate Inspector & Date Simulator Toolbar */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 text-xs">
-        <div className="flex items-center gap-3 flex-wrap">
-          <span className="font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
-            <Users className="w-4 h-4 text-govt-navy" />
-            Inspect Candidate:
-          </span>
-          <div className="flex gap-2">
-            {[
-              { id: 'cand-01', label: 'Ananya Sharma (Placed, Day 30 Done)' },
-              { id: 'cand-05', label: 'Vikas Shinde (Applied, Unplaced)' },
-              { id: 'cand-03', label: 'Amit Verma (Placed, Day 30 Due Now)' }
-            ].map(cand => (
-              <button
-                key={cand.id}
-                onClick={() => setSelectedCandidateId(cand.id)}
-                className={`px-3 py-1.5 rounded font-bold transition-all ${
-                  selectedCandidateId === cand.id
-                    ? 'bg-govt-navy text-white shadow-sm'
-                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                }`}
-              >
-                {cand.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-lg">
-          <Calendar className="w-4 h-4 text-govt-orange" />
-          <span className="font-bold text-amber-900">Current Date:</span>
-          <input
-            type="date"
-            value={simulatedDateStr}
-            onChange={(e) => setSimulatedDateStr(e.target.value)}
-            className="bg-white border border-amber-300 rounded px-2 py-0.5 text-xs font-mono font-bold text-amber-950"
-          />
-          <span className="text-[10px] text-amber-800">(Change date to test unlocking due check-ins)</span>
-        </div>
-      </div>
-
-      {whatsAppNotice && (
-        <div className="bg-emerald-50 border border-emerald-300 text-emerald-900 p-3 rounded-lg text-xs flex items-center justify-between shadow-sm">
-          <div className="flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-[#25D366]" />
-            <span>{whatsAppNotice}</span>
-          </div>
-        </div>
-      )}
-
-      {/* SECTION 1: CANDIDATE SELF-REPORT FORM */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-6">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
+      {/* ------------------------------------------------------------- */}
+      {/* 2. CURRENT PLACEMENT STATUS CARD (CLEAR SUMMARY, NO RAW FORMS) */}
+      {/* ------------------------------------------------------------- */}
+      <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-6 sm:p-8 space-y-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
           <div>
-            <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
-              <FileCheck className="w-4 h-4 text-govt-navy" />
-              <span>1. Candidate Employment Self-Report (`employment_records`)</span>
-            </h2>
-            <p className="text-xs text-slate-500">
-              Candidate: <strong>{record?.candidate_name || 'Candidate'}</strong> ({record?.trade || 'Skill Trade'}) • District: <strong>{record?.district || 'Pune'}</strong>
+            <div className="flex items-center gap-2">
+              <Building2 className="w-4 h-4 text-govt-navy" />
+              <h2 className="font-display text-base font-bold text-slate-800">Current Placement Status</h2>
+            </div>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Trainee: <strong>{user?.full_name || record?.candidate_name || 'Candidate Trainee'}</strong> • District: <strong>{record?.district || 'Pune'}</strong>
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
-            {record?.employer_confirmed ? (
-              <span className="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-1 rounded flex items-center gap-1 border border-emerald-300">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                Verified by {record.employer_name || 'Employer'} on {record.employer_confirmed_at ? new Date(record.employer_confirmed_at).toLocaleDateString() : 'N/A'}
+          {/* Employer Verification Badge */}
+          {record?.self_reported_status === 'Placed' ? (
+            record?.employer_confirmed ? (
+              <span className="bg-emerald-50 text-emerald-800 border border-emerald-300 text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1.5 shadow-xs">
+                <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                Verified by Employer ({record.employer_confirmed_at ? new Date(record.employer_confirmed_at).toLocaleDateString() : 'Active'})
               </span>
             ) : (
-              <span className="bg-amber-100 text-amber-900 text-xs font-bold px-2.5 py-1 rounded flex items-center gap-1 border border-amber-300">
-                <Clock className="w-3.5 h-3.5 text-amber-700" />
-                Pending Employer Verification
+              <span className="bg-amber-50 text-amber-900 border border-amber-300 text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1.5 shadow-xs">
+                <Clock className="w-4 h-4 text-amber-700" />
+                Employer Verification Pending
               </span>
-            )}
-          </div>
+            )
+          ) : (
+            <span className="bg-slate-100 text-slate-700 border border-slate-300 text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1.5">
+              <Clock className="w-4 h-4 text-slate-500" />
+              Status: {record?.self_reported_status || 'Applied'}
+            </span>
+          )}
         </div>
 
-        {selfReportMsg && (
-          <div className="bg-emerald-50 border border-emerald-300 text-emerald-900 p-3 rounded-lg text-xs flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-            <span>{selfReportMsg}</span>
+        {/* Read-Only Structured Placement Information Grid */}
+        {record?.self_reported_status === 'Placed' ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-1">
+            <div className="p-3.5 rounded-lg bg-slate-50 border border-slate-200">
+              <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Hiring Employer</p>
+              <p className="text-sm font-bold text-slate-800 mt-1">{currentEmployerName}</p>
+              <p className="text-[11px] text-slate-500 mt-0.5">Pune Industrial Hub</p>
+            </div>
+
+            <div className="p-3.5 rounded-lg bg-slate-50 border border-slate-200">
+              <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Trained Trade</p>
+              <p className="text-sm font-bold text-govt-navy mt-1">{record?.trade || 'Advanced CNC Machinist'}</p>
+              <p className="text-[11px] text-emerald-700 font-medium mt-0.5 flex items-center gap-1">
+                <Check className="w-3 h-3 stroke-[3]" /> Role Matches Curriculum
+              </p>
+            </div>
+
+            <div className="p-3.5 rounded-lg bg-slate-50 border border-slate-200">
+              <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Placement Date</p>
+              <p className="text-sm font-bold text-slate-800 mt-1 font-mono">{record?.placement_date || '2026-08-14'}</p>
+              <p className="text-[11px] text-slate-500 mt-0.5">Formal Joining Confirmed</p>
+            </div>
+
+            <div className="p-3.5 rounded-lg bg-slate-50 border border-slate-200">
+              <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Monthly Salary Band</p>
+              <p className="text-sm font-bold text-emerald-800 mt-1 font-mono">{record?.salary_band || '₹ 22,000 - ₹ 28,000 / mo'}</p>
+              <p className="text-[11px] text-slate-500 mt-0.5">EPFO / Bank Disbursed</p>
+            </div>
+          </div>
+        ) : (
+          <div className="p-5 rounded-lg bg-slate-50 border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>
+              <p className="text-sm font-bold text-slate-800">No Confirmed Placement Yet</p>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Current status is listed as <strong>{record?.self_reported_status || 'Applied'}</strong>. When you secure a placement or receive an offer letter, update your status below.
+              </p>
+            </div>
+            <button
+              onClick={() => setShowStatusUpdate(true)}
+              className="btn-sid-primary text-xs py-2 px-4 whitespace-nowrap"
+            >
+              Update to Placed
+            </button>
           </div>
         )}
 
-        <form onSubmit={handleSelfReportSubmit} className="space-y-6">
-          <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-              Select Current Status (writes to <code>self_reported_status</code>)
-            </label>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-              {['Applied', 'Interviewing', 'Placed', 'Unemployed'].map((st) => {
-                const isSelected = formData.status === st;
-                return (
-                  <button
-                    key={st}
-                    type="button"
-                    onClick={() => setFormData({ ...formData, status: st })}
-                    className={`p-3.5 rounded-lg border text-center font-bold transition-all ${
-                      isSelected
-                        ? 'border-govt-navy bg-blue-50/80 text-govt-navy ring-2 ring-govt-navy/20 shadow-sm'
-                        : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100'
-                    }`}
-                  >
-                    <span>{st}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+        {/* Collapsible Status Update Toggle Row */}
+        <div className="pt-2">
+          <button
+            type="button"
+            onClick={() => setShowStatusUpdate(!showStatusUpdate)}
+            className="w-full flex items-center justify-between p-3 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-200 text-xs font-bold text-slate-700 transition-colors"
+          >
+            <span className="flex items-center gap-2">
+              <FileCheck className="w-4 h-4 text-govt-navy" />
+              <span>Update Employment Status (Applied / Interviewing / Placed / Unemployed)</span>
+            </span>
+            {showStatusUpdate ? (
+              <ChevronUp className="w-4 h-4 text-slate-500" />
+            ) : (
+              <ChevronDown className="w-4 h-4 text-slate-500" />
+            )}
+          </button>
 
-          {formData.status === 'Placed' && (
-            <div className="p-4 rounded-lg bg-slate-50 border border-slate-200 space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Confirmed Employer</label>
-                  <select
-                    value={formData.confirmed_employer_id}
-                    onChange={(e) => setFormData({ ...formData, confirmed_employer_id: e.target.value })}
-                    className="w-full bg-white border border-slate-300 text-xs font-bold text-slate-800 rounded-md p-2.5"
-                  >
-                    {employers.map((emp) => (
-                      <option key={emp.id} value={emp.id}>
-                        {emp.company_name} ({emp.industry_sector}) - {emp.location}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Monthly Salary Band</label>
-                  <select
-                    value={formData.salary_band}
-                    onChange={(e) => setFormData({ ...formData, salary_band: e.target.value })}
-                    className="w-full bg-white border border-slate-300 text-xs rounded-md p-2.5 font-mono text-slate-800"
-                  >
-                    <option value="₹ 15,000 - ₹ 20,000 / mo">₹ 15,000 - ₹ 20,000 / mo</option>
-                    <option value="₹ 20,000 - ₹ 25,000 / mo">₹ 20,000 - ₹ 25,000 / mo</option>
-                    <option value="₹ 25,000 - ₹ 30,000 / mo">₹ 25,000 - ₹ 30,000 / mo</option>
-                    <option value="₹ 30,000+ / mo">₹ 30,000+ / mo</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <input
-                  type="checkbox"
-                  id="role_match_chk"
-                  checked={formData.role_match}
-                  onChange={(e) => setFormData({ ...formData, role_match: e.target.checked })}
-                  className="w-4 h-4 text-govt-navy rounded border-slate-300 focus:ring-govt-navy"
-                />
-                <label htmlFor="role_match_chk" className="text-xs font-bold text-slate-800 cursor-pointer">
-                  Role Match Confirmed (Job role directly matches my trained NCVT skill trade)
-                </label>
-              </div>
-
-              {record?.placement_date && (
-                <div className="text-[11px] text-slate-600 bg-white p-2 rounded border border-slate-200">
-                  📅 Initial Placement Date: <strong>{record.placement_date}</strong> (All 4 check-in milestones keyed to this date)
+          {/* Expanded Form - Only Visible when Clicked */}
+          {showStatusUpdate && (
+            <div className="mt-3 p-5 rounded-xl bg-white border border-slate-200 shadow-sm space-y-4 animate-in fade-in duration-150">
+              {selfReportMsg && (
+                <div className="bg-emerald-50 border border-emerald-300 text-emerald-900 p-3 rounded-lg text-xs flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>{selfReportMsg}</span>
                 </div>
               )}
+
+              <form onSubmit={handleSelfReportSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                    Select Current Status
+                  </label>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                    {['Applied', 'Interviewing', 'Placed', 'Unemployed'].map((st) => {
+                      const isSelected = formData.status === st;
+                      return (
+                        <button
+                          key={st}
+                          type="button"
+                          onClick={() => setFormData({ ...formData, status: st })}
+                          className={`p-2.5 rounded-lg border text-center font-bold transition-all ${
+                            isSelected
+                              ? 'border-govt-navy bg-blue-50 text-govt-navy ring-1 ring-govt-navy shadow-sm'
+                              : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100'
+                          }`}
+                        >
+                          <span>{st}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {formData.status === 'Placed' && (
+                  <div className="p-4 rounded-lg bg-slate-50 border border-slate-200 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1">Confirmed Employer</label>
+                      <select
+                        value={formData.confirmed_employer_id}
+                        onChange={(e) => setFormData({ ...formData, confirmed_employer_id: e.target.value })}
+                        className="w-full bg-white border border-slate-300 text-xs font-bold text-slate-800 rounded-md p-2"
+                      >
+                        {employers.map((emp) => (
+                          <option key={emp.id} value={emp.id}>
+                            {emp.company_name} ({emp.industry_sector}) - {emp.location}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1">Monthly Salary Band</label>
+                      <select
+                        value={formData.salary_band}
+                        onChange={(e) => setFormData({ ...formData, salary_band: e.target.value })}
+                        className="w-full bg-white border border-slate-300 text-xs rounded-md p-2 font-mono text-slate-800"
+                      >
+                        <option value="₹ 15,000 - ₹ 20,000 / mo">₹ 15,000 - ₹ 20,000 / mo</option>
+                        <option value="₹ 20,000 - ₹ 25,000 / mo">₹ 20,000 - ₹ 25,000 / mo</option>
+                        <option value="₹ 25,000 - ₹ 30,000 / mo">₹ 25,000 - ₹ 30,000 / mo</option>
+                        <option value="₹ 30,000+ / mo">₹ 30,000+ / mo</option>
+                      </select>
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex justify-end gap-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowStatusUpdate(false)}
+                    className="btn-sid-secondary text-xs py-2 px-4"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={submittingSelfReport}
+                    className="btn-sid-primary text-xs py-2 px-5 font-bold uppercase tracking-wider"
+                  >
+                    {submittingSelfReport ? 'Updating...' : 'Save Status'}
+                  </button>
+                </div>
+              </form>
             </div>
           )}
-
-          <div className="flex justify-end">
-            <button
-              type="submit"
-              disabled={submittingSelfReport}
-              className="btn-govt-primary text-xs py-2.5 px-6 font-bold uppercase tracking-wider shadow-sm hover:shadow"
-            >
-              {submittingSelfReport ? 'Updating Status...' : 'Save Self-Report Status'}
-            </button>
-          </div>
-        </form>
+        </div>
       </div>
 
-      {/* SECTION 2: SCHEDULED LONGITUDINAL CHECK-IN PROMPTS (GATED LOGIC) */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-6">
-        <div className="pb-3 border-b border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+      {/* ------------------------------------------------------------- */}
+      {/* 3. SINGLE COMPACT HORIZONTAL CHECK-IN PROGRESS STRIP          */}
+      {/* ------------------------------------------------------------- */}
+      <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-6 sm:p-8 space-y-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
           <div>
-            <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-govt-orange" />
-              <span>2. Scheduled Longitudinal Check-in Prompts (`checkins` table)</span>
+            <h2 className="font-display text-base font-bold text-slate-800 flex items-center gap-2">
+              <Calendar className="w-4 h-4 text-govt-navy" />
+              <span>Career Retention Check-Ins</span>
             </h2>
-            <p className="text-xs text-slate-500">
-              Only shows active form once <code>due_date</code> has passed AND <code>submitted_at</code> is null. Otherwise shown as locked/upcoming or completed.
+            <p className="text-xs text-slate-500 mt-0.5">
+              Complete periodic 30, 90, 180, and 365-day check-ins to maintain verified longitudinal retention status.
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
-            <span className="text-[11px] font-bold text-slate-500">
-              {checkins.filter(c => c.submitted_at).length} of 4 Milestones Completed
-            </span>
-          </div>
+          <span className="text-xs font-bold text-slate-600 bg-slate-100 px-3 py-1 rounded-full border border-slate-200">
+            {checkins.filter(c => c.submitted_at).length} of 4 Completed
+          </span>
         </div>
 
         {checkInMsg && (
           <div className="bg-emerald-50 border border-emerald-300 text-emerald-900 p-3 rounded-lg text-xs flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
             <span>{checkInMsg}</span>
           </div>
         )}
 
-        {/* UNPLACED NOTICE (Fixes bug where 365-day form was shown to candidate with status 'Applied') */}
         {record?.self_reported_status !== 'Placed' ? (
-          <div className="p-6 rounded-xl bg-slate-50 border border-slate-200 text-center space-y-3">
-            <div className="w-12 h-12 rounded-full bg-slate-200 text-slate-500 mx-auto flex items-center justify-center">
-              <Lock className="w-6 h-6" />
+          <div className="p-6 rounded-lg bg-slate-50 border border-slate-200 text-center space-y-2">
+            <div className="w-10 h-10 rounded-full bg-slate-200 text-slate-500 mx-auto flex items-center justify-center">
+              <Lock className="w-5 h-5" />
             </div>
-            <div>
-              <h3 className="text-sm font-bold text-slate-800">Longitudinal Check-Ins Currently Inactive</h3>
-              <p className="text-xs text-slate-500 max-w-lg mx-auto mt-1">
-                Candidate's self-reported status is currently <strong>'{record?.self_reported_status || 'Applied'}'</strong>. 
-                Longitudinal retention check-ins (at 30, 90, 180, and 365 days) are only scheduled once you self-report as <strong>'Placed'</strong>.
-              </p>
-            </div>
-            <p className="text-[11px] text-purple-700 font-medium">
-              💡 Update status to 'Placed' in Section 1 above to auto-generate the 4 check-in milestones.
+            <p className="text-sm font-bold text-slate-800">Check-Ins Inactive</p>
+            <p className="text-xs text-slate-500 max-w-md mx-auto">
+              Career check-in milestones activate automatically once your status is updated to <strong>Placed</strong>.
             </p>
           </div>
         ) : (
-          /* PLACED CANDIDATE: RENDER 4 MILESTONES (30, 90, 180, 365) */
           <div className="space-y-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {[30, 90, 180, 365].map((days) => {
-                const { state, item, daysRemaining } = getCheckinStatus(days);
+            {/* Horizontal Progress Strip */}
+            <div className="py-4 px-2">
+              <div className="relative flex items-center justify-between">
+                {/* Connecting background progress line */}
+                <div className="absolute left-6 right-6 top-1/2 -translate-y-1/2 h-1 bg-slate-200 z-0" />
 
-                return (
-                  <div
-                    key={days}
-                    className={`p-4 rounded-xl border transition-all ${
-                      state === 'completed'
-                        ? 'border-emerald-300 bg-emerald-50/60'
-                        : state === 'due'
-                        ? 'border-amber-400 bg-amber-50 ring-2 ring-amber-400/30 shadow-md'
-                        : 'border-slate-200 bg-slate-50/70 text-slate-500'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="font-bold text-sm text-slate-800">Day {days} Milestone</span>
-                      {state === 'completed' ? (
-                        <span className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-xs" title="Completed">
-                          <Check className="w-3.5 h-3.5 stroke-[3]" />
-                        </span>
-                      ) : state === 'due' ? (
-                        <span className="w-6 h-6 rounded-full bg-amber-200 text-amber-900 flex items-center justify-center font-bold text-xs animate-bounce" title="Due Now!">
-                          <Unlock className="w-3.5 h-3.5" />
-                        </span>
-                      ) : (
-                        <span className="w-6 h-6 rounded-full bg-slate-200 text-slate-400 flex items-center justify-center text-xs" title="Locked">
-                          <Lock className="w-3.5 h-3.5" />
-                        </span>
-                      )}
-                    </div>
+                {milestones.map((days, idx) => {
+                  const { state, item } = getCheckinStatus(days);
 
-                    <div className="text-xs space-y-1">
-                      <div className="flex justify-between font-mono text-[11px]">
-                        <span className="text-slate-500">Due Date:</span>
-                        <span className="font-bold text-slate-700">{item?.due_date || 'N/A'}</span>
-                      </div>
-
-                      {state === 'completed' && (
-                        <div className="pt-2 border-t border-emerald-200 text-[11px] text-emerald-800">
-                          <p className="font-bold">✓ Submitted</p>
-                          <p className="text-[10px] text-slate-500">{new Date(item.submitted_at).toLocaleDateString()}</p>
-                        </div>
-                      )}
-
-                      {state === 'due' && (
-                        <div className="pt-2 border-t border-amber-300 text-[11px] text-amber-900 font-bold">
-                          <span className="bg-amber-200 px-2 py-0.5 rounded text-[10px] uppercase">
-                            Due Now • Action Required
-                          </span>
-                        </div>
-                      )}
-
-                      {state === 'locked' && (
-                        <div className="pt-2 border-t border-slate-200 text-[11px] text-slate-500">
-                          <span>Unlocks in <strong>{daysRemaining}</strong> days</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* CHECK-IN DETAIL & ACTIVE FORMS */}
-            <div className="space-y-4">
-              {[30, 90, 180, 365].map((days) => {
-                const { state, item, daysRemaining } = getCheckinStatus(days);
-                const formVals = checkInForms[days] || {};
-
-                if (state === 'completed') {
                   return (
-                    <div key={days} className="p-4 rounded-xl border border-emerald-200 bg-emerald-50/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold">
-                          {days}d
+                    <div key={days} className="relative z-10 flex flex-col items-center group">
+                      {/* Milestone Dot */}
+                      {state === 'completed' ? (
+                        <div 
+                          className="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-md ring-4 ring-emerald-50 transition-all"
+                          title={`Day ${days} completed`}
+                        >
+                          <Check className="w-5 h-5 stroke-[3]" />
                         </div>
-                        <div>
-                          <h4 className="font-bold text-slate-800">Day {days} Longitudinal Verification Completed</h4>
-                          <p className="text-slate-600 text-[11px]">
-                            Status: <strong>{item.continued_employment_status}</strong> • Role Match: <strong>{item.role_match_confirmation ? 'Yes' : 'No'}</strong> • Salary: <strong>{item.salary_band_change}</strong>
-                          </p>
+                      ) : state === 'due' ? (
+                        <div 
+                          className="w-10 h-10 rounded-full bg-white border-2 border-[#D96B27] text-[#D96B27] flex items-center justify-center shadow-md ring-4 ring-[#D96B27]/20 animate-pulse font-bold text-xs"
+                          title={`Day ${days} due now`}
+                        >
+                          <Unlock className="w-4 h-4" />
                         </div>
-                      </div>
-                      <span className="text-[11px] font-mono text-emerald-800 bg-emerald-100 px-2.5 py-1 rounded font-bold border border-emerald-300">
-                        Submitted {new Date(item.submitted_at).toLocaleDateString()}
+                      ) : (
+                        <div 
+                          className="w-10 h-10 rounded-full bg-slate-100 border-2 border-slate-300 text-slate-400 flex items-center justify-center font-bold text-xs"
+                          title={`Day ${days} upcoming`}
+                        >
+                          <Lock className="w-4 h-4" />
+                        </div>
+                      )}
+
+                      {/* Label below dot */}
+                      <span className="text-xs font-bold text-slate-800 mt-2">
+                        Day {days}
+                      </span>
+                      <span className={`text-[10px] font-semibold mt-0.5 ${
+                        state === 'completed' 
+                          ? 'text-emerald-700' 
+                          : state === 'due' 
+                          ? 'text-[#D96B27] font-bold' 
+                          : 'text-slate-400'
+                      }`}>
+                        {state === 'completed' ? 'Verified' : state === 'due' ? 'Due Now' : 'Upcoming'}
                       </span>
                     </div>
                   );
-                }
-
-                if (state === 'due') {
-                  return (
-                    <div key={days} className="p-5 rounded-xl bg-amber-50/70 border border-amber-300 space-y-4 shadow-sm">
-                      <div className="flex items-center justify-between border-b border-amber-200/80 pb-2">
-                        <h3 className="text-xs font-bold uppercase tracking-wider text-amber-950 flex items-center gap-2">
-                          <Unlock className="w-4 h-4 text-amber-700" />
-                          <span>Day {days} Longitudinal Check-in Form (Due: {item?.due_date})</span>
-                        </h3>
-                        <span className="text-[10px] font-bold text-amber-900 bg-amber-200 px-2 py-0.5 rounded">
-                          Form Active
-                        </span>
-                      </div>
-
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
-                        <div>
-                          <label className="block font-bold text-slate-800 mb-1">Continued Employment Status</label>
-                          <select
-                            value={formVals.continued_employment_status}
-                            onChange={(e) => setCheckInForms({
-                              ...checkInForms,
-                              [days]: { ...formVals, continued_employment_status: e.target.value }
-                            })}
-                            className="w-full bg-white border border-slate-300 rounded-md p-2 font-medium text-slate-800"
-                          >
-                            <option value="Still Employed">Still Employed (Same Company)</option>
-                            <option value="Changed Job">Changed Job (New Company)</option>
-                            <option value="Unemployed">Currently Unemployed</option>
-                          </select>
-                        </div>
-
-                        <div>
-                          <label className="block font-bold text-slate-800 mb-1">Role Match Confirmation</label>
-                          <select
-                            value={formVals.role_match_confirmation ? 'yes' : 'no'}
-                            onChange={(e) => setCheckInForms({
-                              ...checkInForms,
-                              [days]: { ...formVals, role_match_confirmation: e.target.value === 'yes' }
-                            })}
-                            className="w-full bg-white border border-slate-300 rounded-md p-2 font-medium text-slate-800"
-                          >
-                            <option value="yes">Yes - Role matches trained skill</option>
-                            <option value="no">No - Different role / responsibilities</option>
-                          </select>
-                        </div>
-
-                        <div>
-                          <label className="block font-bold text-slate-800 mb-1">Salary Band Change</label>
-                          <select
-                            value={formVals.salary_band_change}
-                            onChange={(e) => setCheckInForms({
-                              ...checkInForms,
-                              [days]: { ...formVals, salary_band_change: e.target.value }
-                            })}
-                            className="w-full bg-white border border-slate-300 rounded-md p-2 font-medium text-slate-800"
-                          >
-                            <option value="Increased">Increased (Salary Increment)</option>
-                            <option value="Same">Same Salary Band</option>
-                            <option value="Decreased">Decreased</option>
-                          </select>
-                        </div>
-                      </div>
-
-                      <div className="flex justify-end pt-2">
-                        <button
-                          onClick={() => handleCheckInSubmit(days)}
-                          disabled={submittingInterval === days}
-                          className="btn-govt-orange text-xs py-2 px-5 font-bold uppercase tracking-wider shadow"
-                        >
-                          {submittingInterval === days ? 'Saving Response...' : `Submit Day ${days} Check-in`}
-                        </button>
-                      </div>
-                    </div>
-                  );
-                }
-
-                // Locked / Upcoming
-                return (
-                  <div key={days} className="p-4 rounded-xl border border-slate-200 bg-slate-50/60 flex items-center justify-between text-xs text-slate-500">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-slate-200 text-slate-600 flex items-center justify-center font-bold">
-                        <Lock className="w-4 h-4" />
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-slate-700">Day {days} Retention Milestone</h4>
-                        <p className="text-[11px] text-slate-500">
-                          Locked until due date (<strong>{item?.due_date}</strong>). Unlocks automatically in {daysRemaining} days.
-                        </p>
-                      </div>
-                    </div>
-                    <span className="text-[11px] font-mono bg-slate-200 text-slate-700 px-2.5 py-1 rounded font-bold">
-                      Upcoming
-                    </span>
-                  </div>
-                );
-              })}
+                })}
+              </div>
             </div>
+
+            {/* Short concise status line showing days until next check-in */}
+            <div className="text-center py-2 px-4 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-600">
+              {allCompleted ? (
+                <span className="text-emerald-700 font-bold flex items-center justify-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4" />
+                  All 4 retention milestones completed! Full 365-day placement verified.
+                </span>
+              ) : dueMilestone ? (
+                <span className="text-[#D96B27] font-bold flex items-center justify-center gap-1.5">
+                  <Unlock className="w-4 h-4" />
+                  Day {dueMilestone} check-in is due now. Please confirm your ongoing status below.
+                </span>
+              ) : nextLockedMilestone ? (
+                <span>
+                  Next check-in (Day {nextLockedMilestone}) unlocks automatically in{' '}
+                  <strong className="text-slate-800">{getCheckinStatus(nextLockedMilestone).daysRemaining} days</strong> (on{' '}
+                  {getCheckinStatus(nextLockedMilestone).item?.due_date}).
+                </span>
+              ) : (
+                <span>Check-ins active.</span>
+              )}
+            </div>
+
+            {/* If a milestone is due now, render its clean, compact form */}
+            {dueMilestone && (
+              <div className="p-5 rounded-xl bg-[#FFF5EE] border border-[#D96B27]/30 space-y-4 animate-in fade-in duration-150">
+                <div className="flex items-center justify-between border-b border-[#D96B27]/30 pb-2">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-orange-950 flex items-center gap-2">
+                    <Unlock className="w-4 h-4 text-[#D96B27]" />
+                    <span>Day {dueMilestone} Check-in Confirmation</span>
+                  </h3>
+                  <span className="text-[10px] font-bold text-[#D96B27] bg-[#FFF5EE] px-2 py-0.5 rounded border border-[#D96B27]/40">
+                    Action Required
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                  <div>
+                    <label className="block font-bold text-slate-800 mb-1">Employment Status</label>
+                    <select
+                      value={checkInForms[dueMilestone]?.continued_employment_status || 'Still Employed'}
+                      onChange={(e) => setCheckInForms({
+                        ...checkInForms,
+                        [dueMilestone]: { ...checkInForms[dueMilestone], continued_employment_status: e.target.value }
+                      })}
+                      className="w-full bg-white border border-slate-300 rounded-md p-2 text-xs font-medium text-slate-800"
+                    >
+                      <option value="Still Employed">Still Employed (Same Company)</option>
+                      <option value="Changed Job">Changed Job (New Company)</option>
+                      <option value="Unemployed">Currently Unemployed</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block font-bold text-slate-800 mb-1">Role Match Confirmation</label>
+                    <select
+                      value={checkInForms[dueMilestone]?.role_match_confirmation ? 'yes' : 'no'}
+                      onChange={(e) => setCheckInForms({
+                        ...checkInForms,
+                        [dueMilestone]: { ...checkInForms[dueMilestone], role_match_confirmation: e.target.value === 'yes' }
+                      })}
+                      className="w-full bg-white border border-slate-300 rounded-md p-2 text-xs font-medium text-slate-800"
+                    >
+                      <option value="yes">Yes - Role matches my trained trade</option>
+                      <option value="no">No - Different role / responsibilities</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block font-bold text-slate-800 mb-1">Salary Status</label>
+                    <select
+                      value={checkInForms[dueMilestone]?.salary_band_change || 'Same'}
+                      onChange={(e) => setCheckInForms({
+                        ...checkInForms,
+                        [dueMilestone]: { ...checkInForms[dueMilestone], salary_band_change: e.target.value }
+                      })}
+                      className="w-full bg-white border border-slate-300 rounded-md p-2 text-xs font-medium text-slate-800"
+                    >
+                      <option value="Same">Same Salary Band</option>
+                      <option value="Increased">Increased (Salary Increment)</option>
+                      <option value="Decreased">Decreased</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="flex justify-end pt-1">
+                  <button
+                    onClick={() => handleCheckInSubmit(dueMilestone)}
+                    disabled={submittingInterval === dueMilestone}
+                    className="btn-sid-primary text-xs py-2.5 px-6 font-bold uppercase tracking-wider"
+                  >
+                    {submittingInterval === dueMilestone ? 'Saving...' : `Submit Day ${dueMilestone} Check-In`}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
 
-      {/* SECTION 3: TRAINING CENTER READ-ONLY REGISTER (Joined on training_center_id) */}
+      {/* ------------------------------------------------------------- */}
+      {/* 4. TRAINING CENTER READ-ONLY REGISTER (TC / GOVT ROLES ONLY)   */}
+      {/* ------------------------------------------------------------- */}
       {(role === 'training_center' || role === 'government') && (
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-4">
+        <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-6 sm:p-8 space-y-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
             <div>
-              <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+              <h2 className="font-display text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
                 <Building2 className="w-4 h-4 text-purple-700" />
-                <span>3. Training Center Read-Only Register (`training_center_id: tc-01`)</span>
+                <span>Training Center Roster Register</span>
               </h2>
               <p className="text-xs text-slate-500">
-                Audit view joined directly on <code>training_center_id</code>. Shows self-reported status, employer confirmation badge, and check-in completion count.
+                Overview of enrolled candidates, employment status, employer verification, and completed check-ins.
               </p>
             </div>
             <span className="text-xs font-bold text-purple-800 bg-purple-100 px-2.5 py-1 rounded">
-              Read-Only Audit Roster
+              Audited Register
             </span>
           </div>
 
@@ -720,7 +682,7 @@ export const EmploymentStatusPage = () => {
                 <tr>
                   <th className="p-3">Candidate</th>
                   <th className="p-3">Trade & District</th>
-                  <th className="p-3">Self-Reported Status</th>
+                  <th className="p-3">Current Status</th>
                   <th className="p-3">Employer Confirmed</th>
                   <th className="p-3">Employer Name</th>
                   <th className="p-3">Check-In Milestones</th>
@@ -745,11 +707,11 @@ export const EmploymentStatusPage = () => {
                     <td className="p-3">
                       {r.employer_confirmed ? (
                         <span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold flex items-center gap-1 w-fit">
-                          <Check className="w-3 h-3 text-emerald-700" /> Yes (Verified)
+                          <Check className="w-3 h-3 text-emerald-700 stroke-[3]" /> Yes (Verified)
                         </span>
                       ) : (
                         <span className="bg-amber-100 text-amber-900 px-2 py-0.5 rounded font-bold w-fit">
-                          No (Pending)
+                          Pending
                         </span>
                       )}
                     </td>
@@ -765,16 +727,18 @@ export const EmploymentStatusPage = () => {
         </div>
       )}
 
-      {/* SECTION 4: EMPLOYER CONFIRMATION & DISPUTE SCREEN */}
+      {/* ------------------------------------------------------------- */}
+      {/* 5. EMPLOYER PLACEMENT CONFIRMATION QUEUE (EMPLOYER / GOVT)    */}
+      {/* ------------------------------------------------------------- */}
       {(role === 'employer' || role === 'government') && (
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-4">
+        <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-6 sm:p-8 space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-slate-100">
             <div>
-              <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+              <h2 className="font-display text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
                 <Building2 className="w-4 h-4 text-emerald-700" />
-                <span>4. Employer Placement Confirmation Queue (`employer_id: emp-01`)</span>
+                <span>Employer Placement Confirmation Queue</span>
               </h2>
-              <p className="text-xs text-slate-500">Corporate recruiter screen to confirm or dispute candidate placement self-reports</p>
+              <p className="text-xs text-slate-500">Corporate recruiter dashboard to confirm or dispute candidate placement reports</p>
             </div>
 
             <span className="text-xs font-bold text-emerald-800 bg-emerald-100 px-2.5 py-1 rounded">
@@ -787,7 +751,7 @@ export const EmploymentStatusPage = () => {
               <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase tracking-wider">
                 <tr>
                   <th className="p-3">Candidate</th>
-                  <th className="p-3">Self-Reported Status</th>
+                  <th className="p-3">Status</th>
                   <th className="p-3">Placement Date</th>
                   <th className="p-3">Salary Band</th>
                   <th className="p-3">Verification</th>
@@ -820,7 +784,7 @@ export const EmploymentStatusPage = () => {
                           onClick={() => handleEmployerVerify(item.id, 'dispute')}
                           className="bg-red-600 hover:bg-red-700 text-white font-bold py-1 px-2.5 rounded text-[11px] flex items-center gap-1 shadow-sm"
                         >
-                          <XCircle className="w-3 h-3" /> Dispute
+                          <X className="w-3 h-3" /> Dispute
                         </button>
                       </div>
                     </td>
@@ -832,8 +796,91 @@ export const EmploymentStatusPage = () => {
         </div>
       )}
 
-      {/* Floating Interactive WhatsApp Chatbot Simulator */}
-      <WhatsAppWidget candidateName={record?.candidate_name || user?.full_name} />
+      {/* ------------------------------------------------------------- */}
+      {/* 6. DEV / TESTING TOOLS SLIDE-OVER (SEPARATED FROM MAIN VIEW)  */}
+      {/* ------------------------------------------------------------- */}
+      {import.meta.env.DEV && showDevPanel && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 overflow-y-auto animate-in fade-in duration-150">
+          <div className="bg-white rounded-xl shadow-2xl border border-slate-200 max-w-lg w-full overflow-hidden my-auto relative animate-fade-in-up">
+            <div className="bg-slate-900 text-white px-5 py-3.5 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Settings className="w-4 h-4 text-[#C9A227]" />
+                <h3 className="font-bold text-sm">Testing & Simulation Tools (Dev Only)</h3>
+              </div>
+              <button 
+                onClick={() => setShowDevPanel(false)}
+                className="text-slate-400 hover:text-white transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="p-5 space-y-5 text-xs">
+              <p className="text-slate-500 text-[11px]">
+                These controls allow quick switching between test candidates and overriding the system reference date to test unlocking Day 30, 90, 180, and 365 milestones.
+              </p>
+
+              {/* Inspect Candidate */}
+              <div>
+                <label className="block font-bold text-slate-700 uppercase tracking-wider mb-2">
+                  Inspect Test Candidate
+                </label>
+                <div className="space-y-1.5">
+                  {[
+                    { id: 'cand-01', label: 'Rahul Sharma (Placed, Day 30 Done)' },
+                    { id: 'cand-05', label: 'Vikas Shinde (Applied, Unplaced)' },
+                    { id: 'cand-03', label: 'Amit Verma (Placed, Day 30 Due Now)' }
+                  ].map(cand => (
+                    <button
+                      key={cand.id}
+                      type="button"
+                      onClick={() => {
+                        setSelectedCandidateId(cand.id);
+                        setShowDevPanel(false);
+                      }}
+                      className={`w-full text-left px-3 py-2 rounded font-medium transition-all ${
+                        selectedCandidateId === cand.id
+                          ? 'bg-govt-navy text-white font-bold shadow-sm'
+                          : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                      }`}
+                    >
+                      {cand.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Date Simulation Override */}
+              <div className="pt-3 border-t border-slate-200">
+                <label className="block font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                  Simulated Current Date
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="date"
+                    value={simulatedDateStr}
+                    onChange={(e) => setSimulatedDateStr(e.target.value)}
+                    className="w-full bg-slate-50 border border-slate-300 rounded px-2.5 py-1.5 text-xs font-mono font-bold text-slate-900"
+                  />
+                </div>
+                <p className="text-[10px] text-slate-500 mt-1">
+                  Default is 2026-09-13. Advance date forward (e.g. 2026-11-15) to simulate Day 90 milestone unlocking.
+                </p>
+              </div>
+
+              <div className="pt-2 flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setShowDevPanel(false)}
+                  className="btn-govt-primary text-xs py-2 px-4"
+                >
+                  Close Tools
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -12,9 +12,12 @@ import { SkillAssessmentModule } from './pages/SkillAssessmentModule';
 import { SkillScorecardPage } from './pages/SkillScorecardPage';
 import { SkillMatchPage } from './pages/SkillMatchPage';
 import { EmploymentStatusPage } from './pages/EmploymentStatusPage';
+import { RecommendedJobsPage } from './pages/RecommendedJobsPage';
+import { MyApplicationsPage } from './pages/MyApplicationsPage';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { Unauthorized } from './pages/Unauthorized';
+import { LandingPage } from './pages/LandingPage';
 
 const DashboardRouter = () => {
   const { user, role, loading } = useAuth();
@@ -30,7 +33,7 @@ const DashboardRouter = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-govt-navy flex items-center justify-center text-white font-roboto">
+      <div className="min-h-screen bg-govt-navy flex items-center justify-center text-white font-sans">
         <div className="text-center space-y-3">
           <div className="w-12 h-12 rounded-full border-4 border-govt-orange border-t-transparent animate-spin mx-auto"></div>
           <p className="text-xs tracking-wider uppercase font-bold">Loading Govt Portal Session...</p>
@@ -49,7 +52,7 @@ const DashboardRouter = () => {
     }
 
     if (activeTab === 'skill-match') {
-      return <SkillMatchPage />;
+      return <SkillMatchPage onNavigateTab={handleNavigateTab} />;
     }
 
     if (activeTab === 'assessment') {
@@ -67,6 +70,14 @@ const DashboardRouter = () => {
 
     if (activeTab === 'onboarding' || activeTab === 'enrollment') {
       return <CandidateOnboarding />;
+    }
+
+    if (activeTab === 'jobs' || activeTab === 'recommended-jobs') {
+      return <RecommendedJobsPage onNavigateTab={handleNavigateTab} />;
+    }
+
+    if (activeTab === 'applications' || activeTab === 'my-applications') {
+      return <MyApplicationsPage onNavigateTab={handleNavigateTab} />;
     }
 
     if (activeTab === 'create-batch') {
@@ -100,12 +111,12 @@ export default function App() {
     <AuthProvider>
       <BrowserRouter>
         <Routes>
+          <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/unauthorized" element={<Unauthorized />} />
           <Route path="/dashboard" element={<DashboardRouter />} />
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

@@ -8,7 +8,6 @@ import {
   Search, 
   PlusCircle, 
   CheckCircle2, 
-  Sparkles, 
   MapPin, 
   Building2, 
   FileCheck, 
@@ -18,7 +17,8 @@ import {
   XCircle,
   Clock,
   Radio,
-  IndianRupee
+  IndianRupee,
+  RefreshCw
 } from 'lucide-react';
 
 export const EmployerDashboard = ({ activeTab }) => {
@@ -73,48 +73,71 @@ export const EmployerDashboard = ({ activeTab }) => {
     }
   };
 
-  const handleVerifyPlacement = async (recordId, action) => {
+  useEffect(() => {
+    loadEmployerData();
+    loadEmployerRecords();
+
+    // Subscribe to realtime employment changes
+    const channel = subscribeEmploymentSync((payload) => {
+      setRealtimePulse(true);
+      setTimeout(() => setRealtimePulse(false), 3000);
+      loadEmployerData();
+      loadEmployerRecords();
+    });
+
+    return () => {
+      // Clean up realtime subscription
+    };
+  }, []);
+
+  // Multi-party Verification Handler
+  const handleVerifyPlacement = async (recordId, candidateName) => {
+    setVerifyingId(recordId);
     try {
-      const res = await fetchWithAuth('/api/portal/employment/employer-confirm', {
+      const res = await fetchWithAuth(`/api/portal/employment/records/${recordId}/verify`, {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          record_id: recordId,
-          action
+          employer_notes: 'Confirmed by corporate HR manager via Employer Portal'
         })
       }, role);
 
-      if (res.success) {
-        setRecordActionMsg(`Placement record ${action === 'confirm' ? 'Confirmed & Verified' : 'Disputed'}. Synchronized live across all portals.`);
-        setTimeout(() => setRecordActionMsg(''), 4000);
-        notifyEmploymentChange('employer_confirmed', { record_id: recordId, action });
-        loadEmployerRecords();
+      if (res && res.success) {
+        setVerifySuccessToast(`Successfully verified employment for candidate ${candidateName}! Longitudinal milestones activated.`);
+        setTimeout(() => setVerifySuccessToast(''), 5000);
+        await loadEmployerData();
+        await loadEmployerRecords();
+        notifyEmploymentChange({ record_id: recordId, candidate_name: candidateName });
       }
     } catch (err) {
-      alert('Error updating placement verification: ' + err.message);
+      console.error('Verification error:', err);
+      alert('Failed to verify candidate placement. Please check system connection.');
+    } finally {
+      setVerifyingId(null);
     }
   };
 
   return (
-    <div className="space-y-6 font-roboto">
+    <div className="space-y-10 sm:space-y-12 font-sans">
       {/* Top Banner */}
-      <div className="bg-gradient-to-r from-emerald-950 via-govt-navy to-slate-900 text-white rounded-xl p-6 shadow-govt-card relative overflow-hidden">
+      <div className="bg-[#0B3D6B] border border-[#072847] text-white rounded-[6px] p-4 sm:p-5 relative">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 relative z-10">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="bg-emerald-600 text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded">
+              <span className="bg-emerald-700 text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded-[4px]">
                 Corporate Recruiter Portal
               </span>
-              <span className="text-xs text-emerald-200">Employer ID: EMP-TATA-802</span>
+              <span className="text-xs text-emerald-200 font-mono">Employer ID: EMP-TATA-802</span>
               {realtimePulse && (
-                <span className="bg-emerald-500 text-white text-[10px] font-bold px-2 py-0.5 rounded animate-pulse flex items-center gap-1">
+                <span className="bg-emerald-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-[4px] animate-pulse flex items-center gap-1">
                   <Radio className="w-3 h-3" /> Live Synced
                 </span>
               )}
             </div>
-            <h1 className="text-2xl font-bold tracking-tight">
+            <h1 className="font-display text-xl font-bold tracking-tight">
               {user?.organization_name || 'Tata Advanced Engineering Solutions'}
             </h1>
-            <p className="text-sm text-slate-300 mt-1 max-w-2xl">
+            <p className="text-xs text-slate-300 mt-0.5 max-w-2xl">
               Industry Partner Dashboard • Direct Recruitment, Candidate Verification, and Longitudinal Placement Confirmations.
             </p>
           </div>
@@ -122,9 +145,9 @@ export const EmployerDashboard = ({ activeTab }) => {
           <button 
             onClick={() => { loadEmployerData(); loadEmployerRecords(); }}
             disabled={loadingApi}
-            className="btn-govt-orange text-xs whitespace-nowrap shadow-md hover:shadow-lg"
+            className="btn-govt-orange text-xs whitespace-nowrap"
           >
-            <Sparkles className="w-3.5 h-3.5" />
+            <RefreshCw className={`w-3.5 h-3.5 ${loadingApi ? 'animate-spin' : ''}`} />
             {loadingApi ? 'Syncing Backend...' : 'Refresh Records'}
           </button>
         </div>
@@ -143,7 +166,7 @@ export const EmployerDashboard = ({ activeTab }) => {
 
       {/* Metrics Row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-between">
           <div>
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Active Openings</p>
             <p className="text-2xl font-bold text-slate-800 mt-1">{apiData?.activeJobOpenings || 14} Jobs</p>
@@ -154,7 +177,7 @@ export const EmployerDashboard = ({ activeTab }) => {
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-between">
           <div>
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Verified Placements</p>
             <p className="text-2xl font-bold text-emerald-700 mt-1">
@@ -169,7 +192,7 @@ export const EmployerDashboard = ({ activeTab }) => {
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-between">
           <div>
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Pending HR Audits</p>
             <p className="text-2xl font-bold text-amber-700 mt-1">
@@ -182,7 +205,7 @@ export const EmployerDashboard = ({ activeTab }) => {
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-between">
           <div>
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Hired Trainees</p>
             <p className="text-2xl font-bold text-slate-800 mt-1">88 Hired</p>
@@ -195,12 +218,12 @@ export const EmployerDashboard = ({ activeTab }) => {
       </div>
 
       {/* SECTION: PLACEMENT VERIFICATION & CONFIRMATION QUEUE */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-4">
+      <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-6 sm:p-8 space-y-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
           <div>
             <div className="flex items-center gap-2">
-              <Building2 className="w-5 h-5 text-emerald-700" />
-              <h2 className="text-base font-bold text-slate-800">Placement Verification & HR Confirmation Queue</h2>
+              <Building2 className="w-4 h-4 text-emerald-700" />
+              <h2 className="font-display text-base font-bold text-slate-800">Placement Verification & HR Confirmation Queue</h2>
             </div>
             <p className="text-xs text-slate-500 mt-0.5">
               Live records from <code>employment_records</code> where <code>employer_id = 'emp-01'</code>. Confirm or dispute candidate self-reported placements.
@@ -315,16 +338,16 @@ export const EmployerDashboard = ({ activeTab }) => {
       {/* Main Grid: Active Postings & Talent Search */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Active Job Vacancies (2 Cols) */}
-        <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-4">
+        <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 shadow-xs p-6 sm:p-8 space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-slate-100">
             <div>
-              <h2 className="text-base font-bold text-slate-800 flex items-center gap-2">
+              <h2 className="font-display text-base font-bold text-slate-800 flex items-center gap-2">
                 <Briefcase className="w-4 h-4 text-emerald-700" />
                 <span>Active Industry Vacancies</span>
               </h2>
               <p className="text-xs text-slate-500">Jobs published to certified candidates across national ITIs and Skill Hubs</p>
             </div>
-            <button className="btn-govt-orange text-xs py-2 px-3">
+            <button className="btn-sid-primary text-xs py-2 px-4">
               <PlusCircle className="w-3.5 h-3.5" />
               <span>Post New Vacancy</span>
             </button>
@@ -380,8 +403,8 @@ export const EmployerDashboard = ({ activeTab }) => {
         </div>
 
         {/* Candidate Search & Quick Filter Widget (1 Col) */}
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-4">
-          <h2 className="text-sm font-bold text-slate-800 flex items-center gap-2 pb-3 border-b border-slate-100">
+        <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-6 sm:p-8 space-y-4">
+          <h2 className="font-display text-sm font-bold text-slate-800 flex items-center gap-2 pb-3 border-b border-slate-100">
             <Search className="w-4 h-4 text-govt-navy" />
             <span>Search Certified Talent</span>
           </h2>
@@ -407,7 +430,7 @@ export const EmployerDashboard = ({ activeTab }) => {
               </select>
             </div>
 
-            <button className="w-full btn-govt-primary text-xs py-2">
+            <button className="w-full btn-sid-primary text-xs py-2.5">
               <Search className="w-3.5 h-3.5" />
               <span>Search Candidate Database</span>
             </button>
