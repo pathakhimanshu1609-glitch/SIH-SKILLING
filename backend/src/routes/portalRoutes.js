@@ -130,29 +130,45 @@ let MOCK_ASSESSMENT_RESULTS = {
     // Advanced CNC Machinist
     { skill_id: 'sk-101', trade: 'Advanced CNC Machinist', skill_name: 'G-Code CNC Programming', pre_score: 45, post_score: 85 },
     { skill_id: 'sk-102', trade: 'Advanced CNC Machinist', skill_name: 'Lathe Machine Calibration', pre_score: 40, post_score: 65 },
+    { skill_id: 'sk-107', trade: 'Advanced CNC Machinist', skill_name: 'Quality & Precision Measurement', pre_score: 50, post_score: 75 },
+    { skill_id: 'sk-108', trade: 'Advanced CNC Machinist', skill_name: 'Safety & Machine Maintenance', pre_score: 55, post_score: 80 },
     // Solar PV Installer & Technician
     { skill_id: 'sk-103', trade: 'Solar PV Installer & Technician', skill_name: 'Solar Panel Array Wiring', pre_score: 42, post_score: 80 },
     { skill_id: 'sk-104', trade: 'Solar PV Installer & Technician', skill_name: 'Grid Inverter Installation', pre_score: 38, post_score: 75 },
+    { skill_id: 'sk-109', trade: 'Solar PV Installer & Technician', skill_name: 'PV System Design', pre_score: 35, post_score: 70 },
+    { skill_id: 'sk-110', trade: 'Solar PV Installer & Technician', skill_name: 'Installation & Mounting', pre_score: 40, post_score: 85 },
     // EV Battery Maintenance Specialist
     { skill_id: 'sk-105', trade: 'EV Battery Maintenance Specialist', skill_name: 'EV Lithium Pack Diagnostics', pre_score: 50, post_score: 90 },
     { skill_id: 'sk-106', trade: 'EV Battery Maintenance Specialist', skill_name: 'BMS Sensor Calibration', pre_score: 45, post_score: 70 },
+    { skill_id: 'sk-111', trade: 'EV Battery Maintenance Specialist', skill_name: 'Battery Safety & Hazard Mitigation', pre_score: 40, post_score: 80 },
+    { skill_id: 'sk-112', trade: 'EV Battery Maintenance Specialist', skill_name: 'Thermal Management Systems', pre_score: 35, post_score: 75 },
     // Industrial Automation & Robotics Technician
     { skill_id: 'sk-113', trade: 'Industrial Automation & Robotics Technician', skill_name: 'Industrial Robotics Programming', pre_score: 40, post_score: 85 },
-    { skill_id: 'sk-114', trade: 'Industrial Automation & Robotics Technician', skill_name: 'PLC & Sensor Interfacing', pre_score: 35, post_score: 75 }
+    { skill_id: 'sk-114', trade: 'Industrial Automation & Robotics Technician', skill_name: 'PLC & Sensor Interfacing', pre_score: 35, post_score: 75 },
+    { skill_id: 'sk-115', trade: 'Industrial Automation & Robotics Technician', skill_name: 'Robotic Arm Calibration', pre_score: 30, post_score: 70 },
+    { skill_id: 'sk-116', trade: 'Industrial Automation & Robotics Technician', skill_name: 'Automated Cell Safety Protocols', pre_score: 45, post_score: 80 }
   ],
   'cand-low': [
     // Advanced CNC Machinist
     { skill_id: 'sk-101', trade: 'Advanced CNC Machinist', skill_name: 'G-Code CNC Programming', pre_score: 20, post_score: 35 },
     { skill_id: 'sk-102', trade: 'Advanced CNC Machinist', skill_name: 'Lathe Machine Calibration', pre_score: 15, post_score: 30 },
+    { skill_id: 'sk-107', trade: 'Advanced CNC Machinist', skill_name: 'Quality & Precision Measurement', pre_score: 25, post_score: 35 },
+    { skill_id: 'sk-108', trade: 'Advanced CNC Machinist', skill_name: 'Safety & Machine Maintenance', pre_score: 20, post_score: 30 },
     // Solar PV Installer & Technician
     { skill_id: 'sk-103', trade: 'Solar PV Installer & Technician', skill_name: 'Solar Panel Array Wiring', pre_score: 22, post_score: 35 },
     { skill_id: 'sk-104', trade: 'Solar PV Installer & Technician', skill_name: 'Grid Inverter Installation', pre_score: 18, post_score: 28 },
+    { skill_id: 'sk-109', trade: 'Solar PV Installer & Technician', skill_name: 'PV System Design', pre_score: 15, post_score: 25 },
+    { skill_id: 'sk-110', trade: 'Solar PV Installer & Technician', skill_name: 'Installation & Mounting', pre_score: 20, post_score: 30 },
     // EV Battery Maintenance Specialist
     { skill_id: 'sk-105', trade: 'EV Battery Maintenance Specialist', skill_name: 'EV Lithium Pack Diagnostics', pre_score: 25, post_score: 38 },
     { skill_id: 'sk-106', trade: 'EV Battery Maintenance Specialist', skill_name: 'BMS Sensor Calibration', pre_score: 20, post_score: 32 },
+    { skill_id: 'sk-111', trade: 'EV Battery Maintenance Specialist', skill_name: 'Battery Safety & Hazard Mitigation', pre_score: 22, post_score: 30 },
+    { skill_id: 'sk-112', trade: 'EV Battery Maintenance Specialist', skill_name: 'Thermal Management Systems', pre_score: 18, post_score: 26 },
     // Industrial Automation & Robotics Technician
     { skill_id: 'sk-113', trade: 'Industrial Automation & Robotics Technician', skill_name: 'Industrial Robotics Programming', pre_score: 18, post_score: 30 },
-    { skill_id: 'sk-114', trade: 'Industrial Automation & Robotics Technician', skill_name: 'PLC & Sensor Interfacing', pre_score: 15, post_score: 25 }
+    { skill_id: 'sk-114', trade: 'Industrial Automation & Robotics Technician', skill_name: 'PLC & Sensor Interfacing', pre_score: 15, post_score: 25 },
+    { skill_id: 'sk-115', trade: 'Industrial Automation & Robotics Technician', skill_name: 'Robotic Arm Calibration', pre_score: 15, post_score: 22 },
+    { skill_id: 'sk-116', trade: 'Industrial Automation & Robotics Technician', skill_name: 'Automated Cell Safety Protocols', pre_score: 20, post_score: 28 }
   ],
   'cand-05': [
     { skill_id: 'sk-103', trade: 'Solar PV Installer & Technician', skill_name: 'Solar Panel Array Wiring', pre_score: 30 }
@@ -590,33 +606,93 @@ router.post('/assessments/submit', async (req, res) => {
 
   let questionsList = [];
 
-  if (questionBank && Array.isArray(questionBank)) {
+  // 1. Attempt fetching questions from Supabase (matching GET /assessments/questions)
+  try {
+    if (isSupabaseConfigured && supabase) {
+      const { data: skillsData, error: skillsErr } = await supabase
+        .from('skills')
+        .select('*')
+        .eq('trade', trade);
+
+      if (!skillsErr && skillsData && skillsData.length > 0) {
+        const skillIds = skillsData.map(s => s.skill_id);
+        const { data: qData, error: qErr } = await supabase
+          .from('mcq_questions')
+          .select('*, mcq_options(*)')
+          .in('skill_id', skillIds);
+
+        if (!qErr && qData && qData.length > 0) {
+          questionsList = qData.map(q => {
+            const skillObj = skillsData.find(s => s.skill_id === q.skill_id);
+            const opts = (q.mcq_options || []).sort((a, b) => a.option_id - b.option_id);
+            const correctIdx = opts.findIndex(o => o.is_correct);
+
+            return {
+              id: q.question_id,
+              skill_id: q.skill_id,
+              skill_name: skillObj ? skillObj.skill_name : 'General',
+              correct_index: correctIdx !== -1 ? correctIdx : 0
+            };
+          });
+        }
+      }
+    }
+  } catch (err) {
+    console.warn('Supabase DB question query notice on submit:', err.message);
+  }
+
+  // 2. Fallback to questionBank dataset from backend/data/mcq_question_bank.js
+  if (questionsList.length === 0 && questionBank && Array.isArray(questionBank)) {
     const tradeModules = questionBank.filter(m => m.trade.toLowerCase() === trade.toLowerCase());
     const targetModules = tradeModules.length > 0 ? tradeModules : questionBank.filter(m => m.trade === 'Advanced CNC Machinist');
+
     let qCounter = 1;
     targetModules.forEach(mod => {
       (mod.questions || []).forEach(q => {
         questionsList.push({
-          id: `q-${qCounter++}`,
+          id: `q-${qCounter}`,
+          numId: qCounter,
           skill_name: mod.skill,
           correct_index: q.correct_index
         });
+        qCounter++;
       });
     });
   }
 
+  console.log(`[POST /assessments/submit] Evaluating answers for Candidate: "${candidate_id}", Phase: "${phase}", Trade: "${trade}". Total questions: ${questionsList.length}. Received answers:`, JSON.stringify(answers));
+
   const skillScoresMap = {};
 
-  questionsList.forEach(q => {
+  questionsList.forEach((q, idx) => {
     if (!skillScoresMap[q.skill_name]) {
       skillScoresMap[q.skill_name] = { total: 0, correct: 0 };
     }
     skillScoresMap[q.skill_name].total += 1;
 
-    const userSelectedOpt = answers[q.id];
-    if (userSelectedOpt !== undefined && parseInt(userSelectedOpt, 10) === q.correct_index) {
+    // Look up answer by q.id, String(q.id), 'q-' + id, id without 'q-', or index
+    let userSelectedOpt = undefined;
+    if (answers[q.id] !== undefined) {
+      userSelectedOpt = answers[q.id];
+    } else if (answers[String(q.id)] !== undefined) {
+      userSelectedOpt = answers[String(q.id)];
+    } else if (answers[`q-${q.id}`] !== undefined) {
+      userSelectedOpt = answers[`q-${q.id}`];
+    } else if (String(q.id).startsWith('q-') && answers[String(q.id).replace('q-', '')] !== undefined) {
+      userSelectedOpt = answers[String(q.id).replace('q-', '')];
+    } else if (q.numId && answers[q.numId] !== undefined) {
+      userSelectedOpt = answers[q.numId];
+    } else if (answers[idx + 1] !== undefined) {
+      userSelectedOpt = answers[idx + 1];
+    } else if (answers[idx] !== undefined) {
+      userSelectedOpt = answers[idx];
+    }
+
+    const isMatch = userSelectedOpt !== undefined && parseInt(userSelectedOpt, 10) === q.correct_index;
+    if (isMatch) {
       skillScoresMap[q.skill_name].correct += 1;
     }
+    console.log(`[Quiz Grading] Q${idx + 1} (id: ${q.id}, skill: "${q.skill_name}"): correct_index=${q.correct_index}, userSelected=${userSelectedOpt}, isMatch=${isMatch}`);
   });
 
   const results = Object.keys(skillScoresMap).map(skillName => {
@@ -638,39 +714,67 @@ router.post('/assessments/submit', async (req, res) => {
   results.forEach(resItem => {
     let candSkill = MOCK_ASSESSMENT_RESULTS[candidate_id].find(s => s.skill_name === resItem.skill_name);
     if (!candSkill) {
-      candSkill = { skill_id: `sk-${resItem.skill_name}`, trade: trade || 'Advanced CNC Machinist', skill_name: resItem.skill_name, pre_score: 40, post_score: 75 };
+      candSkill = { 
+        skill_id: `sk-${resItem.skill_name}`, 
+        trade: trade || 'Advanced CNC Machinist', 
+        skill_name: resItem.skill_name, 
+        pre_score: null, 
+        post_score: null 
+      };
       MOCK_ASSESSMENT_RESULTS[candidate_id].push(candSkill);
     }
     candSkill.trade = trade || candSkill.trade || 'Advanced CNC Machinist';
     if (phase === 'pre') {
-      candSkill.pre_score = resItem.score;
+      candSkill.pre_score = Number(resItem.score);
     } else {
-      candSkill.post_score = resItem.score;
+      candSkill.post_score = Number(resItem.score);
     }
   });
+
+  console.log(`[POST /assessments/submit] Candidate: "${candidate_id}", Phase: "${phase}", Trade: "${trade}", Results:`, JSON.stringify(results));
 
   // Attempt live insertion into Supabase skill_assessments if active
   try {
     if (isSupabaseConfigured && supabase) {
-      const { data: skillsData } = await supabase
-        .from('skills')
-        .select('skill_id, skill_name, trade')
-        .eq('trade', trade);
+      let targetCandUuid = candidate_id;
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(candidate_id);
+      if (!isUuid) {
+        const { data: candRow } = await supabase
+          .from('candidates')
+          .select('id')
+          .or(`id.eq.${candidate_id},email.eq.${candidate_id}`)
+          .maybeSingle();
+        if (candRow) targetCandUuid = candRow.id;
+      }
 
-      if (skillsData && skillsData.length > 0) {
-        const insertPayload = results.map(r => {
-          const matchedSkill = skillsData.find(s => s.skill_name.toLowerCase() === r.skill_name.toLowerCase());
-          return {
-            candidate_id: candidate_id.startsWith('cand-') ? null : candidate_id,
-            skill_id: matchedSkill ? matchedSkill.skill_id : null,
-            phase,
-            score: r.score,
-            taken_at: new Date().toISOString()
-          };
-        }).filter(p => p.candidate_id && p.skill_id);
+      const isValidUuid = targetCandUuid && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(targetCandUuid);
 
-        if (insertPayload.length > 0) {
-          await supabase.from('skill_assessments').insert(insertPayload);
+      if (isValidUuid) {
+        const { data: skillsData } = await supabase
+          .from('skills')
+          .select('skill_id, skill_name, trade')
+          .eq('trade', trade);
+
+        if (skillsData && skillsData.length > 0) {
+          const insertPayload = results.map(r => {
+            const matchedSkill = skillsData.find(s => s.skill_name.toLowerCase() === r.skill_name.toLowerCase() || isSkillEquivalent(s.skill_name, r.skill_name));
+            return {
+              candidate_id: targetCandUuid,
+              skill_id: matchedSkill ? matchedSkill.skill_id : null,
+              phase,
+              score: Number(r.score),
+              taken_at: new Date().toISOString()
+            };
+          }).filter(p => p.candidate_id && p.skill_id);
+
+          if (insertPayload.length > 0) {
+            const { error: insErr } = await supabase.from('skill_assessments').insert(insertPayload);
+            if (insErr) {
+              console.warn('Notice saving to Supabase skill_assessments:', insErr.message);
+            } else {
+              console.log(`[POST /assessments/submit] Stored ${insertPayload.length} assessment rows into Supabase for candidate ${targetCandUuid}`);
+            }
+          }
         }
       }
     }
@@ -736,18 +840,20 @@ router.get('/assessments/results', async (req, res) => {
                 skill_id: item.skills?.skill_id, 
                 trade: item.skills?.trade, 
                 skill_name: skName, 
-                pre_score: 40, 
-                post_score: 75 
+                pre_score: null, 
+                post_score: null 
               };
             }
             if (item.phase === 'pre') skillMap[skName].pre_score = Number(item.score);
             if (item.phase === 'post') skillMap[skName].post_score = Number(item.score);
           });
+          const resultsToReturn = Object.values(skillMap);
+          console.log(`[GET /assessments/results - Supabase] candidate_id: "${candidate_id}", trade: "${trade}", raw results:`, JSON.stringify(resultsToReturn));
           return res.json({
             success: true,
             candidate_id,
             trade,
-            results: Object.values(skillMap)
+            results: resultsToReturn
           });
         }
       }
@@ -757,8 +863,10 @@ router.get('/assessments/results', async (req, res) => {
   }
 
   // 2. Memory cache results
-  const candResults = MOCK_ASSESSMENT_RESULTS[candidate_id] || [];
+  const candResults = (candidate_id && MOCK_ASSESSMENT_RESULTS[candidate_id]) ? MOCK_ASSESSMENT_RESULTS[candidate_id] : [];
   const filteredByTrade = candResults.filter(r => !trade || r.trade === trade);
+
+  console.log(`[GET /assessments/results - Memory Cache] candidate_id: "${candidate_id}", trade: "${trade}", raw results:`, JSON.stringify(filteredByTrade));
 
   if (filteredByTrade.length > 0) {
     return res.json({
@@ -1041,14 +1149,31 @@ router.get('/jobs/seeded', async (req, res) => {
 export function normalizeSkillName(name) {
   if (!name) return '';
   const lower = name.toLowerCase().replace(/[^a-z0-9]/g, '');
-  if (lower.includes('gcode') || lower.includes('cncprogramming')) return 'cnc_programming';
-  if (lower.includes('bms')) return 'bms_sensor_calibration';
-  if (lower.includes('lithium') || (lower.includes('ev') && lower.includes('diagnostics'))) return 'ev_lithium_pack_diagnostics';
-  if (lower.includes('solar') && (lower.includes('wiring') || lower.includes('array'))) return 'solar_array_wiring';
-  if (lower.includes('inverter')) return 'grid_inverter_installation';
+
+  // CNC Skills
+  if (lower.includes('gcode') || lower.includes('cncprogramming') || lower === 'cncprogramminggcode') return 'cnc_programming';
+  if (lower.includes('lathe') || lower.includes('machinesetup') || (lower.includes('calibrat') && !lower.includes('robot') && !lower.includes('arm') && !lower.includes('bms'))) return 'lathe_calibration';
+  if (lower.includes('quality') || lower.includes('metrology') || (lower.includes('precision') && lower.includes('measurement'))) return 'quality_precision_measurement';
+  if ((lower.includes('safety') || lower.includes('protocols')) && (lower.includes('machine') || lower.includes('maint') || lower.includes('industrial') || lower === 'safetymaintenance') && !lower.includes('battery') && !lower.includes('voltage') && !lower.includes('robot') && !lower.includes('cell')) return 'cnc_safety_maintenance';
+
+  // Solar Skills
+  if (lower.includes('wiring') && (lower.includes('solar') || lower.includes('electrical') || lower.includes('array'))) return 'solar_array_wiring';
+  if (lower.includes('inverter') || (lower.includes('troubleshoot') && lower.includes('maint'))) return 'grid_inverter_installation';
+  if (lower.includes('pv') && lower.includes('design')) return 'pv_system_design';
+  if (lower.includes('mounting') || (lower.includes('installation') && !lower.includes('inverter'))) return 'solar_installation_mounting';
+
+  // EV Skills
+  if (lower.includes('lithium') || (lower.includes('diagnostics') && (lower.includes('ev') || lower.includes('fault') || lower.includes('detection')))) return 'ev_lithium_pack_diagnostics';
+  if (lower.includes('bms') || (lower.includes('battery') && lower.includes('chemistry'))) return 'bms_sensor_calibration';
+  if ((lower.includes('battery') || lower.includes('highvoltage') || lower.includes('voltage')) && (lower.includes('safety') || lower.includes('hazard'))) return 'battery_safety_mitigation';
+  if (lower.includes('thermal') || (lower.includes('maintenance') && lower.includes('disposal'))) return 'thermal_management_systems';
+
+  // Robotics Skills
+  if (lower.includes('arm') || ((lower.includes('robot') || lower.includes('robotic')) && lower.includes('calibrat'))) return 'robotic_arm_calibration';
+  if (lower.includes('cell') || ((lower.includes('robot') || lower.includes('automated')) && (lower.includes('safety') || lower.includes('protocol')))) return 'automated_cell_safety';
+  if (lower.includes('plc') || lower.includes('interfacing') || lower.includes('automation')) return 'plc_interfacing';
   if (lower.includes('robot') || lower.includes('robotic')) return 'robotics_programming';
-  if (lower.includes('plc') || lower.includes('interfacing') || lower.includes('automation')) return 'plc_automation';
-  if (lower.includes('lathe') || lower.includes('machinesetup') || lower.includes('calibration')) return 'lathe_calibration';
+
   return lower;
 }
 
@@ -1068,8 +1193,10 @@ export function isSkillEquivalent(candSkillName, requiredSkillName) {
  * 3. Aggregates across ALL job postings for trade/district to calculate skill_demand_percentage
  * 4. Generates recommendations where each skill includes reason: 'Required in X% of <trade> postings in <district>'
  */
-export async function computeExplainableSkillMatching({ candidate_id = 'cand-01', trade = 'Advanced CNC Machinist', district = 'Pune', freshResults = null }) {
+export async function computeExplainableSkillMatching({ candidate_id = null, trade = 'Advanced CNC Machinist', district = 'Pune', freshResults = null }) {
   let candidateScores = [];
+
+  console.log(`[computeExplainableSkillMatching] Called with candidate_id: "${candidate_id}", trade: "${trade}", district: "${district}"`);
 
   // 1. Live Supabase query for post assessments
   try {
@@ -1114,8 +1241,8 @@ export async function computeExplainableSkillMatching({ candidate_id = 'cand-01'
     console.warn('Notice querying Supabase post assessments:', err.message);
   }
 
-  // 2. Augment from memory cache (strictly requiring real post_score)
-  const memoryScores = MOCK_ASSESSMENT_RESULTS[candidate_id] || (candidate_id === 'cand-01' ? MOCK_ASSESSMENT_RESULTS['cand-01'] : []) || [];
+  // 2. Augment from memory cache (strictly requiring real post_score for this candidate, never fall back to other candidates)
+  const memoryScores = (candidate_id && MOCK_ASSESSMENT_RESULTS[candidate_id]) ? MOCK_ASSESSMENT_RESULTS[candidate_id] : [];
   memoryScores.forEach(m => {
     if (m.post_score !== undefined && m.post_score !== null) {
       const existing = candidateScores.find(c => isSkillEquivalent(c.skill_name, m.skill_name));
@@ -1150,6 +1277,8 @@ export async function computeExplainableSkillMatching({ candidate_id = 'cand-01'
     !c.trade || c.trade.toLowerCase() === trade.toLowerCase()
   );
   const hasCompletedPostAssessment = candidateScoresForTrade.length > 0;
+
+  console.log(`[computeExplainableSkillMatching] candidate_id: "${candidate_id}", candidateScoresForTrade:`, JSON.stringify(candidateScoresForTrade));
 
   // Determine achieved skills: post-training score >= 60
   const achievedSkillRecords = candidateScoresForTrade.filter(s => Number(s.post_score) >= 60);
@@ -1199,7 +1328,9 @@ export async function computeExplainableSkillMatching({ candidate_id = 'cand-01'
     const totalReq = skillsArr.length;
     const match_percentage = totalReq > 0
       ? Math.round((matched_skills.length / totalReq) * 100)
-      : 100;
+      : 0;
+
+    console.log(`[Job Matches] candidate_id: "${candidate_id}", job: "${job.title}", matched: [${matched_skills.join(', ')}], missing: [${missing_skills.join(', ')}], match%: ${match_percentage}%`);
 
     return {
       job_id: job.job_id || job.id,
@@ -1228,8 +1359,6 @@ export async function computeExplainableSkillMatching({ candidate_id = 'cand-01'
 
   const skillGapVector = tradeSkillsList.map(sk => {
     // 1. Calculate genuine Industry Demand Frequency %:
-    // count how many job_postings rows include this skill in their required_skills array,
-    // divided by the total number of postings for that trade/district, times 100
     let matchingJobsCount = 0;
     if (totalJobs > 0) {
       relevantJobs.forEach(job => {
@@ -1259,6 +1388,8 @@ export async function computeExplainableSkillMatching({ candidate_id = 'cand-01'
     // 3. Gap Score = Candidate Competency - Industry Demand Frequency (negative means behind demand)
     const gapScore = hasPostScore ? Math.round(candidateScore - demandFrequencyPct) : null;
 
+    console.log(`[Gap Bar Chart Vector] candidate_id: "${candidate_id}", skill: "${sk.skill_name}", raw post_score: ${candScoreItem?.post_score}, computed candidateScore: ${candidateScore}%, demand: ${demandFrequencyPct}%`);
+
     return {
       skill_id: sk.id,
       skill_name: sk.skill_name,
@@ -1271,20 +1402,15 @@ export async function computeExplainableSkillMatching({ candidate_id = 'cand-01'
       totalJobsCount: totalJobs,
       status: !hasPostScore 
         ? 'Not assessed yet' 
-        : (gapScore >= 0 ? 'Surplus / Competent' : 'Gap / Upskill Recommended')
+        : (candidateScore >= 60 && gapScore >= 0 ? 'Surplus / Competent' : 'Gap / Upskill Recommended')
     };
   });
 
   // 8. Recommendations derived from genuine demand and candidate scores
-  const allCandidateAndMarketSkills = new Set([
-    ...Object.keys(skill_demand_percentage),
-    ...candidateScoresForTrade.map(c => c.skill_name),
-    ...tradeSkillsList.map(s => s.skill_name)
-  ]);
-
-  const skillRecommendations = Array.from(allCandidateAndMarketSkills).map(skillName => {
+  const skillRecommendations = tradeSkillsList.map(sk => {
+    const skillName = sk.skill_name;
     const candScoreItem = candidateScoresForTrade.find(item => isSkillEquivalent(item.skill_name, skillName));
-    const postScore = candScoreItem ? candScoreItem.post_score : 0;
+    const postScore = candScoreItem && candScoreItem.post_score !== undefined && candScoreItem.post_score !== null ? candScoreItem.post_score : 0;
     const isAchieved = postScore >= 60;
     
     // Genuine demand %
@@ -1300,10 +1426,12 @@ export async function computeExplainableSkillMatching({ candidate_id = 'cand-01'
     const demandPct = totalJobs > 0 ? Math.round((matchingJobs / totalJobs) * 100) : (skill_demand_percentage[skillName] || 0);
     const priorityScore = (100 - postScore) * (demandPct / 100);
 
+    console.log(`[Upskilling Priorities] candidate_id: "${candidate_id}", skill: "${skillName}", raw postScore: ${postScore}, isAchieved: ${isAchieved}`);
+
     return {
       skill_name: skillName,
       skill_demand_percentage: demandPct,
-      post_score: candScoreItem ? postScore : null,
+      post_score: candScoreItem && candScoreItem.post_score !== undefined && candScoreItem.post_score !== null ? candScoreItem.post_score : null,
       achieved: isAchieved,
       priority_score: Math.round(priorityScore),
       reason: `Required in ${demandPct}% of ${trade} postings in ${district}`
@@ -1343,6 +1471,8 @@ router.get('/skill-match/gap-analysis', async (req, res) => {
   const trade = req.query.trade || 'Advanced CNC Machinist';
   const district = req.query.district || 'Pune';
 
+  console.log(`[GET /skill-match/gap-analysis] candidate_id: "${candId}", trade: "${trade}", district: "${district}"`);
+
   const matchData = await computeExplainableSkillMatching({
     candidate_id: candId,
     trade,
@@ -1360,6 +1490,8 @@ router.get('/candidate/skill-recommendations', async (req, res) => {
   const candId = req.query.candidate_id || 'cand-01';
   const trade = req.query.trade || 'Advanced CNC Machinist';
   const district = req.query.district || 'Pune';
+
+  console.log(`[GET /candidate/skill-recommendations] candidate_id: "${candId}", trade: "${trade}", district: "${district}"`);
 
   const matchData = await computeExplainableSkillMatching({
     candidate_id: candId,
@@ -1485,6 +1617,8 @@ router.get('/jobs/recommended', async (req, res) => {
   const district = req.query.district || 'Pune';
 
   const hasCompleted = await hasCandidateCompletedPostAssessment(candidate_id, trade);
+
+  console.log(`[GET /jobs/recommended] candidate_id: "${candidate_id}", trade: "${trade}", district: "${district}", hasCompleted: ${hasCompleted}`);
 
   if (!hasCompleted) {
     return res.json({

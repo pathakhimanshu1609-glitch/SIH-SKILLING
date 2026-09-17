@@ -32,6 +32,7 @@ import {
   Calendar,
   Search
 } from 'lucide-react';
+import AnimatedCounter from '../components/common/AnimatedCounter';
 
 export const GovernmentDashboard = ({ activeTab = 'dashboard', onNavigateTab }) => {
   const { user, role } = useAuth();
@@ -200,43 +201,43 @@ export const GovernmentDashboard = ({ activeTab = 'dashboard', onNavigateTab }) 
   };
 
   return (
-    <div className="space-y-10 sm:space-y-12 font-sans">
-      {/* Top Banner */}
-      <div className="bg-[#0B3D6B] border border-[#072847] text-white rounded-[6px] p-4 sm:p-5 relative">
+    <div className="space-y-8 font-sans">
+      {/* Top Sovereign Banner */}
+      <div className="bg-[#0B3D6B] border border-[#072847] text-white rounded-xl p-6 relative overflow-hidden shadow-sm">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 relative z-10">
           <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="bg-govt-orange text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded-[4px]">
-                NATIONAL GOVT ADMIN PORTAL
+            <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+              <span className="bg-[#072847] text-[#D2691E] border border-[#D2691E]/30 text-[10px] uppercase font-bold tracking-wider px-2.5 py-0.5 rounded">
+                National Govt Admin Portal
               </span>
               <span className="text-xs text-amber-200">Ministry of Skill Development & Entrepreneurship</span>
               {realtimePulse && (
-                <span className="bg-emerald-700 text-white text-[10px] font-bold px-2 py-0.5 rounded-[4px] animate-pulse flex items-center gap-1">
+                <span className="bg-emerald-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full animate-pulse flex items-center gap-1">
                   <Radio className="w-3 h-3" /> Live Synced
                 </span>
               )}
             </div>
-            <h1 className="font-display text-xl font-bold tracking-tight">
+            <h1 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-white">
               Executive Skilling & Employment Dashboard
             </h1>
-            <p className="text-xs text-slate-300 mt-0.5 max-w-2xl">
+            <p className="text-xs text-slate-300 mt-1 max-w-2xl">
               National Skilling Mission Analytics • Real-time District Performance, Training Center Verification & Budget Allocation.
             </p>
           </div>
 
           {/* PDF & Excel Export Buttons */}
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2.5">
             <button 
               onClick={handleExportCSV}
-              className="bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs py-2 px-3 rounded-[4px] flex items-center gap-1.5 transition-all"
+              className="btn-sid-secondary text-xs py-2 px-3 flex items-center gap-1.5"
             >
-              <FileSpreadsheet className="w-4 h-4" />
-              <span>Export Excel CSV</span>
+              <FileSpreadsheet className="w-4 h-4 text-[#0B3D6B]" />
+              <span>Export CSV</span>
             </button>
 
             <button 
               onClick={handleExportPDF}
-              className="btn-govt-orange text-xs py-2 px-3 flex items-center gap-1.5"
+              className="btn-sid-primary text-xs py-2 px-3.5 flex items-center gap-1.5"
             >
               <Download className="w-4 h-4" />
               <span>Export PDF Report</span>
@@ -245,13 +246,13 @@ export const GovernmentDashboard = ({ activeTab = 'dashboard', onNavigateTab }) 
         </div>
       </div>
 
-      {/* QUICK ADMIN ACTION STRIP (Matching attached screenshot buttons) */}
-      <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-2">
+      {/* QUICK ADMIN ACTION STRIP */}
+      <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-2">
         <div className="flex items-center justify-between border-b border-slate-100 pb-2">
           <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
             Govt Admin Quick Action Menu
           </span>
-          <span className="text-xs text-govt-navy font-bold font-mono">
+          <span className="text-xs text-[#0B3D6B] font-bold font-mono">
             {pendingTcCount} TC Audits Pending
           </span>
         </div>
@@ -262,11 +263,11 @@ export const GovernmentDashboard = ({ activeTab = 'dashboard', onNavigateTab }) 
             onClick={() => navTo('create-batch')}
             className={`p-3 rounded-xl border flex items-center gap-3 transition-all text-left text-xs font-bold ${
               activeTab === 'create-batch'
-                ? 'border-govt-navy bg-govt-navy text-white shadow-md'
-                : 'border-slate-200 bg-slate-50 text-slate-800 hover:bg-slate-100 hover:border-govt-navy'
+                ? 'border-[#0B3D6B] bg-[#0B3D6B] text-white shadow-xs'
+                : 'border-slate-200 bg-white text-slate-800 hover:bg-slate-50 hover:border-[#0B3D6B]'
             }`}
           >
-            <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${activeTab === 'create-batch' ? 'bg-govt-orange text-white' : 'bg-blue-100 text-govt-navy'}`}>
+            <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${activeTab === 'create-batch' ? 'bg-[#D2691E] text-white' : 'bg-[#E8ECFB] text-[#0B3D6B]'}`}>
               <PlusCircle className="w-5 h-5" />
             </div>
             <span>Allocate Program Batch</span>
@@ -277,11 +278,11 @@ export const GovernmentDashboard = ({ activeTab = 'dashboard', onNavigateTab }) 
             onClick={() => navTo('analytics')}
             className={`p-3 rounded-xl border flex items-center gap-3 transition-all text-left text-xs font-bold ${
               activeTab === 'analytics'
-                ? 'border-govt-navy bg-govt-navy text-white shadow-md'
-                : 'border-slate-200 bg-slate-50 text-slate-800 hover:bg-slate-100 hover:border-govt-navy'
+                ? 'border-[#0B3D6B] bg-[#0B3D6B] text-white shadow-xs'
+                : 'border-slate-200 bg-white text-slate-800 hover:bg-slate-50 hover:border-[#0B3D6B]'
             }`}
           >
-            <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${activeTab === 'analytics' ? 'bg-govt-orange text-white' : 'bg-purple-100 text-purple-700'}`}>
+            <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${activeTab === 'analytics' ? 'bg-[#D2691E] text-white' : 'bg-[#FDEEE0] text-[#D2691E]'}`}>
               <TrendingUp className="w-5 h-5" />
             </div>
             <span>National Skilling Metrics</span>
@@ -292,18 +293,18 @@ export const GovernmentDashboard = ({ activeTab = 'dashboard', onNavigateTab }) 
             onClick={() => navTo('centers')}
             className={`p-3 rounded-xl border flex items-center justify-between transition-all text-left text-xs font-bold ${
               activeTab === 'centers'
-                ? 'border-govt-navy bg-govt-navy text-white shadow-md'
-                : 'border-slate-200 bg-slate-50 text-slate-800 hover:bg-slate-100 hover:border-govt-navy'
+                ? 'border-[#0B3D6B] bg-[#0B3D6B] text-white shadow-xs'
+                : 'border-slate-200 bg-white text-slate-800 hover:bg-slate-50 hover:border-[#0B3D6B]'
             }`}
           >
             <div className="flex items-center gap-3">
-              <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${activeTab === 'centers' ? 'bg-govt-orange text-white' : 'bg-amber-100 text-govt-orange'}`}>
+              <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${activeTab === 'centers' ? 'bg-[#D2691E] text-white' : 'bg-[#E8ECFB] text-[#0B3D6B]'}`}>
                 <Building2 className="w-5 h-5" />
               </div>
               <span className="leading-tight">Training Center Verification</span>
             </div>
             {pendingTcCount > 0 && (
-              <span className="bg-blue-100 text-govt-navy text-[10px] px-2 py-1 rounded-full font-extrabold whitespace-nowrap">
+              <span className="bg-[#E8ECFB] text-[#0B3D6B] text-[10px] px-2 py-1 rounded-full font-extrabold whitespace-nowrap">
                 {pendingTcCount} Pending
               </span>
             )}
@@ -314,11 +315,11 @@ export const GovernmentDashboard = ({ activeTab = 'dashboard', onNavigateTab }) 
             onClick={() => navTo('funds')}
             className={`p-3 rounded-xl border flex items-center gap-3 transition-all text-left text-xs font-bold ${
               activeTab === 'funds'
-                ? 'border-govt-navy bg-govt-navy text-white shadow-md'
-                : 'border-slate-200 bg-slate-50 text-slate-800 hover:bg-slate-100 hover:border-govt-navy'
+                ? 'border-[#0B3D6B] bg-[#0B3D6B] text-white shadow-xs'
+                : 'border-slate-200 bg-white text-slate-800 hover:bg-slate-50 hover:border-[#0B3D6B]'
             }`}
           >
-            <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${activeTab === 'funds' ? 'bg-govt-orange text-white' : 'bg-emerald-100 text-emerald-700'}`}>
+            <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${activeTab === 'funds' ? 'bg-[#D2691E] text-white' : 'bg-emerald-50 text-emerald-600'}`}>
               <Sliders className="w-5 h-5" />
             </div>
             <span>Fund & Budget Allocation</span>
@@ -329,11 +330,11 @@ export const GovernmentDashboard = ({ activeTab = 'dashboard', onNavigateTab }) 
             onClick={() => navTo('policy')}
             className={`p-3 rounded-xl border flex items-center gap-3 transition-all text-left text-xs font-bold ${
               activeTab === 'policy'
-                ? 'border-govt-navy bg-govt-navy text-white shadow-md'
-                : 'border-slate-200 bg-slate-50 text-slate-800 hover:bg-slate-100 hover:border-govt-navy'
+                ? 'border-[#0B3D6B] bg-[#0B3D6B] text-white shadow-xs'
+                : 'border-slate-200 bg-white text-slate-800 hover:bg-slate-50 hover:border-[#0B3D6B]'
             }`}
           >
-            <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${activeTab === 'policy' ? 'bg-govt-orange text-white' : 'bg-indigo-100 text-indigo-700'}`}>
+            <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${activeTab === 'policy' ? 'bg-[#D2691E] text-white' : 'bg-[#E8ECFB] text-[#0B3D6B]'}`}>
               <ShieldCheck className="w-5 h-5" />
             </div>
             <span>Policy & Compliance</span>
@@ -343,12 +344,12 @@ export const GovernmentDashboard = ({ activeTab = 'dashboard', onNavigateTab }) 
 
       {/* Alert Notification */}
       {exportNotice && (
-        <div className="bg-emerald-50 border border-emerald-300 text-emerald-900 p-3 rounded-lg text-xs flex items-center justify-between shadow-sm">
+        <div className="banner-peach p-3.5 rounded-xl text-xs flex items-center justify-between shadow-xs border">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            <span><strong>System Action:</strong> {exportNotice}</span>
+            <span className="text-[#8C3A00]"><strong>System Action:</strong> {exportNotice}</span>
           </div>
-          <span className="font-mono text-[10px] bg-emerald-200 text-emerald-950 px-2 py-0.5 rounded font-bold">UPDATED</span>
+          <span className="font-mono text-[10px] bg-white text-[#8C3A00] border border-[#F8D3B8] px-2 py-0.5 rounded font-bold">UPDATED</span>
         </div>
       )}
 
@@ -356,29 +357,29 @@ export const GovernmentDashboard = ({ activeTab = 'dashboard', onNavigateTab }) 
 
       {/* VIEW 1: TRAINING CENTER VERIFICATION QUEUE (activeTab === 'centers') */}
       {activeTab === 'centers' && (
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-6">
+        <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-6 space-y-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
             <div>
               <div className="flex items-center gap-2">
-                <Building2 className="w-5 h-5 text-govt-navy" />
-                <h2 className="font-display text-base font-bold text-slate-800">Training Center Accreditation & Verification Queue</h2>
+                <Building2 className="w-5 h-5 text-[#0B3D6B]" />
+                <h2 className="font-display text-base font-bold text-slate-900">Training Center Accreditation & Verification Queue</h2>
               </div>
               <p className="text-xs text-slate-500 mt-0.5">Review, audit infrastructure credentials, and approve accreditation applications.</p>
             </div>
 
             <div className="flex items-center gap-3 text-xs font-bold">
-              <span className="bg-blue-50 text-govt-navy px-3 py-1.5 rounded-md border border-blue-200">
+              <span className="bg-[#E8ECFB] text-[#0B3D6B] px-3 py-1.5 rounded-md border border-[#D1DBF7]">
                 Total Queue: {tcApplications.length} Applicants
               </span>
-              <span className="bg-amber-50 text-amber-900 px-3 py-1.5 rounded-md border border-amber-200 font-mono">
+              <span className="bg-[#FDEEE0] text-[#D2691E] px-3 py-1.5 rounded-md border border-[#F8D3B8] font-mono">
                 {pendingTcCount} Pending Verification
               </span>
             </div>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase tracking-wider">
+          <div className="overflow-x-auto border border-slate-200 rounded-lg">
+            <table className="table-govt w-full text-left text-xs">
+              <thead>
                 <tr>
                   <th className="p-3">Center Code & Name</th>
                   <th className="p-3">State & District</th>
@@ -392,14 +393,14 @@ export const GovernmentDashboard = ({ activeTab = 'dashboard', onNavigateTab }) 
                 {tcApplications.map((tc) => (
                   <tr key={tc.id} className="hover:bg-slate-50/80 transition-all">
                     <td className="p-3">
-                      <div className="font-bold text-slate-800">{tc.center_name}</div>
+                      <div className="font-bold text-slate-900">{tc.center_name}</div>
                       <div className="text-[11px] text-slate-400 font-mono">{tc.id} • Applied {tc.applied_date}</div>
                     </td>
                     <td className="p-3 font-medium text-slate-700">
                       {tc.district}, <span className="text-slate-500 font-bold">{tc.state}</span>
                     </td>
                     <td className="p-3">
-                      <span className="bg-purple-50 text-purple-800 px-2 py-0.5 rounded text-[11px] font-bold">
+                      <span className="bg-[#E8ECFB] text-[#0B3D6B] px-2 py-0.5 rounded text-[11px] font-bold">
                         {tc.trade}
                       </span>
                     </td>
@@ -427,7 +428,7 @@ export const GovernmentDashboard = ({ activeTab = 'dashboard', onNavigateTab }) 
                       <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => setSelectedTcModal(tc)}
-                          className="p-1.5 text-slate-600 hover:text-govt-navy hover:bg-slate-100 rounded"
+                          className="p-1.5 text-slate-600 hover:text-[#0B3D6B] hover:bg-slate-100 rounded transition-colors"
                           title="View Details"
                         >
                           <Eye className="w-4 h-4" />
@@ -436,13 +437,13 @@ export const GovernmentDashboard = ({ activeTab = 'dashboard', onNavigateTab }) 
                           <>
                             <button
                               onClick={() => handleApproveTc(tc.id)}
-                              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] px-2.5 py-1 rounded shadow transition-all flex items-center gap-1"
+                              className="btn-sid-primary text-[11px] py-1 px-2.5 flex items-center gap-1 shadow-xs"
                             >
                               <Check className="w-3 h-3" /> Approve
                             </button>
                             <button
                               onClick={() => handleRejectTc(tc.id)}
-                              className="border border-slate-300 hover:bg-red-50 hover:text-red-700 text-slate-600 font-bold text-[11px] px-2 py-1 rounded transition-all"
+                              className="btn-sid-secondary text-[11px] py-1 px-2 border-red-200 text-red-700 hover:bg-red-50"
                             >
                               Reject
                             </button>
@@ -500,9 +501,9 @@ export const GovernmentDashboard = ({ activeTab = 'dashboard', onNavigateTab }) 
             </div>
 
             {/* Scheme Funding Table */}
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
-                <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase tracking-wider">
+            <div className="overflow-x-auto border border-slate-200 rounded-lg">
+              <table className="table-govt w-full text-left text-xs">
+                <thead>
                   <tr>
                     <th className="p-3">Scheme Name</th>
                     <th className="p-3">Total Allocation</th>
@@ -514,7 +515,7 @@ export const GovernmentDashboard = ({ activeTab = 'dashboard', onNavigateTab }) 
                 <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
                   {fundsData.map((f) => (
                     <tr key={f.id} className="hover:bg-slate-50/80">
-                      <td className="p-3 font-bold text-slate-800">{f.scheme}</td>
+                      <td className="p-3 font-bold text-slate-900">{f.scheme}</td>
                       <td className="p-3 font-mono font-bold text-slate-800">₹ {f.allocated.toFixed(2)} Cr</td>
                       <td className="p-3 font-mono text-emerald-700 font-bold">₹ {f.released.toFixed(2)} Cr</td>
                       <td className="p-3">
@@ -531,7 +532,7 @@ export const GovernmentDashboard = ({ activeTab = 'dashboard', onNavigateTab }) 
                             setSelectedScheme(f.scheme);
                             setReleaseFundModal(true);
                           }}
-                          className="btn-govt-orange text-[11px] py-1 px-3"
+                          className="btn-sid-primary text-[11px] py-1 px-3 shadow-xs"
                         >
                           Release Tranche
                         </button>
@@ -639,12 +640,14 @@ export const GovernmentDashboard = ({ activeTab = 'dashboard', onNavigateTab }) 
                 <div className="bg-white p-6 sm:p-7 rounded-xl border border-slate-200 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-between">
                   <div>
                     <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Placements</p>
-                    <p className="text-2xl font-bold text-slate-800 mt-1">{sum.total_placements} Candidates</p>
-                    <p className="text-[11px] text-blue-700 font-medium mt-1 flex items-center gap-0.5">
+                    <p className="text-2xl font-bold text-slate-900 mt-1">
+                      <AnimatedCounter end={sum.total_placements} suffix=" Candidates" />
+                    </p>
+                    <p className="text-[11px] text-[#0B3D6B] font-medium mt-1 flex items-center gap-0.5">
                       <Briefcase className="w-3.5 h-3.5" /> employment_records
                     </p>
                   </div>
-                  <div className="w-12 h-12 rounded-lg bg-blue-50 text-govt-navy flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-lg bg-[#E8ECFB] text-[#0B3D6B] flex items-center justify-center">
                     <Users className="w-6 h-6" />
                   </div>
                 </div>
@@ -653,12 +656,14 @@ export const GovernmentDashboard = ({ activeTab = 'dashboard', onNavigateTab }) 
                 <div className="bg-white p-6 sm:p-7 rounded-xl border border-slate-200 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-between">
                   <div>
                     <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">% Employer-Verified</p>
-                    <p className="text-2xl font-bold text-emerald-700 mt-1">{sum.verified_percentage}%</p>
+                    <p className="text-2xl font-bold text-emerald-700 mt-1">
+                      <AnimatedCounter end={sum.verified_percentage} suffix="%" />
+                    </p>
                     <p className="text-[11px] text-emerald-600 font-medium mt-1 flex items-center gap-1">
                       <ShieldCheck className="w-3.5 h-3.5" /> {sum.verified_placements} of {sum.total_placements} Verified
                     </p>
                   </div>
-                  <div className="w-12 h-12 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
                     <CheckCircle2 className="w-6 h-6" />
                   </div>
                 </div>
@@ -667,12 +672,14 @@ export const GovernmentDashboard = ({ activeTab = 'dashboard', onNavigateTab }) 
                 <div className="bg-white p-6 sm:p-7 rounded-xl border border-slate-200 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-between">
                   <div>
                     <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">% Due Check-Ins Done</p>
-                    <p className="text-2xl font-bold text-purple-700 mt-1">{sum.checkin_completion_percentage}%</p>
-                    <p className="text-[11px] text-purple-600 font-medium mt-1 flex items-center gap-1">
+                    <p className="text-2xl font-bold text-[#0B3D6B] mt-1">
+                      <AnimatedCounter end={sum.checkin_completion_percentage} suffix="%" />
+                    </p>
+                    <p className="text-[11px] text-[#0B3D6B] font-medium mt-1 flex items-center gap-1">
                       <Check className="w-3.5 h-3.5 stroke-[3]" /> {sum.completed_due_checkins} of {sum.total_due_checkins} Due Check-Ins
                     </p>
                   </div>
-                  <div className="w-12 h-12 rounded-lg bg-purple-50 text-purple-700 flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-lg bg-[#E8ECFB] text-[#0B3D6B] flex items-center justify-center">
                     <Calendar className="w-6 h-6" />
                   </div>
                 </div>
@@ -681,12 +688,12 @@ export const GovernmentDashboard = ({ activeTab = 'dashboard', onNavigateTab }) 
                 <div className="bg-white p-6 sm:p-7 rounded-xl border border-slate-200 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-between">
                   <div>
                     <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Longitudinal Horizon</p>
-                    <p className="text-xl font-bold text-slate-800 mt-1">30d / 90d / 180d / 365d</p>
-                    <p className="text-[11px] text-amber-700 font-medium mt-1 flex items-center gap-1">
+                    <p className="text-xl font-bold text-slate-900 mt-1">30d / 90d / 180d / 365d</p>
+                    <p className="text-[11px] text-[#D2691E] font-medium mt-1 flex items-center gap-1">
                       <Clock className="w-3.5 h-3.5" /> Ref Date: {sum.reference_date}
                     </p>
                   </div>
-                  <div className="w-12 h-12 rounded-lg bg-amber-50 text-govt-orange flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-lg bg-[#FDEEE0] text-[#D2691E] flex items-center justify-center">
                     <TrendingUp className="w-6 h-6" />
                   </div>
                 </div>
@@ -698,8 +705,8 @@ export const GovernmentDashboard = ({ activeTab = 'dashboard', onNavigateTab }) 
           <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-6 sm:p-8 space-y-4">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
               <div>
-                <h2 className="font-display text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
-                  <BarChart2 className="w-4 h-4 text-govt-navy" />
+                <h2 className="font-display text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                  <BarChart2 className="w-4 h-4 text-[#0B3D6B]" />
                   <span>Skill Demand vs. Supply Visual Analytics</span>
                 </h2>
                 <p className="text-xs text-slate-500">Candidates Trained in Skill X (Supply) vs. Industry Job Postings Requiring Skill X (Demand)</p>
@@ -707,11 +714,11 @@ export const GovernmentDashboard = ({ activeTab = 'dashboard', onNavigateTab }) 
 
               <div className="flex items-center gap-4 text-xs font-bold">
                 <div className="flex items-center gap-1.5">
-                  <span className="w-3 h-3 rounded bg-govt-navy inline-block"></span>
+                  <span className="w-3 h-3 rounded bg-[#0B3D6B] inline-block"></span>
                   <span className="text-slate-700">Trained Candidates (Supply)</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <span className="w-3 h-3 rounded bg-govt-orange inline-block"></span>
+                  <span className="w-3 h-3 rounded bg-[#D2691E] inline-block"></span>
                   <span className="text-slate-900">Job Vacancies (Demand)</span>
                 </div>
               </div>
@@ -725,11 +732,11 @@ export const GovernmentDashboard = ({ activeTab = 'dashboard', onNavigateTab }) 
                 const deficit = item.jobOpeningsDemanding - item.candidatesTrained;
 
                 return (
-                  <div key={idx} className="p-4 rounded-lg bg-slate-50/70 border border-slate-200 space-y-2">
+                  <div key={idx} className="p-4 rounded-xl bg-slate-50/70 border border-slate-200 space-y-2">
                     <div className="flex items-center justify-between text-xs">
-                      <span className="font-bold text-slate-800">{item.skillName}</span>
+                      <span className="font-bold text-slate-900">{item.skillName}</span>
                       {deficit > 0 ? (
-                        <span className="text-[10px] bg-amber-100 text-amber-900 border border-amber-300 font-bold px-2 py-0.5 rounded">
+                        <span className="text-[10px] bg-[#FDEEE0] text-[#D2691E] border border-[#F8D3B8] font-bold px-2 py-0.5 rounded">
                           Demand Deficit: +{deficit.toLocaleString()} Workers Needed
                         </span>
                       ) : (
@@ -743,20 +750,20 @@ export const GovernmentDashboard = ({ activeTab = 'dashboard', onNavigateTab }) 
                       <div>
                         <div className="flex justify-between text-[11px] font-semibold text-slate-600 mb-0.5">
                           <span>Trained Supply</span>
-                          <span className="font-mono">{item.candidatesTrained.toLocaleString()} Trainees</span>
+                          <span className="font-mono text-slate-800">{item.candidatesTrained.toLocaleString()} Trainees</span>
                         </div>
                         <div className="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden">
-                          <div className="bg-govt-navy h-full rounded-full transition-all duration-500" style={{ width: `${supplyWidth}%` }}></div>
+                          <div className="bg-[#0B3D6B] h-full rounded-full transition-all duration-500" style={{ width: `${supplyWidth}%` }}></div>
                         </div>
                       </div>
 
                       <div>
                         <div className="flex justify-between text-[11px] font-semibold text-slate-600 mb-0.5">
                           <span>Industry Demand</span>
-                          <span className="font-mono text-govt-orange font-bold">{item.jobOpeningsDemanding.toLocaleString()} Postings</span>
+                          <span className="font-mono text-[#D2691E] font-bold">{item.jobOpeningsDemanding.toLocaleString()} Postings</span>
                         </div>
                         <div className="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden">
-                          <div className="bg-govt-orange h-full rounded-full transition-all duration-500" style={{ width: `${demandWidth}%` }}></div>
+                          <div className="bg-[#D2691E] h-full rounded-full transition-all duration-500" style={{ width: `${demandWidth}%` }}></div>
                         </div>
                       </div>
                     </div>
@@ -767,14 +774,14 @@ export const GovernmentDashboard = ({ activeTab = 'dashboard', onNavigateTab }) 
           </div>
 
           {/* TABS FOR DISTRICT-WISE TABLE, TRADE BREAKDOWN & SCHEME COMPARISON */}
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-4">
+          <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-6 space-y-4">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
               <div className="flex gap-2">
                 <button
                   onClick={() => setActiveTabSection('districts')}
                   className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${
                     activeTabSection === 'districts'
-                      ? 'bg-govt-navy text-white shadow'
+                      ? 'bg-[#0B3D6B] text-white shadow-xs'
                       : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                   }`}
                 >
@@ -785,7 +792,7 @@ export const GovernmentDashboard = ({ activeTab = 'dashboard', onNavigateTab }) 
                   onClick={() => setActiveTabSection('trades')}
                   className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${
                     activeTabSection === 'trades'
-                      ? 'bg-govt-navy text-white shadow'
+                      ? 'bg-[#0B3D6B] text-white shadow-xs'
                       : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                   }`}
                 >
@@ -796,7 +803,7 @@ export const GovernmentDashboard = ({ activeTab = 'dashboard', onNavigateTab }) 
                   onClick={() => setActiveTabSection('schemes')}
                   className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${
                     activeTabSection === 'schemes'
-                      ? 'bg-govt-navy text-white shadow'
+                      ? 'bg-[#0B3D6B] text-white shadow-xs'
                       : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                   }`}
                 >
@@ -812,16 +819,16 @@ export const GovernmentDashboard = ({ activeTab = 'dashboard', onNavigateTab }) 
                     placeholder="Filter district or state..."
                     value={searchFilter}
                     onChange={(e) => setSearchFilter(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-300 text-xs rounded-md pl-8 pr-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-govt-navy"
+                    className="w-full bg-slate-50 border border-slate-300 text-xs rounded-md pl-8 pr-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#D2691E] focus:border-[#D2691E]"
                   />
                 </div>
               )}
             </div>
 
             {activeTabSection === 'districts' && (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
-                  <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase tracking-wider">
+              <div className="overflow-x-auto border border-slate-200 rounded-lg">
+                <table className="table-govt w-full text-left text-xs">
+                  <thead>
                     <tr>
                       <th className="p-3">District & State</th>
                       <th className="p-3">Total Placements</th>
@@ -844,7 +851,7 @@ export const GovernmentDashboard = ({ activeTab = 'dashboard', onNavigateTab }) 
                       )
                       .map((d, idx) => (
                         <tr key={idx} className="hover:bg-slate-50/80">
-                          <td className="p-3 font-bold text-slate-800">
+                          <td className="p-3 font-bold text-slate-900">
                             {d.district} <span className="text-slate-400 font-normal">({d.state})</span>
                           </td>
                           <td className="p-3 font-mono font-bold text-slate-800">{d.placements} Placed</td>
@@ -873,9 +880,9 @@ export const GovernmentDashboard = ({ activeTab = 'dashboard', onNavigateTab }) 
             )}
 
             {activeTabSection === 'trades' && (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
-                  <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase tracking-wider">
+              <div className="overflow-x-auto border border-slate-200 rounded-lg">
+                <table className="table-govt w-full text-left text-xs">
+                  <thead>
                     <tr>
                       <th className="p-3">Skill Trade Curriculum</th>
                       <th className="p-3">Total Placements</th>
@@ -893,7 +900,7 @@ export const GovernmentDashboard = ({ activeTab = 'dashboard', onNavigateTab }) 
                       { trade: 'Cybersecurity Junior Analyst', placements: 1, verified: 0, verified_pct: 0, due_checkins: 0, completed_checkins: 0, checkin_completion_pct: 100 }
                     ]).map((t, idx) => (
                       <tr key={idx} className="hover:bg-slate-50/80">
-                        <td className="p-3 font-bold text-slate-800">{t.trade}</td>
+                        <td className="p-3 font-bold text-slate-900">{t.trade}</td>
                         <td className="p-3 font-mono font-bold text-slate-800">{t.placements} Placed</td>
                         <td className="p-3">
                           <span className="font-bold text-emerald-700">{t.verified_pct}%</span>
@@ -926,15 +933,15 @@ export const GovernmentDashboard = ({ activeTab = 'dashboard', onNavigateTab }) 
                   { scheme: 'National Green Energy Skill Mission (Solar PV)', placements: 1, verified: 1, verified_pct: 100, due_checkins: 1, completed_checkins: 1, checkin_completion_pct: 100 },
                   { scheme: 'EV Mobility Tech Innovation Grant', placements: 1, verified: 1, verified_pct: 100, due_checkins: 1, completed_checkins: 0, checkin_completion_pct: 0 }
                 ]).map((s, idx) => (
-                  <div key={idx} className="p-4 rounded-lg border border-slate-200 bg-slate-50/70 space-y-2">
+                  <div key={idx} className="p-4 rounded-xl border border-slate-200 bg-slate-50/70 space-y-2">
                     <div className="flex justify-between items-start">
                       <div>
-                        <h4 className="text-sm font-bold text-slate-800">{s.scheme}</h4>
+                        <h4 className="text-sm font-bold text-slate-900">{s.scheme}</h4>
                         <p className="text-xs text-slate-500">
                           {s.placements} Total Placements • {s.verified} Employer-Verified ({s.verified_pct}%)
                         </p>
                       </div>
-                      <span className="bg-govt-navy text-white text-xs font-bold px-2.5 py-1 rounded">
+                      <span className="bg-[#0B3D6B] text-white text-xs font-bold px-2.5 py-1 rounded">
                         {s.due_checkins} Due Check-Ins
                       </span>
                     </div>
@@ -1051,7 +1058,7 @@ export const GovernmentDashboard = ({ activeTab = 'dashboard', onNavigateTab }) 
                 <select
                   value={selectedScheme}
                   onChange={(e) => setSelectedScheme(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-300 font-bold text-slate-800 rounded-lg p-2.5 focus:ring-1 focus:ring-govt-navy"
+                  className="w-full bg-slate-50 border border-slate-300 font-bold text-slate-800 rounded-lg p-2.5 focus:ring-2 focus:ring-[#D2691E] focus:border-[#D2691E]"
                 >
                   {fundsData.map(f => (
                     <option key={f.id} value={f.scheme}>{f.scheme} (Allocated: ₹ {f.allocated} Cr)</option>
@@ -1068,7 +1075,7 @@ export const GovernmentDashboard = ({ activeTab = 'dashboard', onNavigateTab }) 
                   max="50"
                   value={releaseAmount}
                   onChange={(e) => setReleaseAmount(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-300 font-mono font-bold text-slate-800 rounded-lg p-2.5 focus:ring-1 focus:ring-govt-navy"
+                  className="w-full bg-slate-50 border border-slate-300 font-mono font-bold text-slate-800 rounded-lg p-2.5 focus:ring-2 focus:ring-[#D2691E] focus:border-[#D2691E]"
                   required
                 />
               </div>

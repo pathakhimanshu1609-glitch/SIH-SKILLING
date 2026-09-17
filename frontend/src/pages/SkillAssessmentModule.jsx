@@ -155,7 +155,7 @@ export const SkillAssessmentModule = ({ onNavigateScorecard, onNavigateTab }) =>
               onClick={() => { setPhase('pre'); setSubmitted(false); }}
               className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${
                 phase === 'pre' 
-                  ? 'bg-[#D96B27] text-white shadow' 
+                  ? 'bg-[#D2691E] text-white shadow' 
                   : 'bg-white/10 text-slate-200 hover:bg-white/20'
               }`}
             >
@@ -165,7 +165,7 @@ export const SkillAssessmentModule = ({ onNavigateScorecard, onNavigateTab }) =>
               onClick={() => { setPhase('post'); setSubmitted(false); }}
               className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${
                 phase === 'post' 
-                  ? 'bg-[#D96B27] text-white shadow' 
+                  ? 'bg-[#D2691E] text-white shadow' 
                   : 'bg-white/10 text-slate-200 hover:bg-white/20'
               }`}
             >
@@ -469,37 +469,57 @@ export const SkillAssessmentModule = ({ onNavigateScorecard, onNavigateTab }) =>
       {/* Questions Container */}
       {!submitted && (
         <form onSubmit={handleSubmitQuiz} className="space-y-6">
-          <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-6 sm:p-8 space-y-6">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-500 font-display">
-                {trade} • Question Set
-              </span>
-              <span className="text-xs font-bold text-govt-navy font-mono bg-blue-50 px-2.5 py-1 rounded-md border border-blue-100">
-                Answered: {answeredCount} / {questions.length}
-              </span>
+          <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-6">
+            {/* Question Progress Header Band */}
+            <div className="space-y-2 pb-4 border-b border-slate-100">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div>
+                  <span className="sid-eyebrow">Interactive MCQ Assessment</span>
+                  <h2 className="font-display text-base font-bold text-slate-900 mt-0.5">
+                    {trade}
+                  </h2>
+                </div>
+                <div className="flex items-center gap-2.5 self-start sm:self-auto">
+                  <span className="text-xs font-bold text-[#0B3D6B] font-mono bg-[#E8ECFB] px-3 py-1 rounded-md border border-[#D1DBF7]">
+                    Question {answeredCount} of {questions.length} Answered
+                  </span>
+                </div>
+              </div>
+
+              {/* Progress Bar */}
+              <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden mt-1">
+                <div 
+                  className="bg-[#D2691E] h-full rounded-full transition-all duration-300 ease-out"
+                  style={{ width: `${questions.length ? Math.round((answeredCount / questions.length) * 100) : 0}%` }}
+                />
+              </div>
             </div>
 
             {loading ? (
-              <div className="py-12 text-center text-slate-400 text-xs space-y-2">
-                <div className="w-8 h-8 rounded-full border-2 border-govt-orange border-t-transparent animate-spin mx-auto"></div>
-                <p>Loading question bank...</p>
+              <div className="py-16 text-center text-slate-400 text-xs space-y-2">
+                <div className="w-9 h-9 rounded-full border-2 border-[#D2691E] border-t-transparent animate-spin mx-auto"></div>
+                <p className="font-medium">Loading NCVET question bank...</p>
               </div>
             ) : (
               <div className="space-y-6">
                 {questions.map((q, qIdx) => (
-                  <div key={q.id} className="p-5 rounded-xl bg-slate-50/70 border border-slate-200 space-y-3.5">
-                    <div className="flex items-start gap-2.5">
-                      <span className="bg-govt-navy text-white text-[11px] font-bold px-2 py-0.5 rounded font-mono">
+                  <div key={q.id} className="p-6 rounded-xl bg-white border border-slate-200 shadow-2xs space-y-4 hover:border-slate-300 transition-all">
+                    {/* Question Header */}
+                    <div className="flex items-start gap-3">
+                      <span className="bg-[#0B3D6B] text-white text-xs font-bold px-2.5 py-1 rounded font-mono shadow-2xs flex-shrink-0">
                         Q{qIdx + 1}
                       </span>
-                      <div>
-                        <span className="text-[10px] uppercase font-bold text-purple-700 bg-purple-100 px-2 py-0.5 rounded ml-1">
+                      <div className="space-y-1">
+                        <span className="text-[10px] uppercase font-bold text-[#0B3D6B] bg-[#E8ECFB] border border-[#D1DBF7] px-2 py-0.5 rounded">
                           {q.skill_name}
                         </span>
-                        <h3 className="text-sm font-bold font-display text-slate-900 mt-1">{q.question}</h3>
+                        <h3 className="text-sm sm:text-base font-bold font-display text-slate-900 leading-snug">
+                          {q.question}
+                        </h3>
                       </div>
                     </div>
 
+                    {/* Radio-Tile Pattern Options */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                       {q.options.map((opt, optIdx) => {
                         const isSelected = userAnswers[q.id] === optIdx;
@@ -507,22 +527,25 @@ export const SkillAssessmentModule = ({ onNavigateScorecard, onNavigateTab }) =>
                           <div
                             key={optIdx}
                             onClick={() => handleOptionSelect(q.id, optIdx)}
-                            className={`p-3.5 rounded-xl border text-xs cursor-pointer flex items-center justify-between transition-all ${
+                            className={`p-4 rounded-xl border text-xs cursor-pointer flex items-center justify-between transition-all select-none ${
                               isSelected 
-                                ? 'border-govt-orange/60 bg-white shadow-xs font-medium text-slate-900 ring-1 ring-govt-orange/40' 
-                                : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50/80'
+                                ? 'border-[#D2691E] bg-[#FDEEE0]/30 shadow-xs font-medium text-slate-900 ring-2 ring-[#D2691E]/30' 
+                                : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:border-slate-300'
                             }`}
                           >
                             <div className="flex items-center gap-3">
-                              <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
-                                isSelected ? 'bg-govt-orange text-white' : 'border border-slate-300 bg-slate-100 text-slate-600'
+                              <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold font-mono transition-colors ${
+                                isSelected 
+                                  ? 'bg-[#D2691E] text-white shadow-2xs' 
+                                  : 'border border-slate-300 bg-slate-100 text-slate-600'
                               }`}>
                                 {String.fromCharCode(65 + optIdx)}
                               </div>
-                              <span>{opt}</span>
+                              <span className="leading-snug">{opt}</span>
                             </div>
-                            <div className={`w-4 h-4 rounded-full border flex items-center justify-center flex-shrink-0 transition-colors ${
-                              isSelected ? 'border-govt-orange bg-govt-orange' : 'border-slate-300 bg-white'
+
+                            <div className={`w-4 h-4 rounded-full border flex items-center justify-center flex-shrink-0 ml-2 transition-colors ${
+                              isSelected ? 'border-[#D2691E] bg-[#D2691E]' : 'border-slate-300 bg-white'
                             }`}>
                               {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
                             </div>
@@ -535,22 +558,24 @@ export const SkillAssessmentModule = ({ onNavigateScorecard, onNavigateTab }) =>
               </div>
             )}
 
+            {/* Stepper / Footer Action Bar */}
             <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
               <button
                 type="button"
                 onClick={() => setUserAnswers({})}
-                className="text-xs text-slate-500 hover:text-slate-800 font-medium flex items-center gap-1 transition-colors"
+                className="text-xs text-slate-500 hover:text-slate-800 font-medium flex items-center gap-1.5 transition-colors"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
-                <span>Clear Selection</span>
+                <span>Clear All Answers</span>
               </button>
 
               <button
                 type="submit"
                 disabled={submitting || answeredCount === 0}
-                className="btn-sid-primary text-xs py-3 px-6 font-bold uppercase tracking-wider shadow-sm disabled:opacity-50"
+                className="btn-sid-primary text-xs py-3 px-7 font-bold uppercase tracking-wider shadow-sm disabled:opacity-50 flex items-center gap-2"
               >
                 {submitting ? 'Submitting Score...' : `Submit ${phase.toUpperCase()}-Assessment`}
+                <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>

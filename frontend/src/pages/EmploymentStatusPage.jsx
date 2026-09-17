@@ -239,34 +239,35 @@ export const EmploymentStatusPage = () => {
       {/* ------------------------------------------------------------- */}
       {/* 1. TOP HEADER BANNER (NO DATABASE JARGON, NO DUPLICATE BUTTONS)*/}
       {/* ------------------------------------------------------------- */}
-      <div className="bg-[#0B3D6B] border border-[#072847] text-white rounded-[6px] p-4 sm:p-5 relative">
-        <div className="flex items-center justify-between gap-4 relative z-10">
+      <div className="bg-[#0B3D6B] border border-[#072847] text-white rounded-xl p-5 sm:p-6 shadow-sm relative overflow-hidden">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 relative z-10">
           <div className="flex items-center gap-3.5">
-            <div className="w-10 h-10 rounded-[4px] bg-white/10 border border-[#C9A227]/40 flex items-center justify-center font-bold text-[#C9A227]">
-              <Briefcase className="w-5 h-5" />
+            <div className="w-11 h-11 rounded-lg bg-[#D2691E] text-white flex items-center justify-center font-bold shadow-sm flex-shrink-0">
+              <ShieldCheck className="w-6 h-6" />
             </div>
             <div>
-              <div className="flex items-center gap-2 mb-0.5">
-                <span className="bg-[#C9A227] text-govt-navy text-[10px] uppercase font-extrabold px-2 py-0.5 rounded tracking-wider">
-                  CAREER MILESTONES
+              <div className="flex items-center gap-2 mb-1 flex-wrap">
+                <span className="bg-[#D2691E] text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded tracking-wide">
+                  NCVT LONGITUDINAL RETENTION
                 </span>
+                <span className="text-xs text-blue-200 font-medium">Post-Placement Audit Framework</span>
               </div>
-              <h1 className="font-display text-xl font-bold tracking-tight">Placement Verification & Check-Ins</h1>
-              <p className="text-xs text-slate-300 mt-0.5">
-                Official record of verified employment, corporate retention, and longitudinal career growth.
+              <h1 className="font-display text-xl font-bold tracking-tight text-white">Employment Placement & Retention Verification</h1>
+              <p className="text-xs text-slate-300">
+                Official career progression tracker: Day 30, 90, 180, and 365 employer check-in verification audits.
               </p>
             </div>
           </div>
 
-          {/* Discreet Gear Icon Trigger for Testing Tools (Dev Panel) */}
+          {/* Dev Inspection Trigger */}
           {import.meta.env.DEV && (
             <button
-              onClick={() => setShowDevPanel(true)}
-              title="Developer Testing & Simulation Panel"
-              className="p-2 rounded-lg bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white transition-all text-xs flex items-center gap-1.5"
+              onClick={() => setShowDevPanel(!showDevPanel)}
+              className="btn-sid-secondary text-xs py-1.5 px-3 flex items-center gap-1.5 text-blue-200 border-white/20 hover:bg-white/10"
+              title="Toggle Dev Simulation Tools"
             >
-              <Settings className="w-4 h-4 text-[#C9A227]" />
-              <span className="hidden sm:inline font-medium text-[11px]">Testing Tools</span>
+              <Settings className="w-3.5 h-3.5" />
+              <span>Audit Tools</span>
             </button>
           )}
         </div>
@@ -275,12 +276,13 @@ export const EmploymentStatusPage = () => {
       {/* ------------------------------------------------------------- */}
       {/* 2. CURRENT PLACEMENT STATUS CARD (CLEAR SUMMARY, NO RAW FORMS) */}
       {/* ------------------------------------------------------------- */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-6 sm:p-8 space-y-4">
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 sm:p-7 space-y-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
           <div>
-            <div className="flex items-center gap-2">
-              <Building2 className="w-4 h-4 text-govt-navy" />
-              <h2 className="font-display text-base font-bold text-slate-800">Current Placement Status</h2>
+            <span className="sid-eyebrow">Verified Record</span>
+            <div className="flex items-center gap-2 mt-0.5">
+              <Building2 className="w-4 h-4 text-[#0B3D6B]" />
+              <h2 className="font-display text-base font-bold text-slate-900">Current Placement Status</h2>
             </div>
             <p className="text-xs text-slate-500 mt-0.5">
               Trainee: <strong>{user?.full_name || record?.candidate_name || 'Candidate Trainee'}</strong> • District: <strong>{record?.district || 'Pune'}</strong>
@@ -290,13 +292,13 @@ export const EmploymentStatusPage = () => {
           {/* Employer Verification Badge */}
           {record?.self_reported_status === 'Placed' ? (
             record?.employer_confirmed ? (
-              <span className="bg-emerald-50 text-emerald-800 border border-emerald-300 text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1.5 shadow-xs">
+              <span className="bg-emerald-50 text-emerald-800 border border-emerald-300 text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1.5 shadow-2xs">
                 <ShieldCheck className="w-4 h-4 text-emerald-600" />
                 Verified by Employer ({record.employer_confirmed_at ? new Date(record.employer_confirmed_at).toLocaleDateString() : 'Active'})
               </span>
             ) : (
-              <span className="bg-amber-50 text-amber-900 border border-amber-300 text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1.5 shadow-xs">
-                <Clock className="w-4 h-4 text-amber-700" />
+              <span className="bg-[#FDEEE0] text-[#D2691E] border border-[#F8D3B8] text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1.5 shadow-2xs">
+                <Clock className="w-4 h-4 text-[#D2691E]" />
                 Employer Verification Pending
               </span>
             )
@@ -311,34 +313,34 @@ export const EmploymentStatusPage = () => {
         {/* Read-Only Structured Placement Information Grid */}
         {record?.self_reported_status === 'Placed' ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-1">
-            <div className="p-3.5 rounded-lg bg-slate-50 border border-slate-200">
+            <div className="p-4 rounded-xl bg-slate-50/80 border border-slate-200">
               <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Hiring Employer</p>
-              <p className="text-sm font-bold text-slate-800 mt-1">{currentEmployerName}</p>
+              <p className="text-sm font-bold text-slate-900 mt-1">{currentEmployerName}</p>
               <p className="text-[11px] text-slate-500 mt-0.5">Pune Industrial Hub</p>
             </div>
 
-            <div className="p-3.5 rounded-lg bg-slate-50 border border-slate-200">
+            <div className="p-4 rounded-xl bg-slate-50/80 border border-slate-200">
               <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Trained Trade</p>
-              <p className="text-sm font-bold text-govt-navy mt-1">{record?.trade || 'Advanced CNC Machinist'}</p>
-              <p className="text-[11px] text-emerald-700 font-medium mt-0.5 flex items-center gap-1">
+              <p className="text-sm font-bold text-[#0B3D6B] mt-1">{record?.trade || 'Advanced CNC Machinist'}</p>
+              <p className="text-[11px] text-emerald-700 font-semibold mt-0.5 flex items-center gap-1">
                 <Check className="w-3 h-3 stroke-[3]" /> Role Matches Curriculum
               </p>
             </div>
 
-            <div className="p-3.5 rounded-lg bg-slate-50 border border-slate-200">
+            <div className="p-4 rounded-xl bg-slate-50/80 border border-slate-200">
               <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Placement Date</p>
-              <p className="text-sm font-bold text-slate-800 mt-1 font-mono">{record?.placement_date || '2026-08-14'}</p>
+              <p className="text-sm font-bold text-slate-900 mt-1 font-mono">{record?.placement_date || '2026-08-14'}</p>
               <p className="text-[11px] text-slate-500 mt-0.5">Formal Joining Confirmed</p>
             </div>
 
-            <div className="p-3.5 rounded-lg bg-slate-50 border border-slate-200">
+            <div className="p-4 rounded-xl bg-slate-50/80 border border-slate-200">
               <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Monthly Salary Band</p>
               <p className="text-sm font-bold text-emerald-800 mt-1 font-mono">{record?.salary_band || '₹ 22,000 - ₹ 28,000 / mo'}</p>
               <p className="text-[11px] text-slate-500 mt-0.5">EPFO / Bank Disbursed</p>
             </div>
           </div>
         ) : (
-          <div className="p-5 rounded-lg bg-slate-50 border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="p-5 rounded-xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
               <p className="text-sm font-bold text-slate-800">No Confirmed Placement Yet</p>
               <p className="text-xs text-slate-500 mt-0.5">
@@ -523,7 +525,7 @@ export const EmploymentStatusPage = () => {
                         </div>
                       ) : state === 'due' ? (
                         <div 
-                          className="w-10 h-10 rounded-full bg-white border-2 border-[#D96B27] text-[#D96B27] flex items-center justify-center shadow-md ring-4 ring-[#D96B27]/20 animate-pulse font-bold text-xs"
+                          className="w-10 h-10 rounded-full bg-white border-2 border-[#D2691E] text-[#D2691E] flex items-center justify-center shadow-md ring-4 ring-[#D2691E]/20 animate-pulse font-bold text-xs"
                           title={`Day ${days} due now`}
                         >
                           <Unlock className="w-4 h-4" />
@@ -545,7 +547,7 @@ export const EmploymentStatusPage = () => {
                         state === 'completed' 
                           ? 'text-emerald-700' 
                           : state === 'due' 
-                          ? 'text-[#D96B27] font-bold' 
+                          ? 'text-[#D2691E] font-bold' 
                           : 'text-slate-400'
                       }`}>
                         {state === 'completed' ? 'Verified' : state === 'due' ? 'Due Now' : 'Upcoming'}
@@ -564,7 +566,7 @@ export const EmploymentStatusPage = () => {
                   All 4 retention milestones completed! Full 365-day placement verified.
                 </span>
               ) : dueMilestone ? (
-                <span className="text-[#D96B27] font-bold flex items-center justify-center gap-1.5">
+                <span className="text-[#D2691E] font-bold flex items-center justify-center gap-1.5">
                   <Unlock className="w-4 h-4" />
                   Day {dueMilestone} check-in is due now. Please confirm your ongoing status below.
                 </span>
@@ -581,13 +583,13 @@ export const EmploymentStatusPage = () => {
 
             {/* If a milestone is due now, render its clean, compact form */}
             {dueMilestone && (
-              <div className="p-5 rounded-xl bg-[#FFF5EE] border border-[#D96B27]/30 space-y-4 animate-in fade-in duration-150">
-                <div className="flex items-center justify-between border-b border-[#D96B27]/30 pb-2">
+              <div className="p-5 rounded-xl bg-[#FDEEE0] border border-[#F8D3B8] space-y-4 animate-in fade-in duration-150">
+                <div className="flex items-center justify-between border-b border-[#F8D3B8] pb-2">
                   <h3 className="text-xs font-bold uppercase tracking-wider text-orange-950 flex items-center gap-2">
-                    <Unlock className="w-4 h-4 text-[#D96B27]" />
+                    <Unlock className="w-4 h-4 text-[#D2691E]" />
                     <span>Day {dueMilestone} Check-in Confirmation</span>
                   </h3>
-                  <span className="text-[10px] font-bold text-[#D96B27] bg-[#FFF5EE] px-2 py-0.5 rounded border border-[#D96B27]/40">
+                  <span className="text-[10px] font-bold text-[#D2691E] bg-[#FDEEE0] px-2 py-0.5 rounded border border-[#D2691E]/40">
                     Action Required
                   </span>
                 </div>

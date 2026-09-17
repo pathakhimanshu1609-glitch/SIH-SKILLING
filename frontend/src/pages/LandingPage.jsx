@@ -27,6 +27,8 @@ import {
   GraduationCap,
   Compass,
   Play,
+  BrainCircuit,
+  MessageSquare,
   Sparkles,
   BookOpen,
   Bot,
@@ -190,7 +192,7 @@ export const LandingPage = () => {
       case 'Cpu':
         return <Cpu className="w-5 h-5 text-[#0B3D6B]" />;
       case 'Sun':
-        return <Sun className="w-5 h-5 text-[#D96B27]" />;
+        return <Sun className="w-5 h-5 text-[#D2691E]" />;
       case 'BatteryCharging':
         return <BatteryCharging className="w-5 h-5 text-[#0B3D6B]" />;
       case 'Bot':
@@ -488,7 +490,7 @@ export const LandingPage = () => {
           {/* Right: Location, Screen Reader, Font Controls, Language */}
           <div className="flex items-center gap-3 sm:gap-4 text-[11px] text-slate-300 font-medium">
             <div className="hidden lg:flex items-center gap-1 text-slate-300 hover:text-white transition-colors cursor-pointer">
-              <MapPin className="w-3.5 h-3.5 text-[#D96B27]" />
+              <MapPin className="w-3.5 h-3.5 text-[#D2691E]" />
               <span>National | All Districts</span>
             </div>
 
@@ -505,21 +507,21 @@ export const LandingPage = () => {
             <div className="flex items-center gap-1 bg-white/10 px-1.5 py-0.5 rounded border border-white/15">
               <button
                 onClick={() => setFontSizeLevel(-1)}
-                className={`px-1 text-[10px] font-bold hover:text-white ${fontSizeLevel === -1 ? 'text-[#D96B27] font-extrabold' : ''}`}
+                className={`px-1 text-[10px] font-bold hover:text-white ${fontSizeLevel === -1 ? 'text-[#D2691E] font-extrabold' : ''}`}
                 title="Decrease Font Size"
               >
                 A-
               </button>
               <button
                 onClick={() => setFontSizeLevel(0)}
-                className={`px-1 text-[10px] font-bold hover:text-white ${fontSizeLevel === 0 ? 'text-[#D96B27] font-extrabold' : ''}`}
+                className={`px-1 text-[10px] font-bold hover:text-white ${fontSizeLevel === 0 ? 'text-[#D2691E] font-extrabold' : ''}`}
                 title="Default Font Size"
               >
                 A
               </button>
               <button
                 onClick={() => setFontSizeLevel(1)}
-                className={`px-1 text-[10px] font-bold hover:text-white ${fontSizeLevel === 1 ? 'text-[#D96B27] font-extrabold' : ''}`}
+                className={`px-1 text-[10px] font-bold hover:text-white ${fontSizeLevel === 1 ? 'text-[#D2691E] font-extrabold' : ''}`}
                 title="Increase Font Size"
               >
                 A+
@@ -530,7 +532,7 @@ export const LandingPage = () => {
             <button
               onClick={() => setIsHighContrast(!isHighContrast)}
               className={`w-5 h-5 rounded flex items-center justify-center font-bold text-[10px] border transition-colors ${
-                isHighContrast ? 'bg-[#D96B27] text-white border-[#D96B27]' : 'bg-white/10 border-white/20 text-white hover:bg-white/20'
+                isHighContrast ? 'bg-[#D2691E] text-white border-[#D2691E]' : 'bg-white/10 border-white/20 text-white hover:bg-white/20'
               }`}
               title="Toggle High Contrast"
             >
@@ -543,7 +545,7 @@ export const LandingPage = () => {
                 onClick={() => setIsLangDropdownOpen(!isLangDropdownOpen)}
                 className="flex items-center gap-1 hover:text-white transition-colors"
               >
-                <Globe className="w-3.5 h-3.5 text-[#D96B27]" />
+                <Globe className="w-3.5 h-3.5 text-[#D2691E]" />
                 <span>{selectedLanguage}</span>
                 <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${isLangDropdownOpen ? 'rotate-180' : ''}`} />
               </button>
@@ -554,7 +556,7 @@ export const LandingPage = () => {
                     <button
                       key={lang}
                       onClick={() => { setSelectedLanguage(lang); setIsLangDropdownOpen(false); }}
-                      className={`w-full text-left px-3 py-1.5 hover:bg-slate-100 ${selectedLanguage === lang ? 'text-[#D96B27] font-bold bg-amber-50' : ''}`}
+                      className={`w-full text-left px-3 py-1.5 hover:bg-slate-100 ${selectedLanguage === lang ? 'text-[#D2691E] font-bold bg-amber-50' : ''}`}
                     >
                       {lang}
                     </button>
@@ -576,7 +578,7 @@ export const LandingPage = () => {
             
             {/* National Emblem & Title Block */}
             <Link to="/" className="flex items-center gap-3.5 group text-left">
-              <div className="w-11 h-11 rounded-xl bg-[#0B3D6B] text-white flex items-center justify-center font-bold tracking-wider text-xs border-2 border-[#D96B27] flex-shrink-0 font-mono shadow-xs group-hover:scale-102 transition-transform">
+              <div className="w-11 h-11 rounded-xl bg-[#0B3D6B] text-white flex items-center justify-center font-bold tracking-wider text-xs border-2 border-[#D2691E] flex-shrink-0 font-mono shadow-xs group-hover:scale-102 transition-transform">
                 GOV
               </div>
               <div>
@@ -584,7 +586,7 @@ export const LandingPage = () => {
                   <span className="font-display text-base sm:text-lg font-bold text-[#0B3D6B] tracking-tight leading-none uppercase">
                     National Skilling Portal
                   </span>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#D96B27] bg-[#FFF5EE] border border-[#D96B27]/40 px-2 py-0.5 rounded-md">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#D2691E] bg-[#FDEEE0] border border-[#D2691E]/40 px-2 py-0.5 rounded-md">
                     SID Hub
                   </span>
                 </div>
@@ -602,12 +604,19 @@ export const LandingPage = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search Skill Centre, Course or Trade..."
-                className="rounded-full bg-slate-100/90 hover:bg-slate-100 border border-slate-200 pl-9 pr-4 py-2 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#D96B27]/40 focus:bg-white w-56 lg:w-72 transition-all font-sans"
+                className="rounded-full bg-slate-100/90 hover:bg-slate-100 border border-slate-200 pl-9 pr-4 py-2 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#D2691E]/40 focus:bg-white w-56 lg:w-72 transition-all font-sans"
               />
             </div>
 
             {/* Nav Links & Sign In CTA */}
             <nav className="flex items-center gap-4 sm:gap-6 text-xs font-semibold text-slate-700">
+              <button 
+                onClick={() => scrollToSection('skillsetuu-section')}
+                className="hidden lg:inline-flex items-center gap-1.5 text-[#0B3D6B] hover:text-[#D2691E] transition-colors font-bold px-2 py-1 rounded-md bg-amber-50/80 border border-amber-200/80"
+              >
+                <BrainCircuit className="w-3.5 h-3.5 text-[#D2691E]" />
+                <span>SkillSetuu AI</span>
+              </button>
               <button 
                 onClick={() => scrollToSection('schemes')}
                 className="hidden lg:inline-block hover:text-[#0B3D6B] transition-colors"
@@ -662,7 +671,7 @@ export const LandingPage = () => {
             <div className="bg-[#0B3D6B] text-white p-6 sm:p-7 relative">
               <div className="flex items-center justify-between mb-2">
                 <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-white/10 text-amber-200 text-[10px] font-bold uppercase tracking-wider border border-white/20">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#D96B27]"></span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#D2691E]"></span>
                   <span>Skill India Digital Hub</span>
                 </div>
                 <button
@@ -692,7 +701,7 @@ export const LandingPage = () => {
                       onClick={() => setSelectedRole(role.id)}
                       className={`cursor-pointer rounded-xl p-4 text-left transition-all duration-200 relative flex flex-col justify-between border bg-white ${
                         isSelected
-                          ? 'border-[#D96B27] ring-2 ring-[#D96B27]/30 shadow-md bg-amber-50/20'
+                          ? 'border-[#D2691E] ring-2 ring-[#D2691E]/30 shadow-md bg-amber-50/20'
                           : 'border-slate-200 hover:border-slate-300 hover:shadow-xs'
                       }`}
                     >
@@ -709,7 +718,7 @@ export const LandingPage = () => {
                         <div 
                           className={`w-5 h-5 rounded-full border flex items-center justify-center transition-colors ${
                             isSelected
-                              ? 'border-[#D96B27] bg-[#D96B27] shadow-xs'
+                              ? 'border-[#D2691E] bg-[#D2691E] shadow-xs'
                               : 'border-slate-300 bg-white'
                           }`}
                         >
@@ -790,15 +799,15 @@ export const LandingPage = () => {
             {/* Left Column: Asymmetric Floating Content */}
             <div className="lg:col-span-7 text-left space-y-7">
               {/* NCVT Accredited Network badge with pulse indicator */}
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-[#D96B27]/40 bg-white/10 text-amber-200 text-xs font-semibold backdrop-blur-xs animate-fade-in-up">
-                <span className="w-2 h-2 rounded-full bg-[#D96B27] animate-pulse"></span>
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-[#D2691E]/40 bg-white/10 text-amber-200 text-xs font-semibold backdrop-blur-xs animate-fade-in-up">
+                <span className="w-2 h-2 rounded-full bg-[#D2691E] animate-pulse"></span>
                 <span>National Council for Vocational Training (NCVT) Accredited Skilling Portal</span>
               </div>
 
               {/* Main Headline with Staggered Entrance */}
               <div className="space-y-4 animate-fade-in-up" style={{ animationDelay: '100ms' }}>
                 <h1 className="font-display text-4xl sm:text-5xl lg:text-[3.6rem] font-extrabold text-white tracking-tight leading-[1.12]">
-                  Verified skills. <span className="text-[#D96B27] underline decoration-[#D96B27]/40 underline-offset-8">Verified jobs.</span> Verified impact.
+                  Verified skills. <span className="text-[#D2691E] underline decoration-[#D2691E]/40 underline-offset-8">Verified jobs.</span> Verified impact.
                 </h1>
                 <p className="text-base sm:text-lg text-slate-200 max-w-2xl leading-relaxed font-normal">
                   India's unified vocational framework connecting accredited training centers, candidate competencies, and employer job placement through auditable longitudinal verification.
@@ -820,14 +829,22 @@ export const LandingPage = () => {
                   className="btn-sid-secondary bg-white/10 hover:bg-white/20 text-white border-white/40 py-3.5 px-6 text-sm font-bold transition-all flex items-center justify-center gap-1.5"
                 >
                   <span>Explore Skilling Schemes</span>
-                  <ChevronRight className="w-4 h-4 text-[#D96B27]" />
+                  <ChevronRight className="w-4 h-4 text-[#D2691E]" />
+                </button>
+
+                <button
+                  onClick={() => scrollToSection('skillsetuu-section')}
+                  className="inline-flex items-center justify-center gap-1.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 border border-amber-400/40 rounded-lg py-3.5 px-5 text-sm font-bold backdrop-blur-xs transition-all shadow-xs"
+                >
+                  <BrainCircuit className="w-4 h-4 text-[#D2691E]" />
+                  <span>Ask SkillSetuu AI</span>
                 </button>
 
                 <button
                   onClick={() => scrollToSection('quiz-section')}
                   className="text-amber-200 hover:text-white text-xs font-semibold py-2 px-3 flex items-center justify-center gap-1.5 transition-colors"
                 >
-                  <Compass className="w-4 h-4 text-[#D96B27]" />
+                  <Compass className="w-4 h-4 text-[#D2691E]" />
                   <span>Take Guidance Quiz</span>
                 </button>
               </div>
@@ -856,7 +873,7 @@ export const LandingPage = () => {
                   className="p-4 rounded-xl bg-slate-900/80 border border-white/20 shadow-xs animate-fade-in-up hover:-translate-y-0.5 transition-all" 
                   style={{ animationDelay: '300ms' }}
                 >
-                  <p className="text-2xl sm:text-3xl font-bold text-[#D96B27] font-mono">{countPlacementRate}%</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-[#D2691E] font-mono">{countPlacementRate}%</p>
                   <p className="text-xs text-slate-300 font-medium mt-0.5">Verified Placed</p>
                   <span className="text-[10px] text-slate-400 block mt-1">Audited Records</span>
                 </div>
@@ -958,7 +975,7 @@ export const LandingPage = () => {
                     <select
                       value={personaTrade}
                       onChange={(e) => setPersonaTrade(e.target.value)}
-                      className="w-full text-xs font-semibold text-slate-800 bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#D96B27]"
+                      className="w-full text-xs font-semibold text-slate-800 bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#D2691E]"
                     >
                       {trades.map((t) => (
                         <option key={t.trade_name} value={t.trade_name}>
@@ -1033,7 +1050,7 @@ export const LandingPage = () => {
               </div>
 
               {/* Card 3: Training Center & Audits */}
-              <div className="bg-white border border-slate-200 rounded-xl p-6 sm:p-7 space-y-5 hover:-translate-y-1.5 hover:shadow-lg transition-all duration-200 flex flex-col justify-between border-t-4 border-t-[#D96B27]">
+              <div className="bg-white border border-slate-200 rounded-xl p-6 sm:p-7 space-y-5 hover:-translate-y-1.5 hover:shadow-lg transition-all duration-200 flex flex-col justify-between border-t-4 border-t-[#D2691E]">
                 <div className="space-y-4">
                   <div className="flex items-center gap-3">
                     <img 
@@ -1043,7 +1060,7 @@ export const LandingPage = () => {
                     />
                     <div>
                       <h3 className="font-display text-lg font-bold text-slate-900">Training Center Hub</h3>
-                      <span className="text-[11px] text-[#D96B27] font-semibold">Institutes & ITIs</span>
+                      <span className="text-[11px] text-[#D2691E] font-semibold">Institutes & ITIs</span>
                     </div>
                   </div>
 
@@ -1053,7 +1070,7 @@ export const LandingPage = () => {
 
                   <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-900">
                     <div className="flex items-center gap-1.5 font-bold mb-0.5">
-                      <Sparkles className="w-3.5 h-3.5 text-[#D96B27]" />
+                      <Sparkles className="w-3.5 h-3.5 text-[#D2691E]" />
                       <span>Accredited Provider Portal</span>
                     </div>
                     <p className="text-[11px] text-slate-600">
@@ -1084,7 +1101,7 @@ export const LandingPage = () => {
       <section id="quiz-section" className="py-20 sm:py-28 bg-white border-b border-slate-200">
         <ScrollReveal>
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="quiz-accent-card rounded-2xl p-7 sm:p-12 shadow-xl border-2 border-[#E07A38]/50 relative overflow-hidden">
+            <div className="quiz-accent-card rounded-2xl p-7 sm:p-12 shadow-xl border-2 border-[#DD7A1F]/50 relative overflow-hidden">
               <div className="absolute -right-12 -bottom-12 w-64 h-64 rounded-full bg-white/10 pointer-events-none" />
               
               <div className="relative z-10 space-y-6 text-white text-left">
@@ -1157,7 +1174,7 @@ export const LandingPage = () => {
                       {/* Primary CTA with Pulse Glow Animation */}
                       <button
                         type="submit"
-                        className="w-full sm:w-auto bg-white hover:bg-slate-50 text-[#D96B27] text-xs font-bold py-3 px-7 rounded-lg flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all animate-pulse"
+                        className="w-full sm:w-auto bg-white hover:bg-slate-50 text-[#D2691E] text-xs font-bold py-3 px-7 rounded-lg flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all animate-pulse"
                       >
                         <span>Find My Recommended Trade</span>
                         <ArrowRight className="w-3.5 h-3.5" />
@@ -1205,7 +1222,7 @@ export const LandingPage = () => {
                           setFormData(prev => ({ ...prev, trade: quizResult.trade_name }));
                           scrollToSection('counseling');
                         }}
-                        className="w-full sm:w-auto bg-white hover:bg-slate-100 text-[#D96B27] text-xs font-bold py-2.5 px-5 rounded-lg flex items-center justify-center gap-1.5 shadow-md"
+                        className="w-full sm:w-auto bg-white hover:bg-slate-100 text-[#D2691E] text-xs font-bold py-2.5 px-5 rounded-lg flex items-center justify-center gap-1.5 shadow-md"
                       >
                         <span>Apply with This Trade</span>
                         <ArrowRight className="w-3.5 h-3.5" />
@@ -1215,6 +1232,246 @@ export const LandingPage = () => {
                 )}
               </div>
             </div>
+          </div>
+        </ScrollReveal>
+      </section>
+
+      {/* ------------------------------------------------------------- */}
+      {/* 6B. SKILLSETUU — SOVEREIGN AI SKILL & CAREER GUIDANCE ENGINE  */}
+      {/* ------------------------------------------------------------- */}
+      <section id="skillsetuu-section" className="py-20 sm:py-28 bg-gradient-to-b from-[#072847] via-[#0B3D6B] to-[#072847] text-white border-b border-slate-300 relative overflow-hidden">
+        {/* Subtle background grid pattern */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] bg-[size:28px_28px] pointer-events-none" />
+        <div className="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-[#D2691E]/15 blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-24 -right-24 w-96 h-96 rounded-full bg-blue-500/15 blur-3xl pointer-events-none" />
+
+        <ScrollReveal>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-12">
+            
+            {/* Section Header */}
+            <div className="text-center max-w-3xl mx-auto space-y-3">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 text-amber-200 text-xs font-bold uppercase tracking-wider border border-white/20 backdrop-blur-xs">
+                <BrainCircuit className="w-4 h-4 text-[#D2691E]" />
+                <span>National Skilling Portal • AI Innovation</span>
+              </div>
+              <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-tight">
+                Meet <span className="text-[#D2691E] underline decoration-[#D2691E]/50 underline-offset-8">SkillSetuu</span>
+              </h2>
+              <p className="text-sm sm:text-base text-slate-200 leading-relaxed font-normal">
+                India's sovereign AI career guidance engine. Connecting candidate competency assessments to live industrial market demand with strict zero-hallucination grounding.
+              </p>
+            </div>
+
+            {/* 2-Column Grid: Features on Left, Interactive Chat Mockup on Right */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center text-left">
+              
+              {/* Left Column: 3 Pillar Capabilities */}
+              <div className="lg:col-span-6 space-y-6">
+                <div className="space-y-4">
+                  {/* Pillar 1 */}
+                  <div className="p-5 rounded-2xl bg-white/10 border border-white/15 backdrop-blur-xs space-y-2 hover:bg-white/15 transition-all">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-[#D2691E] text-white flex items-center justify-center font-bold shadow-xs flex-shrink-0">
+                        <FileCheck className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h3 className="font-display text-base font-bold text-white">
+                          Grounded Assessment Diagnostics
+                        </h3>
+                        <span className="text-[10px] font-mono text-amber-200">
+                          NCVT Post-Training Verification
+                        </span>
+                      </div>
+                    </div>
+                    <p className="text-xs text-slate-200 leading-relaxed pl-13">
+                      SkillSetuu analyzes your real post-training scorecards and NCVT practical benchmarks. It never invents skills, certifications, or statistics.
+                    </p>
+                  </div>
+
+                  {/* Pillar 2 */}
+                  <div className="p-5 rounded-2xl bg-white/10 border border-white/15 backdrop-blur-xs space-y-2 hover:bg-white/15 transition-all">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-blue-500/30 text-amber-200 border border-blue-400/30 flex items-center justify-center font-bold shadow-xs flex-shrink-0">
+                        <MapPin className="w-5 h-5 text-[#D2691E]" />
+                      </div>
+                      <div>
+                        <h3 className="font-display text-base font-bold text-white">
+                          Real-Time District Vacancy Analysis
+                        </h3>
+                        <span className="text-[10px] font-mono text-emerald-300">
+                          180+ Active Industrial Roles
+                        </span>
+                      </div>
+                    </div>
+                    <p className="text-xs text-slate-200 leading-relaxed pl-13">
+                      Scans local employer demands across Pune, Ahmedabad, Nashik, and Bengaluru to pinpoint the top competencies companies are hiring for today.
+                    </p>
+                  </div>
+
+                  {/* Pillar 3 */}
+                  <div className="p-5 rounded-2xl bg-white/10 border border-white/15 backdrop-blur-xs space-y-2 hover:bg-white/15 transition-all">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 flex items-center justify-center font-bold shadow-xs flex-shrink-0">
+                        <Sparkles className="w-5 h-5 text-emerald-400" />
+                      </div>
+                      <div>
+                        <h3 className="font-display text-base font-bold text-white">
+                          Clear Upskill Action Plan
+                        </h3>
+                        <span className="text-[10px] font-mono text-slate-300">
+                          Powered by Google Gemini AI
+                        </span>
+                      </div>
+                    </div>
+                    <p className="text-xs text-slate-200 leading-relaxed pl-13">
+                      Identifies exactly which specific skills to sharpen (e.g. Lathe Machine Calibration) to unlock immediate vacancies at Tata Motors, L&T, and Bharat Forge.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Call to Actions */}
+                <div className="pt-2 flex flex-col sm:flex-row items-center gap-3.5">
+                  <Link
+                    to="/login?role=candidate"
+                    className="w-full sm:w-auto btn-sid-primary py-3 px-6 text-xs font-bold flex items-center justify-center gap-2 shadow-md"
+                  >
+                    <BrainCircuit className="w-4 h-4 text-white" />
+                    <span>Try SkillSetuu on Candidate Portal</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
+
+                  <button
+                    onClick={() => scrollToSection('schemes')}
+                    className="w-full sm:w-auto text-xs font-semibold text-slate-300 hover:text-white py-2.5 px-4 rounded-lg bg-white/5 border border-white/15 transition-colors"
+                  >
+                    View Approved Trades
+                  </button>
+                </div>
+              </div>
+
+              {/* Right Column: Interactive Chat Mockup Card */}
+              <div className="lg:col-span-6">
+                <div className="rounded-2xl border-2 border-[#D2691E]/40 bg-slate-900/90 shadow-2xl overflow-hidden backdrop-blur-md">
+                  
+                  {/* Mockup Header */}
+                  <div className="px-5 py-3.5 bg-gradient-to-r from-[#0B3D6B] to-[#072847] border-b border-white/15 flex items-center justify-between">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-full bg-white/15 flex items-center justify-center">
+                        <BrainCircuit className="w-4 h-4 text-[#D2691E]" />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-bold text-white tracking-wide">SkillSetuu AI Assistant</span>
+                          <span className="bg-emerald-500/20 text-emerald-300 text-[9px] font-bold uppercase px-1.5 py-0.5 rounded border border-emerald-400/30 flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                            ACTIVE
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-blue-200">
+                          Candidate Context: Advanced CNC Machinist • Pune
+                        </p>
+                      </div>
+                    </div>
+                    <span className="text-[10px] font-mono text-slate-400 hidden sm:inline-block">
+                      NCVT v2026.4
+                    </span>
+                  </div>
+
+                  {/* Mockup Chat Body */}
+                  <div className="p-5 space-y-4 bg-slate-950/60 text-xs">
+                    
+                    {/* User Question Bubble */}
+                    <div className="flex justify-end">
+                      <div className="max-w-[85%] bg-[#D2691E] text-white rounded-2xl rounded-tr-sm px-4 py-2.5 shadow-sm space-y-1">
+                        <p className="font-medium text-xs">
+                          What skills should I learn to get a CNC machinist job in Pune?
+                        </p>
+                        <span className="text-[9px] text-amber-100 block text-right font-mono">Trainee • 10:42 AM</span>
+                      </div>
+                    </div>
+
+                    {/* SkillSetuu AI Response Bubble */}
+                    <div className="flex justify-start items-start gap-2.5">
+                      <div className="w-7 h-7 rounded-full bg-[#0B3D6B] flex items-center justify-center flex-shrink-0 mt-0.5 border border-[#D2691E]">
+                        <BrainCircuit className="w-3.5 h-3.5 text-[#D2691E]" />
+                      </div>
+                      <div className="max-w-[90%] bg-slate-900 border border-slate-700/80 rounded-2xl rounded-tl-sm p-4 text-slate-200 shadow-md space-y-2.5">
+                        <div className="flex items-center justify-between border-b border-slate-800 pb-1.5">
+                          <span className="text-[10px] font-bold text-amber-300 uppercase tracking-wider flex items-center gap-1">
+                            <Sparkles className="w-3 h-3 text-[#D2691E]" />
+                            Grounded Market Analysis
+                          </span>
+                          <span className="text-[9px] font-mono text-slate-400">21 Jobs Analyzed</span>
+                        </div>
+
+                        <p className="text-xs leading-relaxed text-slate-200">
+                          Based on <strong className="text-white">21 verified job postings</strong> in Pune for the <span className="text-amber-200 font-semibold">Advanced CNC Machinist</span> trade, 100% of employers require two key competencies:
+                        </p>
+
+                        <div className="space-y-1.5 bg-slate-950/70 p-2.5 rounded-lg border border-slate-800">
+                          <div className="flex items-center justify-between text-[11px]">
+                            <span className="text-slate-300">1. G-Code CNC Programming:</span>
+                            <span className="font-bold text-emerald-400">85% (Proficient ✅)</span>
+                          </div>
+                          <div className="flex items-center justify-between text-[11px]">
+                            <span className="text-slate-300">2. Lathe Machine Calibration:</span>
+                            <span className="font-bold text-amber-400">65% (Developing ⚡)</span>
+                          </div>
+                        </div>
+
+                        <p className="text-xs leading-relaxed text-slate-300">
+                          👉 <strong className="text-white">Next Step:</strong> Strengthening your Lathe Calibration will directly qualify you for open positions at <strong className="text-white">Tata Motors Tech</strong>, <strong className="text-white">Bharat Forge Ltd</strong>, and <strong className="text-white">L&T Heavy Engineering</strong> in Pune.
+                        </p>
+
+                        <div className="pt-1.5 border-t border-slate-800 flex items-center justify-between text-[10px] text-slate-400">
+                          <span className="flex items-center gap-1">
+                            <ShieldCheck className="w-3 h-3 text-emerald-400" />
+                            Zero Hallucination Verified
+                          </span>
+                          <span className="text-emerald-400 font-bold">₹ 25,000 / mo Avg</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Quick Question Prompts */}
+                    <div className="pt-2 border-t border-slate-800/80 space-y-1.5">
+                      <span className="text-[10px] uppercase font-bold text-slate-400 block">
+                        Try Asking SkillSetuu on Dashboard:
+                      </span>
+                      <div className="flex flex-wrap gap-1.5">
+                        {[
+                          'Why don\'t I match 100%?',
+                          'Which jobs am I closest to qualifying for?',
+                          'What is my biggest skill gap right now?'
+                        ].map((chip) => (
+                          <Link
+                            key={chip}
+                            to="/login?role=candidate"
+                            className="text-[10px] text-slate-300 bg-white/10 hover:bg-white/20 border border-white/15 px-2.5 py-1 rounded-full transition-colors flex items-center gap-1"
+                          >
+                            <span>{chip}</span>
+                            <ChevronRight className="w-2.5 h-2.5 text-[#D2691E]" />
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+
+                  </div>
+
+                  {/* Card Bottom Bar */}
+                  <div className="px-5 py-2.5 bg-slate-950 border-t border-slate-800 flex items-center justify-between text-[10px] text-slate-400">
+                    <span>Engine: Google Gemini 3.6 Flash</span>
+                    <Link to="/login?role=candidate" className="text-[#D2691E] font-bold hover:underline flex items-center gap-1">
+                      <span>Launch in Candidate Dashboard</span>
+                      <ArrowRight className="w-3 h-3" />
+                    </Link>
+                  </div>
+
+                </div>
+              </div>
+
+            </div>
+
           </div>
         </ScrollReveal>
       </section>
@@ -1243,7 +1500,7 @@ export const LandingPage = () => {
             {[...partners, ...partners].map((p, idx) => (
               <div 
                 key={idx}
-                className="flex-shrink-0 bg-white border border-slate-200 rounded-xl px-5 py-3.5 flex items-center gap-3.5 hover:border-[#D96B27] hover:shadow-md transition-all duration-200 cursor-default group filter grayscale hover:grayscale-0"
+                className="flex-shrink-0 bg-white border border-slate-200 rounded-xl px-5 py-3.5 flex items-center gap-3.5 hover:border-[#D2691E] hover:shadow-md transition-all duration-200 cursor-default group filter grayscale hover:grayscale-0"
               >
                 <div className="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center font-mono font-bold text-xs text-slate-700 border border-slate-200 group-hover:bg-[#0B3D6B] group-hover:text-white transition-colors">
                   {p.code.substring(0, 3).toUpperCase()}
@@ -1308,7 +1565,7 @@ export const LandingPage = () => {
 
                     <div className="pt-3.5 border-t border-slate-100 flex items-center justify-between text-xs">
                       <span className="text-slate-500 text-[11px]">System Benchmark:</span>
-                      <strong className="font-mono text-[#D96B27] font-bold">{pillar.metric}</strong>
+                      <strong className="font-mono text-[#D2691E] font-bold">{pillar.metric}</strong>
                     </div>
                   </div>
                 );
@@ -1343,7 +1600,7 @@ export const LandingPage = () => {
                 className="self-start sm:self-auto inline-flex items-center gap-1.5 text-xs font-bold text-[#0B3D6B] hover:underline"
               >
                 <span>Apply for Next Batch</span>
-                <ArrowRight className="w-3.5 h-3.5 text-[#D96B27]" />
+                <ArrowRight className="w-3.5 h-3.5 text-[#D2691E]" />
               </button>
             </div>
 
@@ -1367,7 +1624,7 @@ export const LandingPage = () => {
 
                     {/* Centered Play Button Overlay */}
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-16 h-16 rounded-full bg-[#D96B27] group-hover:bg-[#C35919] text-white flex items-center justify-center shadow-xl transition-all transform group-hover:scale-110 border-2 border-white">
+                      <div className="w-16 h-16 rounded-full bg-[#D2691E] group-hover:bg-[#B85814] text-white flex items-center justify-center shadow-xl transition-all transform group-hover:scale-110 border-2 border-white">
                         <Play className="w-7 h-7 ml-1 fill-white" />
                       </div>
                     </div>
@@ -1406,10 +1663,10 @@ export const LandingPage = () => {
 
                     <div className="pt-3.5 border-t border-slate-100 flex items-center justify-between text-xs text-[#0B3D6B] font-bold">
                       <span className="flex items-center gap-1 text-slate-600 font-mono">
-                        <FileCheck className="w-4 h-4 text-[#D96B27]" />
+                        <FileCheck className="w-4 h-4 text-[#D2691E]" />
                         <span>{story.credential_id}</span>
                       </span>
-                      <span className="inline-flex items-center gap-1 text-[#D96B27] group-hover:underline">
+                      <span className="inline-flex items-center gap-1 text-[#D2691E] group-hover:underline">
                         <span>Watch Video Story</span>
                         <ChevronRight className="w-4 h-4" />
                       </span>
@@ -1429,7 +1686,7 @@ export const LandingPage = () => {
         <ScrollReveal>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
             <div className="max-w-3xl space-y-2 text-left">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 text-[#D96B27] text-[11px] font-bold uppercase tracking-wider border border-amber-200">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 text-[#D2691E] text-[11px] font-bold uppercase tracking-wider border border-amber-200">
                 <span>Curriculum & Qualifications</span>
               </div>
               <h2 className="font-display text-3xl sm:text-4xl font-bold text-[#0B3D6B] tracking-tight">
@@ -1445,7 +1702,7 @@ export const LandingPage = () => {
               {trades.map((trade) => (
                 <div 
                   key={trade.trade_name}
-                  className="bg-white border border-slate-200 rounded-xl p-6 flex flex-col justify-between space-y-5 hover:border-[#D96B27] hover:shadow-lg hover:-translate-y-1 transition-all duration-200"
+                  className="bg-white border border-slate-200 rounded-xl p-6 flex flex-col justify-between space-y-5 hover:border-[#D2691E] hover:shadow-lg hover:-translate-y-1 transition-all duration-200"
                 >
                   <div className="space-y-3.5">
                     <div className="flex items-center justify-between">
@@ -1495,7 +1752,7 @@ export const LandingPage = () => {
                     </span>
                     <button
                       onClick={() => setSelectedTradeModal(trade)}
-                      className="inline-flex items-center gap-1 text-xs font-bold text-[#D96B27] hover:underline"
+                      className="inline-flex items-center gap-1 text-xs font-bold text-[#D2691E] hover:underline"
                     >
                       <span>Learn more</span>
                       <ArrowRight className="w-3.5 h-3.5" />
@@ -1538,7 +1795,7 @@ export const LandingPage = () => {
               {centers.map((center) => (
                 <div
                   key={center.id}
-                  className="bg-white border border-slate-200 rounded-xl p-6 space-y-4 hover:border-[#D96B27] hover:shadow-lg hover:-translate-y-1 transition-all duration-200 flex flex-col justify-between"
+                  className="bg-white border border-slate-200 rounded-xl p-6 space-y-4 hover:border-[#D2691E] hover:shadow-lg hover:-translate-y-1 transition-all duration-200 flex flex-col justify-between"
                 >
                   <div className="space-y-2.5">
                     <div className="flex items-center justify-between">
@@ -1594,11 +1851,11 @@ export const LandingPage = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
             
             {/* Header Sovereign Banner */}
-            <div className="border-2 border-[#D96B27] bg-[#0B3D6B] text-white rounded-2xl p-7 sm:p-10 space-y-6 shadow-md">
+            <div className="border-2 border-[#D2691E] bg-[#0B3D6B] text-white rounded-2xl p-7 sm:p-10 space-y-6 shadow-md">
               <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                 <div className="space-y-2 max-w-2xl text-left">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-amber-200 text-[11px] font-bold uppercase tracking-wider border border-[#D96B27]/40">
-                    <ShieldCheck className="w-4 h-4 text-[#D96B27]" />
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-amber-200 text-[11px] font-bold uppercase tracking-wider border border-[#D2691E]/40">
+                    <ShieldCheck className="w-4 h-4 text-[#D2691E]" />
                     <span>Employer-Audited Placement Registry</span>
                   </div>
                   <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-white">
@@ -1609,7 +1866,7 @@ export const LandingPage = () => {
                   </p>
                 </div>
 
-                <div className="bg-white text-slate-900 p-5 rounded-xl border-2 border-[#D96B27] text-left max-w-sm flex-shrink-0 shadow-lg">
+                <div className="bg-white text-slate-900 p-5 rounded-xl border-2 border-[#D2691E] text-left max-w-sm flex-shrink-0 shadow-lg">
                   <div className="flex items-center gap-2 text-emerald-800 text-xs font-bold mb-1">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                     <span>Verified Employment Record</span>
@@ -1626,7 +1883,7 @@ export const LandingPage = () => {
                   <span className="text-xs text-blue-200 block uppercase font-bold tracking-wider">
                     Placement Rate
                   </span>
-                  <span className="text-3xl sm:text-4xl font-extrabold text-[#D96B27] font-mono mt-0.5 block">
+                  <span className="text-3xl sm:text-4xl font-extrabold text-[#D2691E] font-mono mt-0.5 block">
                     {countPlacementRate}%
                   </span>
                   <span className="text-[11px] text-slate-300">Confirmed by hiring partners</span>
@@ -1636,7 +1893,7 @@ export const LandingPage = () => {
                   <span className="text-xs text-blue-200 block uppercase font-bold tracking-wider">
                     Avg Salary Uplift
                   </span>
-                  <span className="text-3xl sm:text-4xl font-extrabold text-[#D96B27] font-mono mt-0.5 block">
+                  <span className="text-3xl sm:text-4xl font-extrabold text-[#D2691E] font-mono mt-0.5 block">
                     {verifiedMetrics.average_salary_uplift_label}
                   </span>
                   <span className="text-[11px] text-slate-300">Over uncertified baseline</span>
@@ -1646,7 +1903,7 @@ export const LandingPage = () => {
                   <span className="text-xs text-blue-200 block uppercase font-bold tracking-wider">
                     Median Verified Salary
                   </span>
-                  <span className="text-3xl sm:text-4xl font-extrabold text-[#D96B27] font-mono mt-0.5 block">
+                  <span className="text-3xl sm:text-4xl font-extrabold text-[#D2691E] font-mono mt-0.5 block">
                     {verifiedMetrics.average_placed_salary_label}
                   </span>
                   <span className="text-[11px] text-slate-300">Audited in employment_records</span>
@@ -1656,7 +1913,7 @@ export const LandingPage = () => {
                   <span className="text-xs text-blue-200 block uppercase font-bold tracking-wider">
                     Retention Rate
                   </span>
-                  <span className="text-3xl sm:text-4xl font-extrabold text-[#D96B27] font-mono mt-0.5 block">
+                  <span className="text-3xl sm:text-4xl font-extrabold text-[#D2691E] font-mono mt-0.5 block">
                     {countRetentionRate}%
                   </span>
                   <span className="text-[11px] text-slate-300">Tracked via checkins table</span>
@@ -1720,7 +1977,7 @@ export const LandingPage = () => {
         <ScrollReveal>
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
             <div className="text-center space-y-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#D96B27]">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#D2691E]">
                 Free Government Guidance Service
               </span>
               <h2 className="font-display text-3xl sm:text-4xl font-bold text-[#0B3D6B] tracking-tight">
@@ -1771,7 +2028,7 @@ export const LandingPage = () => {
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                         placeholder="e.g. Ramesh Kulkarni"
-                        className="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#D96B27]"
+                        className="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#D2691E]"
                       />
                     </div>
 
@@ -1790,7 +2047,7 @@ export const LandingPage = () => {
                           value={formData.phone}
                           onChange={(e) => setFormData({ ...formData, phone: e.target.value.replace(/\D/g, '') })}
                           placeholder="9876543210"
-                          className="w-full px-3.5 py-2.5 border border-slate-300 rounded-r-lg text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#D96B27]"
+                          className="w-full px-3.5 py-2.5 border border-slate-300 rounded-r-lg text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#D2691E]"
                         />
                       </div>
                     </div>
@@ -1802,7 +2059,7 @@ export const LandingPage = () => {
                       <select
                         value={formData.district}
                         onChange={(e) => setFormData({ ...formData, district: e.target.value })}
-                        className="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#D96B27] bg-white"
+                        className="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#D2691E] bg-white"
                       >
                         <option value="Pune">Pune (Maharashtra)</option>
                         <option value="Nashik">Nashik (Maharashtra)</option>
@@ -1820,7 +2077,7 @@ export const LandingPage = () => {
                       <select
                         value={formData.trade}
                         onChange={(e) => setFormData({ ...formData, trade: e.target.value })}
-                        className="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#D96B27] bg-white font-medium"
+                        className="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#D2691E] bg-white font-medium"
                       >
                         {trades.map((t) => (
                           <option key={t.trade_name} value={t.trade_name}>
@@ -1840,7 +2097,7 @@ export const LandingPage = () => {
                       value={formData.notes}
                       onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                       placeholder="e.g. Inquiring about weekend classes or scholarship eligibility"
-                      className="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#D96B27]"
+                      className="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#D2691E]"
                     />
                   </div>
 
@@ -1881,7 +2138,7 @@ export const LandingPage = () => {
                 <span className="font-display font-bold text-base tracking-tight text-white uppercase">
                   National Skilling Portal (NSP)
                 </span>
-                <span className="text-[10px] font-bold text-[#D96B27] border border-[#D96B27] px-2 py-0.5 rounded">
+                <span className="text-[10px] font-bold text-[#D2691E] border border-[#D2691E] px-2 py-0.5 rounded">
                   Govt of India
                 </span>
               </div>
@@ -1893,7 +2150,7 @@ export const LandingPage = () => {
             <div className="flex flex-wrap items-center gap-4 text-xs font-medium">
               <button 
                 onClick={() => setIsRoleModalOpen(true)}
-                className="font-bold text-[#D96B27] hover:underline"
+                className="font-bold text-[#D2691E] hover:underline"
               >
                 Portal Login (All Roles)
               </button>
@@ -1925,7 +2182,7 @@ export const LandingPage = () => {
           <div className="bg-white border border-slate-200 rounded-2xl max-w-4xl w-full p-6 sm:p-8 space-y-6 text-left shadow-2xl relative my-auto animate-fade-in-up">
             <div className="flex items-start justify-between">
               <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-[#D96B27] bg-amber-50 border border-amber-200 px-2.5 py-0.5 rounded-md">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-[#D2691E] bg-amber-50 border border-amber-200 px-2.5 py-0.5 rounded-md">
                   {selectedTradeModal.code}
                 </span>
                 <h3 className="font-display text-xl font-bold text-[#0B3D6B] mt-1.5">
@@ -1964,7 +2221,7 @@ export const LandingPage = () => {
 
             <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 flex items-center justify-between">
               <span className="text-slate-500">Government Stipend:</span>
-              <strong className="font-mono text-[#D96B27] font-bold">{selectedTradeModal.stipend}</strong>
+              <strong className="font-mono text-[#D2691E] font-bold">{selectedTradeModal.stipend}</strong>
             </div>
 
             <div className="pt-3 flex items-center justify-end gap-3 border-t border-slate-100">
@@ -2034,7 +2291,7 @@ export const LandingPage = () => {
                   <span>{isVideoPlaying ? 'PLAYING FIELD AUDIT' : 'PAUSED'}</span>
                 </div>
                 <div className="inline-flex items-center gap-1.5 bg-black/60 backdrop-blur-sm px-2.5 py-1 rounded-md border border-white/20 text-[11px] font-mono">
-                  <Volume2 className="w-3.5 h-3.5 text-[#D96B27]" />
+                  <Volume2 className="w-3.5 h-3.5 text-[#D2691E]" />
                   <span>HQ AUDIO</span>
                 </div>
               </div>
@@ -2042,7 +2299,7 @@ export const LandingPage = () => {
               {/* Center Play/Pause Overlay */}
               <button
                 onClick={() => setIsVideoPlaying(!isVideoPlaying)}
-                className="relative z-10 w-16 h-16 rounded-full bg-[#D96B27] hover:bg-[#C35919] text-white flex items-center justify-center border-2 border-white shadow-xl hover:scale-105 transition-transform"
+                className="relative z-10 w-16 h-16 rounded-full bg-[#D2691E] hover:bg-[#B85814] text-white flex items-center justify-center border-2 border-white shadow-xl hover:scale-105 transition-transform"
                 title={isVideoPlaying ? 'Pause Video' : 'Play Video'}
               >
                 {isVideoPlaying ? (
@@ -2063,7 +2320,7 @@ export const LandingPage = () => {
                 </div>
                 <div className="w-full bg-white/20 h-1.5 rounded-full overflow-hidden">
                   <div 
-                    className={`h-full bg-[#D96B27] transition-all duration-300 ${isVideoPlaying ? 'w-[45%]' : 'w-0'}`}
+                    className={`h-full bg-[#D2691E] transition-all duration-300 ${isVideoPlaying ? 'w-[45%]' : 'w-0'}`}
                   ></div>
                 </div>
               </div>
@@ -2086,7 +2343,7 @@ export const LandingPage = () => {
                 </div>
               </div>
 
-              <blockquote className="bg-amber-50/70 border-l-4 border-[#D96B27] p-4 rounded-r-lg text-xs text-slate-700 italic leading-relaxed">
+              <blockquote className="bg-amber-50/70 border-l-4 border-[#D2691E] p-4 rounded-r-lg text-xs text-slate-700 italic leading-relaxed">
                 "{activeStoryModal.quote}"
               </blockquote>
 

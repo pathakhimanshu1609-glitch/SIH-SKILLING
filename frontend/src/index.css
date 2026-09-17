@@ -3,32 +3,54 @@
 @tailwind utilities;
 
 :root {
-  /* Skill India Digital Brand Palette */
-  --sid-orange: #D96B27;
-  --sid-orange-hover: #C35919;
-  --sid-orange-light: #FFF5EE;
-  --sid-navy: #0B3D6B;
-  --sid-navy-dark: #072847;
-  --sid-navy-light: #14538E;
+  /* Global Color Palette & Design Tokens */
+  --color-bg-base: #FFFFFF;
+  --color-bg-section: #F8F9FA;
+  --color-primary: #D2691E;
+  --color-primary-hover: #B85814;
+  --color-navy: #0B3D6B;
+  --color-navy-dark: #072847;
+  --color-navy-light: #14538E;
+  --color-text-primary: #111827;
+  --color-text-secondary: #6B7280;
+  --color-border: #E5E7EB;
+  --color-banner-peach: #FDEEE0;
+  --color-banner-peach-border: #F8D3B8;
+  --color-banner-lavender: #E8ECFB;
+  --color-banner-lavender-border: #D1DBF7;
+  --color-badge-blue: #E0E7FF;
+  --color-badge-blue-text: #1D4ED8;
+  --color-success: #10B981;
+  --color-success-hover: #059669;
+
+  /* Skill India Digital & Govt Semantic Aliases */
+  --sid-orange: var(--color-primary);
+  --sid-orange-hover: var(--color-primary-hover);
+  --sid-orange-light: var(--color-banner-peach);
+  --sid-navy: var(--color-navy);
+  --sid-navy-dark: var(--color-navy-dark);
+  --sid-navy-light: var(--color-navy-light);
   --sid-gold: #C9A227;
-  --sid-bg-neutral: #F8F8F9;
-  --sid-border: #E2E8F0;
-  --radius-btn: 6px;
-  --radius-card: 8px;
+  --sid-bg-neutral: var(--color-bg-section);
+  --sid-border: var(--color-border);
+  --radius-btn: 8px;
+  --radius-card: 12px;
 
   /* Backward Compatibility Tokens */
-  --govt-navy: #0B3D6B;
-  --govt-navy-dark: #072847;
+  --govt-navy: var(--color-navy);
+  --govt-navy-dark: var(--color-navy-dark);
   --govt-gold: #C9A227;
-  --govt-orange: #D96B27;
-  --bg-govt: #F8F8F9;
-  --border-govt: #E2E8F0;
+  --govt-orange: var(--color-primary);
+  --bg-govt: var(--color-bg-section);
+  --border-govt: var(--color-border);
 }
 
 @layer base {
   body {
-    @apply bg-[#F8F8F9] text-slate-800 font-sans antialiased;
+    background-color: var(--color-bg-section);
+    color: var(--color-text-primary);
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
   }
 
   /* Display Font (Poppins) for Headlines & Section Titles */
@@ -80,9 +102,9 @@
   input:focus,
   select:focus,
   textarea:focus {
-    border-color: #D96B27 !important;
+    border-color: var(--color-primary) !important;
     outline: none !important;
-    box-shadow: 0 0 0 2px rgba(217, 107, 39, 0.15) !important;
+    box-shadow: 0 0 0 2px rgba(210, 105, 30, 0.15) !important;
   }
 
   /* Standardized Lucide Icon Weight App-Wide */
@@ -136,11 +158,7 @@
 /* SKILL INDIA DIGITAL STANDARDIZED BUTTONS & CTAs               */
 /* ------------------------------------------------------------- */
 
-/* ------------------------------------------------------------- */
-/* SKILL INDIA DIGITAL STANDARDIZED BUTTONS & CTAs               */
-/* ------------------------------------------------------------- */
-
-/* TIER 1: Primary Filled Solid Button (Warm Burnt-Saffron #D96B27) */
+/* TIER 1: Primary Filled Solid Button (Burnt Saffron-Orange #D2691E) */
 .btn-govt-primary,
 .btn-govt-orange,
 .btn-sid-primary,
@@ -150,16 +168,16 @@
   align-items: center;
   justify-content: center;
   gap: 0.375rem;
-  background-color: #D96B27 !important;
+  background-color: var(--color-primary) !important;
   background-image: none !important;
   color: #FFFFFF !important;
   font-family: 'Inter', sans-serif;
   font-size: 0.875rem;
   font-weight: 600;
   padding: 0.5rem 1.125rem;
-  border-radius: 8px !important;
-  border: 1px solid #D96B27 !important;
-  box-shadow: 0 1px 2px rgba(217, 107, 39, 0.2) !important;
+  border-radius: var(--radius-btn, 8px) !important;
+  border: 1px solid var(--color-primary) !important;
+  box-shadow: 0 1px 2px rgba(210, 105, 30, 0.2) !important;
   transition: all 180ms cubic-bezier(0.4, 0, 0.2, 1) !important;
   cursor: pointer;
   user-select: none;
@@ -170,9 +188,9 @@
 .btn-sid-primary:hover,
 .btn-sid-solid:hover,
 .btn-solid:hover {
-  background-color: #C35919 !important;
-  border-color: #C35919 !important;
-  box-shadow: 0 4px 14px rgba(217, 107, 39, 0.3) !important;
+  background-color: var(--color-primary-hover) !important;
+  border-color: var(--color-primary-hover) !important;
+  box-shadow: 0 4px 14px rgba(210, 105, 30, 0.3) !important;
   transform: translateY(-1px);
   filter: brightness(1.03);
 }
@@ -184,7 +202,7 @@
 .btn-solid:active {
   transform: translateY(0);
   filter: brightness(0.97);
-  box-shadow: 0 1px 2px rgba(217, 107, 39, 0.2) !important;
+  box-shadow: 0 1px 2px rgba(210, 105, 30, 0.2) !important;
 }
 
 .btn-govt-primary:disabled,
@@ -199,7 +217,7 @@
   filter: none !important;
 }
 
-/* TIER 2: Secondary Outlined Button (Navy Blue #0B3D6B / White BG) */
+/* TIER 2: Secondary Outlined Button (Navy Blue / White BG) */
 .btn-govt-outline,
 .btn-sid-secondary,
 .btn-sid-outline,
@@ -208,15 +226,15 @@
   align-items: center;
   justify-content: center;
   gap: 0.375rem;
-  background-color: #FFFFFF !important;
+  background-color: var(--color-bg-base) !important;
   background-image: none !important;
-  color: #0B3D6B !important;
+  color: var(--color-navy) !important;
   font-family: 'Inter', sans-serif;
   font-size: 0.875rem;
   font-weight: 600;
   padding: 0.5rem 1.125rem;
-  border-radius: 8px !important;
-  border: 1.5px solid #0B3D6B !important;
+  border-radius: var(--radius-btn, 8px) !important;
+  border: 1.5px solid var(--color-navy) !important;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03) !important;
   transition: all 180ms ease-in-out !important;
   cursor: pointer;
@@ -227,12 +245,11 @@
 .btn-sid-secondary:hover,
 .btn-sid-outline:hover,
 .btn-outline:hover {
-  background-color: #F8FAFC !important;
-  border-color: #072847 !important;
-  color: #072847 !important;
+  background-color: var(--color-bg-section) !important;
+  border-color: var(--color-navy-dark) !important;
+  color: var(--color-navy-dark) !important;
   box-shadow: 0 3px 10px rgba(11, 61, 107, 0.1) !important;
   transform: translateY(-1px);
-  filter: brightness(1.02);
 }
 
 .btn-govt-outline:active,
@@ -259,26 +276,26 @@
   align-items: center;
   justify-content: center;
   gap: 0.375rem;
-  background-color: #FFFFFF !important;
+  background-color: var(--color-bg-base) !important;
   background-image: none !important;
-  color: #D96B27 !important;
+  color: var(--color-primary) !important;
   font-family: 'Inter', sans-serif;
   font-size: 0.875rem;
   font-weight: 600;
   padding: 0.5rem 1.125rem;
-  border-radius: 8px !important;
-  border: 1.5px solid #D96B27 !important;
-  box-shadow: 0 1px 2px rgba(217, 107, 39, 0.08) !important;
+  border-radius: var(--radius-btn, 8px) !important;
+  border: 1.5px solid var(--color-primary) !important;
+  box-shadow: 0 1px 2px rgba(210, 105, 30, 0.08) !important;
   transition: all 180ms ease-in-out !important;
   cursor: pointer;
   user-select: none;
 }
 
 .btn-sid-outline-orange:hover {
-  background-color: #FFF5EE !important;
-  border-color: #C35919 !important;
-  color: #C35919 !important;
-  box-shadow: 0 3px 10px rgba(217, 107, 39, 0.18) !important;
+  background-color: var(--color-banner-peach) !important;
+  border-color: var(--color-primary-hover) !important;
+  color: var(--color-primary-hover) !important;
+  box-shadow: 0 3px 10px rgba(210, 105, 30, 0.18) !important;
   transform: translateY(-1px);
 }
 
@@ -286,14 +303,34 @@
   transform: translateY(0);
 }
 
+/* Informational Banner Card Utility Classes */
+.banner-peach,
+.card-banner-peach {
+  background-color: var(--color-banner-peach) !important;
+  border: 1px solid var(--color-banner-peach-border) !important;
+  border-radius: 12px;
+}
+
+.banner-lavender,
+.card-banner-lavender {
+  background-color: var(--color-banner-lavender) !important;
+  border: 1px solid var(--color-banner-lavender-border) !important;
+  border-radius: 12px;
+}
+
+.badge-blue {
+  background-color: var(--color-badge-blue) !important;
+  color: var(--color-badge-blue-text) !important;
+}
+
 /* ------------------------------------------------------------- */
 /* STANDARDIZED CARD SYSTEM (24-32px padding, light border, lift)*/
 /* ------------------------------------------------------------- */
 .card-sid,
 .sid-card {
-  background-color: #FFFFFF;
-  border: 1px solid #E2E8F0;
-  border-radius: 12px;
+  background-color: var(--color-bg-base);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card, 12px);
   padding: 1.5rem; /* 24px */
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
   transition: all 200ms cubic-bezier(0.16, 1, 0.3, 1);
@@ -330,10 +367,10 @@
 }
 
 .modal-sid-content {
-  background-color: #FFFFFF;
-  border-radius: 12px;
+  background-color: var(--color-bg-base);
+  border-radius: var(--radius-card, 12px);
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  border: 1px solid #E2E8F0;
+  border: 1px solid var(--color-border);
   width: 100%;
   max-width: 960px;
   position: relative;
@@ -356,7 +393,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: #D96B27;
+  color: var(--color-primary);
 }
 
 .govt-badge {
@@ -400,7 +437,7 @@
 
 /* Neutral Background Striping */
 .bg-sid-neutral {
-  background-color: #F8F8F9 !important;
+  background-color: var(--color-bg-section) !important;
 }
 
 /* ------------------------------------------------------------- */
@@ -409,19 +446,19 @@
 .table-govt {
   width: 100%;
   border-collapse: collapse;
-  border: 1px solid #E2E8F0;
-  background-color: #FFFFFF;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-bg-base);
   font-size: 0.875rem;
   text-align: left;
 }
 
 .table-govt th {
-  background-color: #F8FAFC;
-  color: #475569;
+  background-color: var(--color-bg-section);
+  color: var(--color-text-secondary);
   font-weight: 600;
   padding: 0.625rem 0.875rem;
-  border-bottom: 1px solid #E2E8F0;
-  border-right: 1px solid #F1F5F9;
+  border-bottom: 1px solid var(--color-border);
+  border-right: 1px solid var(--color-border);
   text-transform: uppercase;
   font-size: 0.6875rem;
   letter-spacing: 0.05em;
@@ -434,9 +471,9 @@
 
 .table-govt td {
   padding: 0.625rem 0.875rem;
-  border-bottom: 1px solid #E2E8F0;
-  border-right: 1px solid #F8FAFC;
-  color: #1E293B;
+  border-bottom: 1px solid var(--color-border);
+  border-right: 1px solid var(--color-bg-section);
+  color: var(--color-text-primary);
   vertical-align: middle;
   font-family: 'Inter', sans-serif;
 }
@@ -450,7 +487,7 @@
 }
 
 .table-govt tr:hover td {
-  background-color: #F8F9FA;
+  background-color: var(--color-bg-section);
 }
 
 /* ------------------------------------------------------------- */
@@ -499,10 +536,10 @@
 /* Pulse Glow for Diagnostic Card & Badges */
 @keyframes pulseGlow {
   0%, 100% {
-    box-shadow: 0 0 0 0 rgba(217, 107, 39, 0.4);
+    box-shadow: 0 0 0 0 rgba(210, 105, 30, 0.4);
   }
   50% {
-    box-shadow: 0 0 16px 4px rgba(217, 107, 39, 0.25);
+    box-shadow: 0 0 16px 4px rgba(210, 105, 30, 0.25);
   }
 }
 
@@ -549,7 +586,7 @@
 }
 
 .quiz-accent-card {
-  background: linear-gradient(135deg, #E07A38 0%, #D96B27 50%, #C35919 100%) !important;
+  background: linear-gradient(135deg, #DD7A1F 0%, #D2691E 50%, #B85814 100%) !important;
   color: #FFFFFF !important;
 }
 

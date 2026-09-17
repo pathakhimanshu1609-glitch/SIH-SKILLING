@@ -20,6 +20,7 @@ import {
   IndianRupee,
   RefreshCw
 } from 'lucide-react';
+import AnimatedCounter from '../components/common/AnimatedCounter';
 
 export const EmployerDashboard = ({ activeTab }) => {
   const { user, role } = useAuth();
@@ -32,6 +33,8 @@ export const EmployerDashboard = ({ activeTab }) => {
   const [loadingRecords, setLoadingRecords] = useState(false);
   const [recordActionMsg, setRecordActionMsg] = useState('');
   const [realtimePulse, setRealtimePulse] = useState(false);
+  const [verifyingId, setVerifyingId] = useState(null);
+  const [verifySuccessToast, setVerifySuccessToast] = useState('');
 
   useEffect(() => {
     loadEmployerData();
@@ -73,25 +76,8 @@ export const EmployerDashboard = ({ activeTab }) => {
     }
   };
 
-  useEffect(() => {
-    loadEmployerData();
-    loadEmployerRecords();
-
-    // Subscribe to realtime employment changes
-    const channel = subscribeEmploymentSync((payload) => {
-      setRealtimePulse(true);
-      setTimeout(() => setRealtimePulse(false), 3000);
-      loadEmployerData();
-      loadEmployerRecords();
-    });
-
-    return () => {
-      // Clean up realtime subscription
-    };
-  }, []);
-
   // Multi-party Verification Handler
-  const handleVerifyPlacement = async (recordId, candidateName) => {
+  const handleVerifyPlacement = async (recordId, candidateName = 'Candidate') => {
     setVerifyingId(recordId);
     try {
       const res = await fetchWithAuth(`/api/portal/employment/records/${recordId}/verify`, {
@@ -118,26 +104,26 @@ export const EmployerDashboard = ({ activeTab }) => {
   };
 
   return (
-    <div className="space-y-10 sm:space-y-12 font-sans">
-      {/* Top Banner */}
-      <div className="bg-[#0B3D6B] border border-[#072847] text-white rounded-[6px] p-4 sm:p-5 relative">
+    <div className="space-y-8 font-sans">
+      {/* Top Sovereign Banner */}
+      <div className="bg-[#0B3D6B] border border-[#072847] text-white rounded-xl p-6 relative overflow-hidden shadow-sm">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 relative z-10">
           <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="bg-emerald-700 text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded-[4px]">
+            <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+              <span className="bg-[#072847] text-[#D2691E] border border-[#D2691E]/30 text-[10px] uppercase font-bold tracking-wider px-2.5 py-0.5 rounded">
                 Corporate Recruiter Portal
               </span>
-              <span className="text-xs text-emerald-200 font-mono">Employer ID: EMP-TATA-802</span>
+              <span className="text-xs text-blue-200 font-mono">Employer ID: EMP-TATA-802</span>
               {realtimePulse && (
-                <span className="bg-emerald-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-[4px] animate-pulse flex items-center gap-1">
+                <span className="bg-emerald-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full animate-pulse flex items-center gap-1">
                   <Radio className="w-3 h-3" /> Live Synced
                 </span>
               )}
             </div>
-            <h1 className="font-display text-xl font-bold tracking-tight">
+            <h1 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-white">
               {user?.organization_name || 'Tata Advanced Engineering Solutions'}
             </h1>
-            <p className="text-xs text-slate-300 mt-0.5 max-w-2xl">
+            <p className="text-xs text-slate-300 mt-1 max-w-2xl">
               Industry Partner Dashboard • Direct Recruitment, Candidate Verification, and Longitudinal Placement Confirmations.
             </p>
           </div>
@@ -145,7 +131,7 @@ export const EmployerDashboard = ({ activeTab }) => {
           <button 
             onClick={() => { loadEmployerData(); loadEmployerRecords(); }}
             disabled={loadingApi}
-            className="btn-govt-orange text-xs whitespace-nowrap"
+            className="btn-sid-primary text-xs whitespace-nowrap flex items-center gap-1.5 py-2.5 px-4"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${loadingApi ? 'animate-spin' : ''}`} />
             {loadingApi ? 'Syncing Backend...' : 'Refresh Records'}
@@ -155,12 +141,20 @@ export const EmployerDashboard = ({ activeTab }) => {
 
       {/* Express API Sync Alert */}
       {apiData && (
-        <div className="bg-emerald-50 border border-emerald-200 text-emerald-900 px-4 py-2.5 rounded-lg text-xs flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-700" />
-            <span><strong>Employer Privileges Active:</strong> Connected as <code>EMP-TATA-802</code>. Verified corporate HR audit privileges active.</span>
+        <div className="banner-peach px-4 py-3 rounded-lg text-xs flex items-center justify-between border">
+          <div className="flex items-center gap-2.5 text-[#8C3A00]">
+            <CheckCircle2 className="w-4 h-4 text-[#D2691E] shrink-0" />
+            <span><strong>Employer Privileges Active:</strong> Connected as <code className="font-mono bg-white/70 px-1 py-0.5 rounded">EMP-TATA-802</code>. Verified corporate HR audit privileges active.</span>
           </div>
-          <span className="font-mono text-[10px] bg-emerald-200 text-emerald-950 px-2 py-0.5 rounded font-bold">HTTP 200 OK</span>
+          <span className="font-mono text-[10px] bg-white/80 text-[#8C3A00] border border-[#F8D3B8] px-2 py-0.5 rounded font-bold shrink-0">HTTP 200 OK</span>
+        </div>
+      )}
+
+      {/* Verification Success Toast */}
+      {verifySuccessToast && (
+        <div className="banner-peach p-4 rounded-xl text-xs flex items-center gap-3 border shadow-xs">
+          <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+          <span className="font-bold text-slate-900">{verifySuccessToast}</span>
         </div>
       )}
 
@@ -169,10 +163,12 @@ export const EmployerDashboard = ({ activeTab }) => {
         <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-between">
           <div>
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Active Openings</p>
-            <p className="text-2xl font-bold text-slate-800 mt-1">{apiData?.activeJobOpenings || 14} Jobs</p>
-            <p className="text-[11px] text-emerald-600 font-medium mt-1">4 Industrial Clusters</p>
+            <p className="text-2xl font-bold text-slate-900 mt-1">
+              <AnimatedCounter end={apiData?.activeJobOpenings || 14} suffix=" Jobs" />
+            </p>
+            <p className="text-[11px] text-[#0B3D6B] font-medium mt-1">4 Industrial Clusters</p>
           </div>
-          <div className="w-12 h-12 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center">
+          <div className="w-12 h-12 rounded-lg bg-[#E8ECFB] text-[#0B3D6B] flex items-center justify-center">
             <Briefcase className="w-6 h-6" />
           </div>
         </div>
@@ -181,13 +177,13 @@ export const EmployerDashboard = ({ activeTab }) => {
           <div>
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Verified Placements</p>
             <p className="text-2xl font-bold text-emerald-700 mt-1">
-              {employerRecords.filter(r => r.employer_confirmed).length} Confirmed
+              <AnimatedCounter end={employerRecords.filter(r => r.employer_confirmed).length} suffix=" Confirmed" />
             </p>
             <p className="text-[11px] text-slate-500 font-medium mt-1">
               {employerRecords.length} Total Claims
             </p>
           </div>
-          <div className="w-12 h-12 rounded-lg bg-blue-50 text-govt-navy flex items-center justify-center">
+          <div className="w-12 h-12 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
             <ShieldCheck className="w-6 h-6" />
           </div>
         </div>
@@ -195,12 +191,12 @@ export const EmployerDashboard = ({ activeTab }) => {
         <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-between">
           <div>
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Pending HR Audits</p>
-            <p className="text-2xl font-bold text-amber-700 mt-1">
-              {employerRecords.filter(r => !r.employer_confirmed).length} Pending
+            <p className="text-2xl font-bold text-[#D2691E] mt-1">
+              <AnimatedCounter end={employerRecords.filter(r => !r.employer_confirmed).length} suffix=" Pending" />
             </p>
-            <p className="text-[11px] text-amber-600 font-medium mt-1">Action Required</p>
+            <p className="text-[11px] text-amber-700 font-medium mt-1">Action Required</p>
           </div>
-          <div className="w-12 h-12 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center">
+          <div className="w-12 h-12 rounded-lg bg-[#FDEEE0] text-[#D2691E] flex items-center justify-center">
             <Clock className="w-6 h-6" />
           </div>
         </div>
@@ -208,10 +204,12 @@ export const EmployerDashboard = ({ activeTab }) => {
         <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-between">
           <div>
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Hired Trainees</p>
-            <p className="text-2xl font-bold text-slate-800 mt-1">88 Hired</p>
+            <p className="text-2xl font-bold text-slate-900 mt-1">
+              <AnimatedCounter end={88} suffix=" Hired" />
+            </p>
             <p className="text-[11px] text-emerald-600 font-medium mt-1">FY 2026-27</p>
           </div>
-          <div className="w-12 h-12 rounded-lg bg-purple-50 text-purple-700 flex items-center justify-center">
+          <div className="w-12 h-12 rounded-lg bg-[#E8ECFB] text-[#0B3D6B] flex items-center justify-center">
             <FileCheck className="w-6 h-6" />
           </div>
         </div>
@@ -222,29 +220,29 @@ export const EmployerDashboard = ({ activeTab }) => {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
           <div>
             <div className="flex items-center gap-2">
-              <Building2 className="w-4 h-4 text-emerald-700" />
-              <h2 className="font-display text-base font-bold text-slate-800">Placement Verification & HR Confirmation Queue</h2>
+              <Building2 className="w-5 h-5 text-[#0B3D6B]" />
+              <h2 className="font-display text-base font-bold text-slate-900">Placement Verification & HR Confirmation Queue</h2>
             </div>
             <p className="text-xs text-slate-500 mt-0.5">
-              Live records from <code>employment_records</code> where <code>employer_id = 'emp-01'</code>. Confirm or dispute candidate self-reported placements.
+              Live records from <code className="font-mono bg-slate-100 px-1 py-0.5 rounded">employment_records</code> where <code className="font-mono bg-slate-100 px-1 py-0.5 rounded">employer_id = 'emp-01'</code>. Confirm or dispute candidate self-reported placements.
             </p>
           </div>
 
-          <span className="text-xs font-bold text-emerald-800 bg-emerald-100 px-3 py-1 rounded-md border border-emerald-300">
+          <span className="text-xs font-bold text-[#0B3D6B] bg-[#E8ECFB] px-3 py-1 rounded-md border border-[#D1DBF7]">
             {employerRecords.length} Candidate Records
           </span>
         </div>
 
         {recordActionMsg && (
-          <div className="bg-emerald-50 border border-emerald-300 text-emerald-900 p-3 rounded-lg text-xs flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-            <span>{recordActionMsg}</span>
+          <div className="banner-peach p-3 rounded-lg text-xs flex items-center gap-2 border">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+            <span className="font-bold text-[#8C3A00]">{recordActionMsg}</span>
           </div>
         )}
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase tracking-wider">
+        <div className="overflow-x-auto border border-slate-200 rounded-lg">
+          <table className="table-govt w-full text-left text-xs">
+            <thead>
               <tr>
                 <th className="p-3">Candidate</th>
                 <th className="p-3">Skill Trade & District</th>
@@ -267,7 +265,7 @@ export const EmployerDashboard = ({ activeTab }) => {
                 employerRecords.map((r) => (
                   <tr key={r.id} className="hover:bg-slate-50/80 transition-all">
                     <td className="p-3">
-                      <div className="font-bold text-slate-800">{r.candidate_name}</div>
+                      <div className="font-bold text-slate-900">{r.candidate_name}</div>
                       <div className="text-[10px] text-slate-400 font-mono">{r.candidate_id}</div>
                     </td>
                     <td className="p-3">
@@ -291,7 +289,7 @@ export const EmployerDashboard = ({ activeTab }) => {
                     <td className="p-3">
                       {r.employer_confirmed ? (
                         <div>
-                          <span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold inline-flex items-center gap-1 border border-emerald-300">
+                          <span className="bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded font-bold inline-flex items-center gap-1 border border-emerald-300">
                             <ShieldCheck className="w-3 h-3 text-emerald-700" /> Confirmed
                           </span>
                           {r.employer_confirmed_at && (
@@ -301,7 +299,7 @@ export const EmployerDashboard = ({ activeTab }) => {
                           )}
                         </div>
                       ) : (
-                        <span className="bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-bold inline-flex items-center gap-1 border border-amber-300">
+                        <span className="bg-amber-100 text-amber-800 px-2.5 py-0.5 rounded font-bold inline-flex items-center gap-1 border border-amber-300">
                           <Clock className="w-3 h-3 text-amber-700" /> Pending Review
                         </span>
                       )}
@@ -309,19 +307,20 @@ export const EmployerDashboard = ({ activeTab }) => {
                     <td className="p-3 text-right">
                       <div className="flex items-center justify-end gap-1.5">
                         <button
-                          onClick={() => handleVerifyPlacement(r.id, 'confirm')}
-                          disabled={r.employer_confirmed}
-                          className={`font-bold text-[11px] px-2.5 py-1 rounded shadow-sm flex items-center gap-1 transition-all ${
+                          onClick={() => handleVerifyPlacement(r.id, r.candidate_name)}
+                          disabled={r.employer_confirmed || verifyingId === r.id}
+                          className={`font-bold text-[11px] px-3 py-1.5 rounded-md shadow-xs flex items-center gap-1 transition-all ${
                             r.employer_confirmed
                               ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
                               : 'bg-emerald-600 hover:bg-emerald-700 text-white'
                           }`}
                         >
-                          <CheckCircle2 className="w-3 h-3" /> Confirm
+                          <CheckCircle2 className="w-3 h-3" />
+                          {verifyingId === r.id ? 'Verifying...' : 'Confirm'}
                         </button>
                         <button
-                          onClick={() => handleVerifyPlacement(r.id, 'dispute')}
-                          className="border border-red-200 hover:bg-red-50 text-red-700 font-bold text-[11px] px-2 py-1 rounded transition-all flex items-center gap-1"
+                          onClick={() => handleVerifyPlacement(r.id, r.candidate_name)}
+                          className="btn-sid-secondary text-[11px] py-1 px-2.5 border-red-200 text-red-700 hover:bg-red-50 flex items-center gap-1"
                         >
                           <XCircle className="w-3 h-3" /> Dispute
                         </button>
@@ -341,13 +340,13 @@ export const EmployerDashboard = ({ activeTab }) => {
         <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 shadow-xs p-6 sm:p-8 space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-slate-100">
             <div>
-              <h2 className="font-display text-base font-bold text-slate-800 flex items-center gap-2">
-                <Briefcase className="w-4 h-4 text-emerald-700" />
+              <h2 className="font-display text-base font-bold text-slate-900 flex items-center gap-2">
+                <Briefcase className="w-4 h-4 text-[#0B3D6B]" />
                 <span>Active Industry Vacancies</span>
               </h2>
               <p className="text-xs text-slate-500">Jobs published to certified candidates across national ITIs and Skill Hubs</p>
             </div>
-            <button className="btn-sid-primary text-xs py-2 px-4">
+            <button className="btn-sid-primary text-xs py-2 px-4 flex items-center gap-1.5">
               <PlusCircle className="w-3.5 h-3.5" />
               <span>Post New Vacancy</span>
             </button>
@@ -356,46 +355,46 @@ export const EmployerDashboard = ({ activeTab }) => {
           <div className="space-y-3">
             {apiData?.recentPostings ? (
               apiData.recentPostings.map((p) => (
-                <div key={p.jobId} className="p-4 rounded-lg border border-slate-200 hover:border-emerald-500/50 bg-slate-50/50 transition-all flex items-center justify-between">
+                <div key={p.jobId} className="p-4 rounded-xl border border-slate-200 hover:border-[#0B3D6B]/50 bg-slate-50/50 hover:bg-white transition-all flex items-center justify-between">
                   <div>
-                    <span className="text-[10px] font-mono font-bold text-slate-500 uppercase bg-slate-200 px-2 py-0.5 rounded">
+                    <span className="text-[10px] font-mono font-bold text-[#0B3D6B] uppercase bg-[#E8ECFB] px-2 py-0.5 rounded">
                       {p.jobId}
                     </span>
-                    <h3 className="text-sm font-bold text-slate-800 mt-1">{p.title}</h3>
+                    <h3 className="text-sm font-bold text-slate-900 mt-1">{p.title}</h3>
                     <p className="text-xs text-slate-500 flex items-center gap-1 mt-0.5">
                       <MapPin className="w-3 h-3 text-slate-400" />
                       <span>{p.location} • {p.applicants} Applicants</span>
                     </p>
                   </div>
-                  <button className="btn-govt-outline text-xs py-1.5 px-3">
+                  <button className="btn-sid-secondary text-xs py-1.5 px-3">
                     Review Applicants
                   </button>
                 </div>
               ))
             ) : (
               <>
-                <div className="p-4 rounded-lg border border-slate-200 hover:border-emerald-500/50 bg-slate-50/50 transition-all flex items-center justify-between">
+                <div className="p-4 rounded-xl border border-slate-200 hover:border-[#0B3D6B]/50 bg-slate-50/50 hover:bg-white transition-all flex items-center justify-between">
                   <div>
-                    <span className="text-[10px] font-mono font-bold text-slate-500 uppercase bg-slate-200 px-2 py-0.5 rounded">J-801</span>
-                    <h3 className="text-sm font-bold text-slate-800 mt-1">Certified Solar Array Specialist</h3>
+                    <span className="text-[10px] font-mono font-bold text-[#0B3D6B] uppercase bg-[#E8ECFB] px-2 py-0.5 rounded">J-801</span>
+                    <h3 className="text-sm font-bold text-slate-900 mt-1">Certified Solar Array Specialist</h3>
                     <p className="text-xs text-slate-500 flex items-center gap-1 mt-0.5">
                       <MapPin className="w-3 h-3 text-slate-400" />
                       <span>Pune Plant • 48 Applicants</span>
                     </p>
                   </div>
-                  <button className="btn-govt-outline text-xs py-1.5 px-3">Review Applicants</button>
+                  <button className="btn-sid-secondary text-xs py-1.5 px-3">Review Applicants</button>
                 </div>
 
-                <div className="p-4 rounded-lg border border-slate-200 hover:border-emerald-500/50 bg-slate-50/50 transition-all flex items-center justify-between">
+                <div className="p-4 rounded-xl border border-slate-200 hover:border-[#0B3D6B]/50 bg-slate-50/50 hover:bg-white transition-all flex items-center justify-between">
                   <div>
-                    <span className="text-[10px] font-mono font-bold text-slate-500 uppercase bg-slate-200 px-2 py-0.5 rounded">J-802</span>
-                    <h3 className="text-sm font-bold text-slate-800 mt-1">CNC Precision Machine Operator</h3>
+                    <span className="text-[10px] font-mono font-bold text-[#0B3D6B] uppercase bg-[#E8ECFB] px-2 py-0.5 rounded">J-802</span>
+                    <h3 className="text-sm font-bold text-slate-900 mt-1">CNC Precision Machine Operator</h3>
                     <p className="text-xs text-slate-500 flex items-center gap-1 mt-0.5">
                       <MapPin className="w-3 h-3 text-slate-400" />
                       <span>Bengaluru Tech Park • 62 Applicants</span>
                     </p>
                   </div>
-                  <button className="btn-govt-outline text-xs py-1.5 px-3">Review Applicants</button>
+                  <button className="btn-sid-secondary text-xs py-1.5 px-3">Review Applicants</button>
                 </div>
               </>
             )}
@@ -404,15 +403,15 @@ export const EmployerDashboard = ({ activeTab }) => {
 
         {/* Candidate Search & Quick Filter Widget (1 Col) */}
         <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-6 sm:p-8 space-y-4">
-          <h2 className="font-display text-sm font-bold text-slate-800 flex items-center gap-2 pb-3 border-b border-slate-100">
-            <Search className="w-4 h-4 text-govt-navy" />
+          <h2 className="font-display text-sm font-bold text-slate-900 flex items-center gap-2 pb-3 border-b border-slate-100">
+            <Search className="w-4 h-4 text-[#0B3D6B]" />
             <span>Search Certified Talent</span>
           </h2>
 
           <div className="space-y-3 text-xs">
             <div>
               <label className="font-bold text-slate-700 block mb-1">Select Skill / Trade</label>
-              <select className="w-full bg-slate-50 border border-slate-300 rounded-md p-2 focus:ring-1 focus:ring-govt-navy">
+              <select className="w-full bg-slate-50 border border-slate-300 rounded-md p-2 focus:ring-2 focus:ring-[#D2691E] focus:border-[#D2691E] font-medium text-slate-800">
                 <option>Advanced CNC Machinist</option>
                 <option>Solar Photovoltaic Technician</option>
                 <option>EV Battery Maintenance Specialist</option>
@@ -422,7 +421,7 @@ export const EmployerDashboard = ({ activeTab }) => {
 
             <div>
               <label className="font-bold text-slate-700 block mb-1">Preferred State / Location</label>
-              <select className="w-full bg-slate-50 border border-slate-300 rounded-md p-2 focus:ring-1 focus:ring-govt-navy">
+              <select className="w-full bg-slate-50 border border-slate-300 rounded-md p-2 focus:ring-2 focus:ring-[#D2691E] focus:border-[#D2691E] font-medium text-slate-800">
                 <option>All States (Pan-India)</option>
                 <option>Maharashtra (Pune / Nashik)</option>
                 <option>Karnataka (Bengaluru)</option>
@@ -430,7 +429,7 @@ export const EmployerDashboard = ({ activeTab }) => {
               </select>
             </div>
 
-            <button className="w-full btn-sid-primary text-xs py-2.5">
+            <button className="w-full btn-sid-primary text-xs py-2.5 flex items-center justify-center gap-1.5 font-bold">
               <Search className="w-3.5 h-3.5" />
               <span>Search Candidate Database</span>
             </button>

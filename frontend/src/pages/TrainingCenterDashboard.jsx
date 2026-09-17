@@ -23,6 +23,7 @@ import {
   UserPlus,
   RefreshCw
 } from 'lucide-react';
+import AnimatedCounter from '../components/common/AnimatedCounter';
 
 export const TrainingCenterDashboard = ({ activeTab }) => {
   const { user, role } = useAuth();
@@ -184,26 +185,26 @@ export const TrainingCenterDashboard = ({ activeTab }) => {
   };
 
   return (
-    <div className="space-y-10 sm:space-y-12 font-sans">
-      {/* Top Banner */}
-      <div className="bg-[#0B3D6B] border border-[#072847] text-white rounded-[6px] p-4 sm:p-5 relative">
+    <div className="space-y-8 font-sans">
+      {/* Top Sovereign Banner */}
+      <div className="bg-[#0B3D6B] border border-[#072847] text-white rounded-xl p-6 relative overflow-hidden shadow-sm">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 relative z-10">
           <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="bg-purple-800 text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded-[4px]">
+            <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+              <span className="bg-[#072847] text-[#D2691E] border border-[#D2691E]/30 text-[10px] uppercase font-bold tracking-wider px-2.5 py-0.5 rounded">
                 Training Provider Portal
               </span>
-              <span className="text-xs text-purple-200 font-mono">TC Code: TC-MH-PUNE-0042</span>
+              <span className="text-xs text-blue-200 font-mono">TC Code: TC-MH-PUNE-0042</span>
               {realtimePulse && (
-                <span className="bg-emerald-700 text-white text-[10px] font-bold px-2 py-0.5 rounded-[4px] animate-pulse flex items-center gap-1">
+                <span className="bg-emerald-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full animate-pulse flex items-center gap-1">
                   <Radio className="w-3 h-3" /> Live Synced
                 </span>
               )}
             </div>
-            <h1 className="font-display text-xl font-bold tracking-tight">
+            <h1 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-white">
               {user?.organization_name || 'Apex Industrial Training Institute'}
             </h1>
-            <p className="text-xs text-slate-300 mt-0.5 max-w-2xl">
+            <p className="text-xs text-slate-300 mt-1 max-w-2xl">
               Center Management Portal • Batch Enrollments, Candidate Longitudinal Tracking, and Employer-Verified Placement Outcomes.
             </p>
           </div>
@@ -211,7 +212,7 @@ export const TrainingCenterDashboard = ({ activeTab }) => {
           <button 
             onClick={() => { loadTcData(); loadTcEmploymentRecords(); }}
             disabled={loadingApi}
-            className="btn-govt-orange text-xs whitespace-nowrap"
+            className="btn-sid-primary text-xs whitespace-nowrap flex items-center gap-1.5 py-2.5 px-4"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${loadingApi ? 'animate-spin' : ''}`} />
             {loadingApi ? 'Syncing Backend...' : 'Refresh Records'}
@@ -221,12 +222,12 @@ export const TrainingCenterDashboard = ({ activeTab }) => {
 
       {/* Express API Sync Alert */}
       {apiData && (
-        <div className="bg-purple-50 border border-purple-200 text-purple-900 px-4 py-2.5 rounded-lg text-xs flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-purple-700" />
-            <span><strong>Center Roster Synchronized:</strong> Authenticated as <code>TC-MH-PUNE-0042</code>. Showing live employment tracking joined on <code>training_center_id</code>.</span>
+        <div className="banner-peach px-4 py-3 rounded-lg text-xs flex items-center justify-between border">
+          <div className="flex items-center gap-2.5 text-[#8C3A00]">
+            <CheckCircle2 className="w-4 h-4 text-[#D2691E] shrink-0" />
+            <span><strong>Center Roster Synchronized:</strong> Authenticated as <code className="font-mono bg-white/70 px-1 py-0.5 rounded">TC-MH-PUNE-0042</code>. Showing live employment tracking joined on <code className="font-mono bg-white/70 px-1 py-0.5 rounded">training_center_id</code>.</span>
           </div>
-          <span className="font-mono text-[10px] bg-purple-200 text-purple-900 px-2 py-0.5 rounded font-bold">HTTP 200 OK</span>
+          <span className="font-mono text-[10px] bg-white/80 text-[#8C3A00] border border-[#F8D3B8] px-2 py-0.5 rounded font-bold shrink-0">HTTP 200 OK</span>
         </div>
       )}
 
@@ -235,10 +236,12 @@ export const TrainingCenterDashboard = ({ activeTab }) => {
         <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-between">
           <div>
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Active Batches</p>
-            <p className="text-2xl font-bold text-slate-800 mt-1">{apiData?.activeBatches || 8} Batches</p>
-            <p className="text-[11px] text-purple-700 font-medium mt-1">4 PMKVY + 4 State</p>
+            <p className="text-2xl font-bold text-slate-900 mt-1">
+              <AnimatedCounter end={apiData?.activeBatches || 8} suffix=" Batches" />
+            </p>
+            <p className="text-[11px] text-[#0B3D6B] font-medium mt-1">4 PMKVY + 4 State</p>
           </div>
-          <div className="w-12 h-12 rounded-lg bg-purple-50 text-purple-700 flex items-center justify-center">
+          <div className="w-12 h-12 rounded-lg bg-[#E8ECFB] text-[#0B3D6B] flex items-center justify-center">
             <Layers className="w-6 h-6" />
           </div>
         </div>
@@ -246,10 +249,12 @@ export const TrainingCenterDashboard = ({ activeTab }) => {
         <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-between">
           <div>
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Trained Trainees</p>
-            <p className="text-2xl font-bold text-slate-800 mt-1">{tcRecords.length > 0 ? tcRecords.length : 240} Candidates</p>
+            <p className="text-2xl font-bold text-slate-900 mt-1">
+              <AnimatedCounter end={tcRecords.length > 0 ? tcRecords.length : 240} suffix=" Candidates" />
+            </p>
             <p className="text-[11px] text-emerald-600 font-medium mt-1">94.2% Attendance Rate</p>
           </div>
-          <div className="w-12 h-12 rounded-lg bg-blue-50 text-govt-navy flex items-center justify-center">
+          <div className="w-12 h-12 rounded-lg bg-[#FDEEE0] text-[#D2691E] flex items-center justify-center">
             <Users className="w-6 h-6" />
           </div>
         </div>
@@ -257,14 +262,14 @@ export const TrainingCenterDashboard = ({ activeTab }) => {
         <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-between">
           <div>
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Placed Trainees</p>
-            <p className="text-2xl font-bold text-slate-800 mt-1">
-              {tcRecords.filter(r => r.self_reported_status === 'Placed').length} Placed
+            <p className="text-2xl font-bold text-slate-900 mt-1">
+              <AnimatedCounter end={tcRecords.filter(r => r.self_reported_status === 'Placed').length} suffix=" Placed" />
             </p>
             <p className="text-[11px] text-emerald-600 font-medium mt-1">
               {tcRecords.filter(r => r.employer_confirmed).length} Verified by Employer
             </p>
           </div>
-          <div className="w-12 h-12 rounded-lg bg-amber-50 text-govt-orange flex items-center justify-center">
+          <div className="w-12 h-12 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
             <ShieldCheck className="w-6 h-6" />
           </div>
         </div>
@@ -272,12 +277,12 @@ export const TrainingCenterDashboard = ({ activeTab }) => {
         <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-between">
           <div>
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Longitudinal Retention</p>
-            <p className="text-2xl font-bold text-slate-800 mt-1">
-              {tcRecords.reduce((sum, r) => sum + (r.completed_checkins || 0), 0)} Check-ins
+            <p className="text-2xl font-bold text-slate-900 mt-1">
+              <AnimatedCounter end={tcRecords.reduce((sum, r) => sum + (r.completed_checkins || 0), 0)} suffix=" Check-ins" />
             </p>
-            <p className="text-[11px] text-blue-600 font-medium mt-1">Longitudinal Surveys Saved</p>
+            <p className="text-[11px] text-[#0B3D6B] font-medium mt-1">Longitudinal Surveys Saved</p>
           </div>
-          <div className="w-12 h-12 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center">
+          <div className="w-12 h-12 rounded-lg bg-[#E8ECFB] text-[#0B3D6B] flex items-center justify-center">
             <FileCheck className="w-6 h-6" />
           </div>
         </div>
@@ -288,22 +293,22 @@ export const TrainingCenterDashboard = ({ activeTab }) => {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
           <div>
             <div className="flex items-center gap-2">
-              <Building2 className="w-5 h-5 text-purple-700" />
-              <h2 className="font-display text-base font-bold text-slate-800">Candidate Employment & Longitudinal Tracking Register</h2>
+              <Building2 className="w-5 h-5 text-[#0B3D6B]" />
+              <h2 className="font-display text-base font-bold text-slate-900">Candidate Employment & Longitudinal Tracking Register</h2>
             </div>
             <p className="text-xs text-slate-500 mt-0.5">
-              Read-only view joined on <code>training_center_id: tc-01</code>. Displays candidates' self-reported status, employer-confirmed badge, and check-in completion counts.
+              Read-only view joined on <code className="font-mono bg-slate-100 px-1 py-0.5 rounded">training_center_id: tc-01</code>. Displays candidates' self-reported status, employer-confirmed badge, and check-in completion counts.
             </p>
           </div>
 
-          <span className="text-xs font-bold text-purple-800 bg-purple-100 px-3 py-1 rounded-md border border-purple-300">
+          <span className="text-xs font-bold text-[#0B3D6B] bg-[#E8ECFB] px-3 py-1 rounded-md border border-[#D1DBF7]">
             Read-Only Audit Roster
           </span>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase tracking-wider">
+        <div className="overflow-x-auto border border-slate-200 rounded-lg">
+          <table className="table-govt w-full text-left text-xs">
+            <thead>
               <tr>
                 <th className="p-3">Candidate Name</th>
                 <th className="p-3">Skill Trade & District</th>
@@ -330,7 +335,7 @@ export const TrainingCenterDashboard = ({ activeTab }) => {
                   return (
                     <tr key={r.id} className="hover:bg-slate-50/80 transition-all">
                       <td className="p-3">
-                        <div className="font-bold text-slate-800">{r.candidate_name}</div>
+                        <div className="font-bold text-slate-900">{r.candidate_name}</div>
                         <div className="text-[10px] text-slate-400 font-mono">{r.candidate_id}</div>
                       </td>
                       <td className="p-3">
@@ -374,7 +379,7 @@ export const TrainingCenterDashboard = ({ activeTab }) => {
                           <div className="w-20 bg-slate-200 h-1.5 rounded-full overflow-hidden mt-1">
                             <div
                               className={`h-full rounded-full transition-all duration-300 ${
-                                pct === 100 ? 'bg-emerald-600' : pct > 0 ? 'bg-blue-600' : 'bg-slate-300'
+                                pct === 100 ? 'bg-emerald-600' : pct > 0 ? 'bg-[#0B3D6B]' : 'bg-slate-300'
                               }`}
                               style={{ width: `${pct}%` }}
                             ></div>
@@ -394,8 +399,8 @@ export const TrainingCenterDashboard = ({ activeTab }) => {
       <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-6 sm:p-8 space-y-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4 pb-3 border-b border-slate-100">
           <div>
-            <h2 className="font-display text-base font-bold text-slate-800 flex items-center gap-2">
-              <Building2 className="w-4 h-4 text-purple-700" />
+            <h2 className="font-display text-base font-bold text-slate-900 flex items-center gap-2">
+              <Building2 className="w-4 h-4 text-[#0B3D6B]" />
               <span>Current Skill Training Batches</span>
             </h2>
             <p className="text-xs text-slate-500">Live roster of registered batches, candidate counts, and assessment dates</p>
@@ -403,21 +408,24 @@ export const TrainingCenterDashboard = ({ activeTab }) => {
           <div className="flex items-center gap-2">
             <button 
               onClick={() => setShowAddStudentModal(true)}
-              className="bg-purple-700 hover:bg-purple-800 text-white text-xs py-2 px-3 rounded-md font-medium flex items-center gap-1.5 shadow-sm transition-all"
+              className="btn-sid-secondary text-xs py-2 px-3 flex items-center gap-1.5"
             >
-              <UserPlus className="w-3.5 h-3.5" />
+              <UserPlus className="w-3.5 h-3.5 text-[#0B3D6B]" />
               <span>Add Student to Batch</span>
             </button>
-            <button className="btn-govt-primary text-xs py-2 px-3">
+            <button 
+              onClick={() => setShowAddStudentModal(true)}
+              className="btn-sid-primary text-xs py-2 px-3 flex items-center gap-1.5"
+            >
               <PlusCircle className="w-3.5 h-3.5" />
               <span>Create New Batch</span>
             </button>
           </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase tracking-wider">
+        <div className="overflow-x-auto border border-slate-200 rounded-lg">
+          <table className="table-govt w-full text-left text-xs">
+            <thead>
               <tr>
                 <th className="p-3">Batch Code</th>
                 <th className="p-3">Course / Trade Name</th>
@@ -431,65 +439,65 @@ export const TrainingCenterDashboard = ({ activeTab }) => {
               {apiData?.recentBatches ? (
                 apiData.recentBatches.map((b) => (
                   <tr key={b.batchId} className="hover:bg-slate-50/80">
-                    <td className="p-3 font-mono font-bold text-govt-navy">{b.batchId}</td>
+                    <td className="p-3 font-mono font-bold text-[#0B3D6B]">{b.batchId}</td>
                     <td className="p-3 font-bold text-slate-800">{b.course}</td>
                     <td className="p-3">{b.trainees} Candidates</td>
-                    <td className="p-3">{b.startDate}</td>
+                    <td className="p-3 font-mono">{b.startDate}</td>
                     <td className="p-3">
                       <span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">In Training</span>
                     </td>
-                    <td className="p-3 text-right space-x-2">
+                    <td className="p-3 text-right space-x-3">
                       <button 
                         onClick={() => {
                           setSelectedBatchForStudent(b.batchId);
                           setShowAddStudentModal(true);
                         }}
-                        className="text-purple-700 hover:text-purple-900 font-bold hover:underline"
+                        className="text-[#D2691E] hover:text-[#B85814] font-bold hover:underline"
                       >
                         + Add Student
                       </button>
-                      <button className="text-blue-600 hover:underline font-bold">Manage Roster</button>
+                      <button className="text-[#0B3D6B] hover:underline font-bold">Manage Roster</button>
                     </td>
                   </tr>
                 ))
               ) : (
                 <>
                   <tr className="hover:bg-slate-50/80">
-                    <td className="p-3 font-mono font-bold text-govt-navy">B-2026-01</td>
+                    <td className="p-3 font-mono font-bold text-[#0B3D6B]">B-2026-01</td>
                     <td className="p-3 font-bold text-slate-800">Advanced CNC Machinist Program</td>
                     <td className="p-3">30 Candidates</td>
-                    <td className="p-3">2026-08-01</td>
+                    <td className="p-3 font-mono">2026-08-01</td>
                     <td className="p-3"><span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">In Training</span></td>
-                    <td className="p-3 text-right space-x-2">
+                    <td className="p-3 text-right space-x-3">
                       <button 
                         onClick={() => {
                           setSelectedBatchForStudent('B-2026-01');
                           setShowAddStudentModal(true);
                         }}
-                        className="text-purple-700 hover:text-purple-900 font-bold hover:underline"
+                        className="text-[#D2691E] hover:text-[#B85814] font-bold hover:underline"
                       >
                         + Add Student
                       </button>
-                      <button className="text-blue-600 hover:underline font-bold">Manage Roster</button>
+                      <button className="text-[#0B3D6B] hover:underline font-bold">Manage Roster</button>
                     </td>
                   </tr>
                   <tr className="hover:bg-slate-50/80">
-                    <td className="p-3 font-mono font-bold text-govt-navy">B-2026-02</td>
+                    <td className="p-3 font-mono font-bold text-[#0B3D6B]">B-2026-02</td>
                     <td className="p-3 font-bold text-slate-800">Solar PV Installer & Technician</td>
                     <td className="p-3">28 Candidates</td>
-                    <td className="p-3">2026-08-15</td>
+                    <td className="p-3 font-mono">2026-08-15</td>
                     <td className="p-3"><span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">In Training</span></td>
-                    <td className="p-3 text-right space-x-2">
+                    <td className="p-3 text-right space-x-3">
                       <button 
                         onClick={() => {
                           setSelectedBatchForStudent('B-2026-02');
                           setShowAddStudentModal(true);
                         }}
-                        className="text-purple-700 hover:text-purple-900 font-bold hover:underline"
+                        className="text-[#D2691E] hover:text-[#B85814] font-bold hover:underline"
                       >
                         + Add Student
                       </button>
-                      <button className="text-blue-600 hover:underline font-bold">Manage Roster</button>
+                      <button className="text-[#0B3D6B] hover:underline font-bold">Manage Roster</button>
                     </td>
                   </tr>
                 </>
@@ -501,11 +509,11 @@ export const TrainingCenterDashboard = ({ activeTab }) => {
 
       {/* Add Student to Batch Modal */}
       {showAddStudentModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 sm:p-6 overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4 sm:p-6 overflow-y-auto">
           <div className="bg-white rounded-xl shadow-2xl border border-slate-200 max-w-4xl w-full overflow-hidden animate-in fade-in zoom-in-95 duration-150 my-auto relative">
-            <div className="bg-govt-navy text-white px-6 py-4 flex items-center justify-between">
+            <div className="bg-[#0B3D6B] text-white px-6 py-4 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <UserPlus className="w-5 h-5 text-govt-gold" />
+                <UserPlus className="w-5 h-5 text-[#D2691E]" />
                 <h3 className="font-display font-bold text-base">Add Student to Batch</h3>
               </div>
               <button 
@@ -536,7 +544,7 @@ export const TrainingCenterDashboard = ({ activeTab }) => {
                 <select
                   value={selectedBatchForStudent}
                   onChange={(e) => setSelectedBatchForStudent(e.target.value)}
-                  className="w-full text-xs rounded-md border-slate-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 font-medium"
+                  className="w-full text-xs rounded-md border-slate-300 shadow-xs focus:border-[#D2691E] focus:ring-[#D2691E] font-medium py-2 px-3"
                 >
                   <option value="B-2026-01">B-2026-01 (Advanced CNC Machinist Program)</option>
                   <option value="B-2026-02">B-2026-02 (Solar PV Installer & Technician)</option>
@@ -553,7 +561,7 @@ export const TrainingCenterDashboard = ({ activeTab }) => {
                     placeholder="e.g. Rahul Sharma"
                     value={studentForm.full_name}
                     onChange={(e) => setStudentForm({ ...studentForm, full_name: e.target.value })}
-                    className="w-full text-xs rounded-md border-slate-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
+                    className="w-full text-xs rounded-md border-slate-300 shadow-xs focus:border-[#D2691E] focus:ring-[#D2691E] py-2 px-3"
                   />
                 </div>
 
@@ -565,7 +573,7 @@ export const TrainingCenterDashboard = ({ activeTab }) => {
                     placeholder="rahul@example.com"
                     value={studentForm.email}
                     onChange={(e) => setStudentForm({ ...studentForm, email: e.target.value })}
-                    className="w-full text-xs rounded-md border-slate-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
+                    className="w-full text-xs rounded-md border-slate-300 shadow-xs focus:border-[#D2691E] focus:ring-[#D2691E] py-2 px-3"
                   />
                 </div>
               </div>
@@ -575,7 +583,7 @@ export const TrainingCenterDashboard = ({ activeTab }) => {
                 <select
                   value={studentForm.trade}
                   onChange={(e) => setStudentForm({ ...studentForm, trade: e.target.value })}
-                  className="w-full text-xs rounded-md border-slate-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
+                  className="w-full text-xs rounded-md border-slate-300 shadow-xs focus:border-[#D2691E] focus:ring-[#D2691E] py-2 px-3 font-medium"
                 >
                   <option value="Advanced CNC Machinist">Advanced CNC Machinist</option>
                   <option value="Solar PV Installer & Technician">Solar PV Installer & Technician</option>
@@ -591,7 +599,7 @@ export const TrainingCenterDashboard = ({ activeTab }) => {
                     type="text"
                     value={studentForm.district}
                     onChange={(e) => setStudentForm({ ...studentForm, district: e.target.value })}
-                    className="w-full text-xs rounded-md border-slate-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
+                    className="w-full text-xs rounded-md border-slate-300 shadow-xs focus:border-[#D2691E] focus:ring-[#D2691E] py-2 px-3"
                   />
                 </div>
 
@@ -601,7 +609,7 @@ export const TrainingCenterDashboard = ({ activeTab }) => {
                     type="text"
                     value={studentForm.state}
                     onChange={(e) => setStudentForm({ ...studentForm, state: e.target.value })}
-                    className="w-full text-xs rounded-md border-slate-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
+                    className="w-full text-xs rounded-md border-slate-300 shadow-xs focus:border-[#D2691E] focus:ring-[#D2691E] py-2 px-3"
                   />
                 </div>
               </div>
@@ -612,7 +620,7 @@ export const TrainingCenterDashboard = ({ activeTab }) => {
                   type="text"
                   value={studentForm.qualification}
                   onChange={(e) => setStudentForm({ ...studentForm, qualification: e.target.value })}
-                  className="w-full text-xs rounded-md border-slate-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
+                  className="w-full text-xs rounded-md border-slate-300 shadow-xs focus:border-[#D2691E] focus:ring-[#D2691E] py-2 px-3"
                 />
               </div>
 

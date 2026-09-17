@@ -3,7 +3,7 @@ import { useAuth } from '../../context/AuthContext';
 import { 
   LayoutDashboard, 
   BookOpen, 
-  Award, 
+  Award,
   Briefcase, 
   FileCheck, 
   Users, 
@@ -131,7 +131,7 @@ export const Sidebar = ({ activeTab, setActiveTab }) => {
   const navSections = getNavSections();
 
   return (
-    <aside className="fixed left-0 top-16 w-64 h-[calc(100vh-4rem)] bg-white border-r border-slate-300 flex flex-col justify-between z-40 font-sans">
+    <aside className="fixed left-0 top-[100px] w-64 h-[calc(100vh-100px)] bg-white border-r border-slate-300 flex flex-col justify-between z-40 font-sans">
       {/* Upper Navigation Section */}
       <div className="p-3 overflow-y-auto">
         <div className="mb-2 pb-2 border-b border-slate-200 px-2">
@@ -163,14 +163,14 @@ export const Sidebar = ({ activeTab, setActiveTab }) => {
                     }`}
                   >
                     <div className="flex items-center gap-2.5 min-w-0">
-                      <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? 'text-[#D96B27]' : 'text-slate-400 group-hover:text-[#0B3D6B]'}`} />
+                      <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? 'text-[#D2691E]' : 'text-slate-400 group-hover:text-[#0B3D6B]'}`} />
                       <span className="truncate">{item.label}</span>
                     </div>
 
                     {item.badge && (
                       <span className={`text-[10px] px-1.5 py-0.5 rounded-[4px] font-mono font-bold tracking-tight flex-shrink-0 ml-1.5 ${
                         isActive 
-                          ? 'bg-[#D96B27] text-white' 
+                          ? 'bg-[#D2691E] text-white' 
                           : 'bg-slate-100 text-slate-600 border border-slate-200'
                       }`}>
                         {item.badge}
@@ -188,7 +188,7 @@ export const Sidebar = ({ activeTab, setActiveTab }) => {
       <div className="p-3 border-t border-slate-200 bg-slate-50">
         <div className="rounded-[4px] bg-white border border-slate-200 p-2.5">
           <div className="flex items-center gap-1.5 text-xs font-bold text-[#0B3D6B] mb-0.5">
-            <HelpCircle className="w-3.5 h-3.5 text-[#D96B27]" />
+            <HelpCircle className="w-3.5 h-3.5 text-[#D2691E]" />
             <span>Portal Helpline</span>
           </div>
           <p className="text-[11px] text-slate-600 leading-snug">

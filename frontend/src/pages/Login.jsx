@@ -202,7 +202,7 @@ export const Login = () => {
                       onClick={() => setSelectedRole(role.id)}
                       className={`cursor-pointer rounded-xl p-5 text-left transition-all duration-200 relative flex flex-col justify-between border bg-white ${
                         isSelected
-                          ? 'border-slate-300 ring-2 ring-[#D96B27]/40 shadow-sm'
+                          ? 'border-slate-300 ring-2 ring-[#D2691E]/40 shadow-sm'
                           : 'border-slate-200 hover:border-slate-300 hover:shadow-xs'
                       }`}
                     >
@@ -216,7 +216,7 @@ export const Login = () => {
                         <div 
                           className={`w-5 h-5 rounded-full border flex items-center justify-center transition-colors ${
                             isSelected
-                              ? 'border-[#D96B27] bg-[#D96B27] shadow-xs'
+                              ? 'border-[#D2691E] bg-[#D2691E] shadow-xs'
                               : 'border-slate-300 bg-white'
                           }`}
                         >
@@ -456,16 +456,16 @@ export const Login = () => {
 
               {/* Selected Role Indicator & Switch Button */}
               {selectedRole && (
-                <div className="flex items-center justify-between p-2.5 rounded-[6px] bg-[#FFF5EE] border border-[#E07A38]/40">
+                <div className="flex items-center justify-between p-2.5 rounded-[6px] bg-[#FDEEE0] border border-[#F8D3B8]">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-7 h-7 rounded-[4px] bg-[#D96B27] text-white flex items-center justify-center shadow-xs">
+                    <div className="w-7 h-7 rounded-[4px] bg-[#D2691E] text-white flex items-center justify-center shadow-xs">
                       {React.createElement(currentRoleObj.icon, { className: "w-4 h-4" })}
                     </div>
                     <div>
                       <span className="text-[10px] text-slate-500 uppercase tracking-wider block font-bold">
                         Accessing Workspace:
                       </span>
-                      <strong className="text-xs text-[#D96B27] font-bold font-display">
+                      <strong className="text-xs text-[#D2691E] font-bold font-display">
                         {currentRoleObj.title}
                       </strong>
                     </div>
@@ -474,7 +474,7 @@ export const Login = () => {
                   <button
                     type="button"
                     onClick={() => setIsRoleModalOpen(true)}
-                    className="text-xs font-bold text-[#0B3D6B] hover:text-[#D96B27] hover:underline"
+                    className="text-xs font-bold text-[#0B3D6B] hover:text-[#D2691E] hover:underline"
                   >
                     Change Role
                   </button>

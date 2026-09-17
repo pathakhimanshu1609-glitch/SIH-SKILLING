@@ -1,16 +1,15 @@
 import React, { useState } from 'react';
 import { Header } from './Header';
 import { Sidebar } from './Sidebar';
-import { FloatingActionStack } from '../common/FloatingActionStack';
 
 export const MainLayout = ({ children, activeTab, setActiveTab }) => {
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans relative">
-      {/* Fixed Top Header */}
-      <Header />
+    <div className="min-h-screen bg-[#F8F9FA] flex flex-col font-sans relative">
+      {/* Fixed Top Header — receives setActiveTab + activeTab for quick-access nav icons and secondary nav active state */}
+      <Header setActiveTab={setActiveTab} activeTab={activeTab} />
 
-      {/* Main Body Container */}
-      <div className="flex flex-1 pt-16">
+      {/* Main Body Container — pt-[100px] accounts for 64px primary + 36px secondary header rows */}
+      <div className="flex flex-1 pt-[100px]">
         {/* Fixed Left Sidebar */}
         <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
 
@@ -19,9 +18,6 @@ export const MainLayout = ({ children, activeTab, setActiveTab }) => {
           {children}
         </main>
       </div>
-
-      {/* Global Bottom-Right Floating Action Stack */}
-      <FloatingActionStack />
     </div>
   );
 };

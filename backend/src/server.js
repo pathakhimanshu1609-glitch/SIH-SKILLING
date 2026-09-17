@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import authRoutes from './routes/authRoutes.js';
 import portalRoutes from './routes/portalRoutes.js';
 import whatsappRoutes from './routes/whatsappRoutes.js';
+import assistantRoutes from './routes/assistantRoutes.js';
 
 dotenv.config();
 
@@ -25,6 +26,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/portal', portalRoutes);
 app.use('/api/whatsapp', whatsappRoutes);
+app.use('/api/assistant', assistantRoutes);
 
 // Health Check Endpoint
 app.get('/api/health', (req, res) => {

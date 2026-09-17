@@ -7,32 +7,64 @@ export default {
   theme: {
     extend: {
       colors: {
+        'bg-base': '#FFFFFF',
+        'bg-section': '#F8F9FA',
+        primary: {
+          DEFAULT: '#D2691E',
+          hover: '#B85814',
+          light: '#FDEEE0',
+          border: '#D2691E',
+        },
+        navy: {
+          DEFAULT: '#0B3D6B',
+          dark: '#072847',
+          light: '#14538E',
+        },
+        'text-primary': '#111827',
+        'text-secondary': '#6B7280',
+        border: '#E5E7EB',
+        'banner-peach': {
+          DEFAULT: '#FDEEE0',
+          border: '#F8D3B8',
+        },
+        'banner-lavender': {
+          DEFAULT: '#E8ECFB',
+          border: '#D1DBF7',
+        },
+        'badge-blue': {
+          DEFAULT: '#E0E7FF',
+          text: '#1D4ED8',
+        },
+        success: {
+          DEFAULT: '#10B981',
+          hover: '#059669',
+        },
         saffron: {
-          DEFAULT: '#D96B27',
-          hover: '#C35919',
-          light: '#FFF5EE',
-          border: '#E07A38',
+          DEFAULT: '#D2691E',
+          hover: '#B85814',
+          light: '#FDEEE0',
+          border: '#D2691E',
         },
         sid: {
-          orange: '#D96B27',
-          'orange-hover': '#C35919',
-          'orange-light': '#FFF5EE',
+          orange: '#D2691E',
+          'orange-hover': '#B85814',
+          'orange-light': '#FDEEE0',
           navy: '#0B3D6B',
           'navy-dark': '#072847',
           'navy-light': '#14538E',
-          neutral: '#F8F8F9',
-          border: '#E2E8F0',
+          neutral: '#F8F9FA',
+          border: '#E5E7EB',
         },
         govt: {
           navy: '#0B3D6B',
           'navy-dark': '#072847',
           'navy-light': '#14538E',
-          orange: '#D96B27',
-          'orange-hover': '#C35919',
-          'orange-light': '#FFF5EE',
+          orange: '#D2691E',
+          'orange-hover': '#B85814',
+          'orange-light': '#FDEEE0',
           gold: '#C9A227',
-          bg: '#F8F8F9',
-          border: '#D1D5DB'
+          bg: '#F8F9FA',
+          border: '#E5E7EB'
         }
       },
       fontFamily: {

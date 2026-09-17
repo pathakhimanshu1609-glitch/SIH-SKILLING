@@ -2,14 +2,14 @@ import React from 'react';
 
 /**
  * Skill India Digital Flat Two-Tone Vector Illustrations
- * Colors: Deep Navy (#0B3D6B) + Sovereign Orange (#D96B27) + Muted Slate (#EEF2F6 / #CBD5E1)
+ * Colors: Deep Navy (#0B3D6B) + Sovereign Orange (#D2691E) + Muted Slate (#EEF2F6 / #CBD5E1)
  */
 
 export const RoleCandidateIllustration = ({ className = 'w-14 h-14' }) => (
   <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
     {/* Soft background shape */}
     <rect x="6" y="6" width="68" height="68" rx="16" fill="#EEF2F6" />
-    <circle cx="60" cy="20" r="12" fill="#D96B27" fillOpacity="0.15" />
+    <circle cx="60" cy="20" r="12" fill="#D2691E" fillOpacity="0.15" />
     
     {/* Candidate Figure */}
     {/* Shoulders / Torso */}
@@ -31,17 +31,17 @@ export const RoleCandidateIllustration = ({ className = 'w-14 h-14' }) => (
     {/* Technical Cap / Visor Accent */}
     <path
       d="M29 27C30 20 50 20 51 27L56 28C56 28 50 24 40 24C30 24 24 28 24 28L29 27Z"
-      fill="#D96B27"
+      fill="#D2691E"
     />
     <path
       d="M29 27L51 27"
-      stroke="#D96B27"
+      stroke="#D2691E"
       strokeWidth="3"
       strokeLinecap="round"
     />
 
     {/* Verified Certificate Star badge floating on right */}
-    <circle cx="58" cy="22" r="9" fill="#D96B27" />
+    <circle cx="58" cy="22" r="9" fill="#D2691E" />
     <path
       d="M58 17.5L59.2 20.3L62.2 20.6L59.9 22.5L60.6 25.5L58 23.9L55.4 25.5L56.1 22.5L53.8 20.6L56.8 20.3L58 17.5Z"
       fill="#FFFFFF"
@@ -53,7 +53,7 @@ export const RoleTrainingCenterIllustration = ({ className = 'w-14 h-14' }) => (
   <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
     {/* Soft background shape */}
     <rect x="6" y="6" width="68" height="68" rx="16" fill="#EEF2F6" />
-    <circle cx="22" cy="24" r="12" fill="#D96B27" fillOpacity="0.15" />
+    <circle cx="22" cy="24" r="12" fill="#D2691E" fillOpacity="0.15" />
 
     {/* Institute Base & Pillars */}
     <path d="M16 60H64" stroke="#0B3D6B" strokeWidth="3.5" strokeLinecap="round" />
@@ -70,7 +70,7 @@ export const RoleTrainingCenterIllustration = ({ className = 'w-14 h-14' }) => (
 
     {/* Center Workshop Gear Badge */}
     <circle cx="40" cy="25" r="4" fill="#FFFFFF" />
-    <circle cx="60" cy="50" r="11" fill="#D96B27" />
+    <circle cx="60" cy="50" r="11" fill="#D2691E" />
     {/* Checkmark in badge */}
     <path
       d="M56 50L59 53L65 47"
@@ -86,7 +86,7 @@ export const RoleEmployerIllustration = ({ className = 'w-14 h-14' }) => (
   <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
     {/* Soft background shape */}
     <rect x="6" y="6" width="68" height="68" rx="16" fill="#EEF2F6" />
-    <circle cx="58" cy="22" r="12" fill="#D96B27" fillOpacity="0.15" />
+    <circle cx="58" cy="22" r="12" fill="#D2691E" fillOpacity="0.15" />
 
     {/* Corporate/Industrial Briefcase Building */}
     <rect x="20" y="30" width="40" height="32" rx="4" fill="#FFFFFF" stroke="#0B3D6B" strokeWidth="3.5" />
@@ -104,7 +104,7 @@ export const RoleEmployerIllustration = ({ className = 'w-14 h-14' }) => (
     <rect x="36" y="38" width="8" height="8" rx="2" fill="#0B3D6B" />
 
     {/* Orange Verified Talent Hiring Badge */}
-    <circle cx="58" cy="26" r="10" fill="#D96B27" />
+    <circle cx="58" cy="26" r="10" fill="#D2691E" />
     <path
       d="M54 26L57 29L63 23"
       stroke="#FFFFFF"
@@ -119,7 +119,7 @@ export const RoleGovernmentIllustration = ({ className = 'w-14 h-14' }) => (
   <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
     {/* Soft background shape */}
     <rect x="6" y="6" width="68" height="68" rx="16" fill="#EEF2F6" />
-    <circle cx="22" cy="22" r="12" fill="#D96B27" fillOpacity="0.15" />
+    <circle cx="22" cy="22" r="12" fill="#D2691E" fillOpacity="0.15" />
 
     {/* Sovereign Audit Shield */}
     <path
@@ -136,7 +136,7 @@ export const RoleGovernmentIllustration = ({ className = 'w-14 h-14' }) => (
     <circle cx="40" cy="28" r="4" fill="#0B3D6B" />
 
     {/* Orange Audit Tick/Star */}
-    <circle cx="58" cy="24" r="8" fill="#D96B27" />
+    <circle cx="58" cy="24" r="8" fill="#D2691E" />
     <path
       d="M55 24L57.5 26.5L62 22"
       stroke="#FFFFFF"
@@ -151,7 +151,7 @@ export const EmptyAssessmentIllustration = ({ className = 'w-24 h-24' }) => (
   <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
     {/* Soft geometric backdrop */}
     <rect x="12" y="12" width="96" height="96" rx="24" fill="#EEF2F6" />
-    <circle cx="88" cy="32" r="18" fill="#D96B27" fillOpacity="0.18" />
+    <circle cx="88" cy="32" r="18" fill="#D2691E" fillOpacity="0.18" />
 
     {/* Exam Clipboard / Tablet */}
     <rect x="32" y="24" width="56" height="72" rx="6" fill="#FFFFFF" stroke="#0B3D6B" strokeWidth="3.5" />
@@ -164,14 +164,14 @@ export const EmptyAssessmentIllustration = ({ className = 'w-24 h-24' }) => (
     <rect x="42" y="56" width="32" height="4" rx="2" fill="#CBD5E1" />
 
     {/* Target & Lock Badge (Assessment Required) */}
-    <circle cx="78" cy="74" r="18" fill="#FFFFFF" stroke="#D96B27" strokeWidth="3.5" />
-    <circle cx="78" cy="74" r="12" fill="#D96B27" fillOpacity="0.12" />
+    <circle cx="78" cy="74" r="18" fill="#FFFFFF" stroke="#D2691E" strokeWidth="3.5" />
+    <circle cx="78" cy="74" r="12" fill="#D2691E" fillOpacity="0.12" />
     
     {/* Lock in Badge */}
-    <rect x="73" y="73" width="10" height="8" rx="2" fill="#D96B27" />
+    <rect x="73" y="73" width="10" height="8" rx="2" fill="#D2691E" />
     <path
       d="M75 73V69C75 67.3 76.3 66 78 66C79.7 66 81 67.3 81 69V73"
-      stroke="#D96B27"
+      stroke="#D2691E"
       strokeWidth="2.2"
       strokeLinecap="round"
     />
@@ -189,7 +189,7 @@ export const LockedCompetencyIllustration = ({ className = 'w-20 h-20' }) => (
     <rect x="64" y="50" width="8" height="26" rx="2" fill="#CBD5E1" />
 
     {/* Center Padlock */}
-    <rect x="40" y="48" width="20" height="16" rx="3" fill="#D96B27" stroke="#FFFFFF" strokeWidth="2" />
+    <rect x="40" y="48" width="20" height="16" rx="3" fill="#D2691E" stroke="#FFFFFF" strokeWidth="2" />
     <path
       d="M44 48V42C44 38.7 46.7 36 50 36C53.3 36 56 38.7 56 42V48"
       stroke="#0B3D6B"

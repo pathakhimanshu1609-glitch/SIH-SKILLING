@@ -15,16 +15,39 @@ import {
   ArrowRight, 
   ShieldCheck, 
   CheckSquare, 
-  RefreshCw,
-  AlertTriangle,
-  Send,
-  ChevronDown
+  RefreshCw, 
+  AlertTriangle, 
+  Send, 
+  ChevronDown 
 } from 'lucide-react';
+import { RoleEmployerIllustration } from '../components/common/TwoToneIllustrations';
+
+// Smooth count-up micro-animation
+const AnimatedCounter = ({ end = 0, duration = 700 }) => {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    if (end === 0) {
+      setCount(0);
+      return;
+    }
+    let start = 0;
+    const stepTime = Math.max(Math.floor(duration / end), 25);
+    const timer = setInterval(() => {
+      start += 1;
+      setCount(Math.min(start, end));
+      if (start >= end) clearInterval(timer);
+    }, stepTime);
+    return () => clearInterval(timer);
+  }, [end, duration]);
+
+  return <span>{count}</span>;
+};
 
 export const MyApplicationsPage = ({ onNavigateTab }) => {
   const { user, role } = useAuth();
 
-  // Test Candidate switcher for evaluator to test empty state (e.g. cand-05 or fresh candidate) vs active applications
+  // Test Candidate switcher for evaluator to test empty state vs active applications
   const defaultCandId = user?.candidateRecord?.id || user?.id || 'cand-01';
   const [candidateId, setCandidateId] = useState(defaultCandId);
 
@@ -73,12 +96,10 @@ export const MyApplicationsPage = ({ onNavigateTab }) => {
       }, role);
 
       if (res.success) {
-        // Update local application state
         setApplications(prev => prev.map(app => 
           app.application_id === applicationId ? { ...app, application_status: newStatus } : app
         ));
 
-        // If hired, show placement notification banner
         if (newStatus === 'Hired') {
           const app = applications.find(a => a.application_id === applicationId);
           setHiredNotification({
@@ -99,11 +120,11 @@ export const MyApplicationsPage = ({ onNavigateTab }) => {
       case 'Hired':
         return { bg: 'bg-emerald-50 text-emerald-800 border-emerald-300', dot: 'bg-emerald-600', text: 'Hired & Placed' };
       case 'Interviewing':
-        return { bg: 'bg-blue-50 text-blue-800 border-blue-300', dot: 'bg-blue-600', text: 'Interview Stage' };
+        return { bg: 'bg-[#E8ECFB] text-[#0B3D6B] border-[#D1DBF7]', dot: 'bg-[#0B3D6B]', text: 'Interview Stage' };
       case 'Shortlisted':
         return { bg: 'bg-purple-50 text-purple-800 border-purple-300', dot: 'bg-purple-600', text: 'Shortlisted' };
       case 'Offered':
-        return { bg: 'bg-amber-50 text-amber-900 border-amber-300', dot: 'bg-amber-600', text: 'Offer Extended' };
+        return { bg: 'bg-[#FDEEE0] text-[#D2691E] border-[#F8D3B8]', dot: 'bg-[#D2691E]', text: 'Offer Extended' };
       case 'Rejected':
         return { bg: 'bg-rose-50 text-rose-800 border-rose-300', dot: 'bg-rose-600', text: 'Not Selected' };
       case 'Applied':
@@ -116,35 +137,36 @@ export const MyApplicationsPage = ({ onNavigateTab }) => {
   const interviewingCount = applications.filter(a => a.application_status === 'Interviewing' || a.application_status === 'Shortlisted').length;
 
   return (
-    <div className="max-w-6xl mx-auto space-y-10 sm:space-y-12 font-sans">
+    <div className="max-w-6xl mx-auto space-y-6 sm:space-y-8 font-sans">
       {/* Top Banner */}
-      <div className="bg-[#0B3D6B] border border-[#072847] text-white rounded-xl p-6 sm:p-8 relative shadow-sm overflow-hidden">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative z-10">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-govt-orange text-white flex items-center justify-center font-bold shadow-xs">
+      <div className="bg-[#0B3D6B] border border-[#072847] text-white rounded-xl p-5 sm:p-6 shadow-sm relative overflow-hidden">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 relative z-10">
+          <div className="flex items-center gap-3.5">
+            <div className="w-11 h-11 rounded-lg bg-[#D2691E] text-white flex items-center justify-center font-bold shadow-sm flex-shrink-0">
               <FileCheck className="w-6 h-6" />
             </div>
             <div>
-              <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                <span className="bg-govt-orange text-white text-[10px] uppercase font-bold px-2.5 py-0.5 rounded tracking-wider">
+              <div className="flex items-center gap-2 mb-1 flex-wrap">
+                <span className="bg-[#D2691E] text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded tracking-wide">
                   CANDIDATE TRACKER
                 </span>
                 <span className="text-xs text-blue-200 font-medium">
-                  Real-time Multi-Portal Synchronization
+                  Real-Time NCS Pipeline Synchronization
                 </span>
               </div>
-              <h1 className="text-2xl font-bold font-display text-white tracking-tight">My Job Applications & Recruitment Pipeline</h1>
-              <p className="text-sm text-slate-300 mt-1">
-                Track status updates from initial submission to interview, job offer, and verified employer placement.
+              <h1 className="text-xl font-bold font-display text-white tracking-tight">
+                My Job Applications & Recruitment Pipeline
+              </h1>
+              <p className="text-xs text-slate-300">
+                Track status updates from initial application through interview rounds, job offers, and confirmed placement.
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            {/* Quick Candidate Switcher for Testing */}
+          <div className="flex items-center gap-3 flex-shrink-0">
             {import.meta.env.DEV && (
-              <div className="bg-white/10 p-2.5 rounded-lg border border-white/20 text-xs">
-                <span className="text-[10px] text-slate-300 block mb-1 font-semibold uppercase tracking-wider">
+              <div className="bg-white/10 p-2 rounded-lg border border-white/15 text-xs">
+                <span className="text-[10px] text-blue-200 block mb-1 font-semibold uppercase tracking-wider">
                   Active Candidate Profile:
                 </span>
                 <select
@@ -153,7 +175,7 @@ export const MyApplicationsPage = ({ onNavigateTab }) => {
                     setCandidateId(e.target.value);
                     setHiredNotification(null);
                   }}
-                  className="bg-slate-900 text-white font-bold text-xs rounded-md border border-white/30 p-1.5 cursor-pointer focus:ring-2 focus:ring-govt-orange"
+                  className="bg-slate-900 text-white font-bold text-xs rounded-md border border-white/30 p-1 cursor-pointer focus:ring-1 focus:ring-[#D2691E]"
                 >
                   <option value="cand-01">Rahul Sharma (cand-01)</option>
                   <option value="cand-02">Pooja Patil (cand-02)</option>
@@ -165,7 +187,7 @@ export const MyApplicationsPage = ({ onNavigateTab }) => {
 
             <button
               onClick={() => onNavigateTab && onNavigateTab('jobs')}
-              className="hidden sm:inline-flex items-center gap-2 btn-sid-primary text-xs py-2.5 px-4 shadow-sm"
+              className="hidden sm:inline-flex items-center gap-2 btn-sid-primary text-xs py-2 px-4 shadow-sm"
             >
               <span>Recommended Jobs</span>
               <ArrowRight className="w-4 h-4" />
@@ -174,34 +196,43 @@ export const MyApplicationsPage = ({ onNavigateTab }) => {
         </div>
       </div>
 
-      {/* Overview Metrics Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all flex items-center justify-between">
+      {/* Overview Metrics Cards with Animated Count-Up Stat Styling */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
+        <div className="bg-white p-5 sm:p-6 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all flex items-center justify-between">
           <div>
-            <p className="text-xs font-bold uppercase tracking-wider text-slate-500">Total Applications</p>
-            <p className="text-3xl font-bold font-display text-slate-900 mt-1">{applications.length}</p>
+            <span className="sid-eyebrow">Submitted</span>
+            <p className="text-xs font-bold text-slate-500 mt-0.5">Total Applications</p>
+            <p className="text-3xl font-bold font-display text-slate-900 mt-1 font-mono">
+              <AnimatedCounter end={applications.length} />
+            </p>
           </div>
-          <div className="w-12 h-12 rounded-xl bg-blue-50 text-govt-navy flex items-center justify-center font-bold">
+          <div className="w-12 h-12 rounded-xl bg-[#E8ECFB] text-[#0B3D6B] border border-[#D1DBF7] flex items-center justify-center font-bold shadow-2xs">
             <FileCheck className="w-6 h-6" />
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all flex items-center justify-between">
+        <div className="bg-white p-5 sm:p-6 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all flex items-center justify-between">
           <div>
-            <p className="text-xs font-bold uppercase tracking-wider text-amber-700">In Review / Interviews</p>
-            <p className="text-3xl font-bold font-display text-amber-800 mt-1">{interviewingCount}</p>
+            <span className="sid-eyebrow">Active Pipeline</span>
+            <p className="text-xs font-bold text-slate-500 mt-0.5">In Review / Interviews</p>
+            <p className="text-3xl font-bold font-display text-[#D2691E] mt-1 font-mono">
+              <AnimatedCounter end={interviewingCount} />
+            </p>
           </div>
-          <div className="w-12 h-12 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center font-bold">
+          <div className="w-12 h-12 rounded-xl bg-[#FDEEE0] text-[#D2691E] border border-[#F8D3B8] flex items-center justify-center font-bold shadow-2xs">
             <Clock className="w-6 h-6" />
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all flex items-center justify-between">
+        <div className="bg-white p-5 sm:p-6 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all flex items-center justify-between">
           <div>
-            <p className="text-xs font-bold uppercase tracking-wider text-emerald-700">Hired & Placed</p>
-            <p className="text-3xl font-bold font-display text-emerald-800 mt-1">{hiredCount}</p>
+            <span className="sid-eyebrow">Outcome</span>
+            <p className="text-xs font-bold text-slate-500 mt-0.5">Hired & Placed</p>
+            <p className="text-3xl font-bold font-display text-emerald-800 mt-1 font-mono">
+              <AnimatedCounter end={hiredCount} />
+            </p>
           </div>
-          <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold">
+          <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center font-bold shadow-2xs">
             <ShieldCheck className="w-6 h-6" />
           </div>
         </div>
@@ -209,37 +240,37 @@ export const MyApplicationsPage = ({ onNavigateTab }) => {
 
       {/* Placement Confirmation Alert on Hired Status Selection */}
       {hiredNotification && (
-        <div className="bg-[#064E3B] text-white p-6 rounded-xl border border-emerald-500/40 space-y-3 shadow-md">
+        <div className="bg-[#0B3D6B] text-white p-5 sm:p-6 rounded-xl border border-[#072847] space-y-3 shadow-md">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3.5">
-              <div className="w-10 h-10 rounded-xl bg-emerald-700 text-white flex items-center justify-center font-bold shadow-xs">
+              <div className="w-10 h-10 rounded-xl bg-[#D2691E] text-white flex items-center justify-center font-bold shadow-xs">
                 <ShieldCheck className="w-5 h-5" />
               </div>
               <div>
-                <span className="bg-emerald-800 text-white text-[10px] uppercase font-bold px-2.5 py-0.5 rounded tracking-wider">
+                <span className="bg-[#D2691E] text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded tracking-wide">
                   EMPLOYMENT RECORD CREATED & PLACED
                 </span>
-                <h3 className="text-lg font-bold font-display mt-0.5">
+                <h3 className="text-base font-bold font-display mt-1">
                   Status Updated to 'Hired'
                 </h3>
-                <p className="text-xs text-emerald-200">
+                <p className="text-xs text-blue-200">
                   Employment record confirmed at <strong>{hiredNotification.company}</strong>. 
                   Longitudinal retention milestones (Day 30, 90, 180, 365) are automatically initialized.
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2.5 self-end sm:self-auto flex-shrink-0">
               <button
                 onClick={() => onNavigateTab && onNavigateTab('employment-status')}
-                className="bg-white hover:bg-emerald-50 text-[#064E3B] font-bold text-xs py-2 px-4 rounded-lg shadow-sm inline-flex items-center gap-1.5 transition-all hover:scale-[1.02]"
+                className="btn-sid-primary text-xs py-2 px-4 shadow-sm inline-flex items-center gap-1.5"
               >
-                <CheckSquare className="w-3.5 h-3.5 text-[#064E3B]" />
+                <CheckSquare className="w-3.5 h-3.5" />
                 <span>View Retention Check-Ins</span>
               </button>
               <button
                 onClick={() => setHiredNotification(null)}
-                className="text-xs text-emerald-200 hover:text-white px-2 py-1 transition-colors"
+                className="btn-sid-secondary text-xs py-2 px-3 text-white border-white/30 hover:bg-white/10"
               >
                 Dismiss
               </button>
@@ -258,48 +289,48 @@ export const MyApplicationsPage = ({ onNavigateTab }) => {
 
       {/* MAIN APPLICATION LIST OR EMPTY STATE */}
       {loading ? (
-        <div className="bg-white rounded-xl border border-slate-200 p-12 text-center space-y-3 shadow-xs">
-          <div className="w-10 h-10 border-4 border-govt-navy border-t-transparent rounded-full animate-spin mx-auto"></div>
+        <div className="bg-white rounded-xl border border-slate-200 p-16 text-center space-y-3 shadow-sm">
+          <div className="w-10 h-10 border-4 border-[#0B3D6B] border-t-transparent rounded-full animate-spin mx-auto"></div>
           <p className="text-xs font-bold text-slate-600 uppercase tracking-wider">
             Loading candidate applications...
           </p>
         </div>
       ) : applications.length === 0 ? (
         /* EMPTY STATE: CANDIDATE HAS ZERO APPLICATIONS YET */
-        <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-10 sm:p-14 text-center max-w-2xl mx-auto space-y-6">
-          <div className="w-20 h-20 rounded-2xl bg-blue-50 border-2 border-blue-200 text-govt-navy flex items-center justify-center mx-auto shadow-inner">
-            <Briefcase className="w-10 h-10 text-govt-navy" />
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-8 sm:p-12 text-center max-w-2xl mx-auto space-y-6">
+          <div className="flex justify-center">
+            <RoleEmployerIllustration className="w-20 h-20" />
           </div>
 
           <div className="space-y-2">
-            <span className="text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 px-3 py-1 rounded-full border border-slate-200">
-              Application Tracker
+            <span className="text-[10px] font-bold uppercase tracking-wider bg-[#E8ECFB] text-[#0B3D6B] px-3 py-1 rounded-full border border-[#D1DBF7] font-mono">
+              APPLICATION TRACKER • ACTIVE
             </span>
-            <h2 className="text-2xl font-bold text-slate-900 font-display">
-              No Job Applications Yet
+            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 font-display">
+              No Job Applications Submitted Yet
             </h2>
-            <p className="text-sm text-slate-600 max-w-md mx-auto leading-relaxed">
-              You haven't applied to any job vacancies yet. Explore skill-matched job openings tailored to your verified trade competencies and apply with one click.
+            <p className="text-xs sm:text-sm text-slate-600 max-w-md mx-auto leading-relaxed">
+              You haven't applied to any job vacancies yet. Explore skill-matched job openings tailored to your verified trade competencies and apply with 1-click.
             </p>
           </div>
 
-          <div className="p-5 rounded-xl bg-slate-50 border border-slate-200 text-left max-w-md mx-auto space-y-3 text-xs text-slate-600">
-            <p className="font-bold text-slate-900 flex items-center gap-2 text-sm font-display">
-              <Target className="w-4 h-4 text-govt-orange" />
-              <span>Next Steps:</span>
+          <div className="p-5 rounded-xl bg-[#F8F9FA] border border-slate-200 text-left max-w-md mx-auto space-y-3 text-xs text-slate-700">
+            <p className="font-bold text-slate-900 flex items-center gap-2 font-display">
+              <Target className="w-4 h-4 text-[#D2691E]" />
+              <span>Recommended Next Steps:</span>
             </p>
             <ul className="space-y-2 list-disc list-inside text-slate-600">
-              <li>Browse <strong>Recommended Jobs</strong> for your district and trade</li>
-              <li>Review your explainable <strong>match percentage</strong></li>
-              <li>Click <strong>'Apply Now'</strong> on relevant openings</li>
-              <li>Track hiring decisions and status transitions right here</li>
+              <li>Browse <strong>Recommended Jobs</strong> tailored to your district</li>
+              <li>Review your explainable <strong>competency match percentage</strong></li>
+              <li>Click <strong>'Apply Now'</strong> on high-matching openings</li>
+              <li>Track employer interview stages and hiring decisions here</li>
             </ul>
           </div>
 
           <div className="pt-2">
             <button
               onClick={() => onNavigateTab && onNavigateTab('jobs')}
-              className="btn-sid-primary text-sm py-2.5 px-6 font-bold inline-flex items-center gap-2 shadow-sm"
+              className="btn-sid-primary text-xs py-2.5 px-6 font-bold inline-flex items-center gap-2 shadow-sm"
             >
               <Briefcase className="w-4 h-4" />
               <span>Explore Recommended Jobs</span>
@@ -309,11 +340,12 @@ export const MyApplicationsPage = ({ onNavigateTab }) => {
         </div>
       ) : (
         /* APPLICATIONS TABLE */
-        <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden space-y-0">
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden space-y-0">
           <div className="p-5 sm:p-6 border-b border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div>
-              <h2 className="text-lg font-bold font-display text-slate-900 flex items-center gap-2">
-                <FileCheck className="w-5 h-5 text-govt-navy" />
+              <span className="sid-eyebrow">Status Register</span>
+              <h2 className="text-base font-bold font-display text-slate-900 flex items-center gap-2 mt-0.5">
+                <FileCheck className="w-5 h-5 text-[#0B3D6B]" />
                 <span>Submitted Applications ({applications.length})</span>
               </h2>
               <p className="text-xs text-slate-500 mt-0.5">
@@ -324,10 +356,10 @@ export const MyApplicationsPage = ({ onNavigateTab }) => {
             <button
               onClick={loadApplications}
               disabled={loading}
-              className="btn-sid-secondary text-xs py-1.5 px-3 flex items-center gap-1.5"
+              className="btn-sid-secondary text-xs py-2 px-3.5 flex items-center gap-1.5 self-end sm:self-auto"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
-              <span>Refresh</span>
+              <span>Refresh Register</span>
             </button>
           </div>
 
@@ -388,7 +420,7 @@ export const MyApplicationsPage = ({ onNavigateTab }) => {
                           value={app.application_status}
                           onChange={(e) => handleStatusChange(app.application_id, e.target.value)}
                           disabled={isUpdating}
-                          className="text-xs font-bold rounded-lg border border-slate-300 p-1.5 bg-white text-slate-800 cursor-pointer focus:ring-2 focus:ring-govt-orange"
+                          className="text-xs font-bold rounded-lg border border-slate-300 p-1.5 bg-white text-slate-800 cursor-pointer focus:ring-1 focus:ring-[#0B3D6B]"
                         >
                           <option value="Applied">Applied</option>
                           <option value="Shortlisted">Shortlisted</option>

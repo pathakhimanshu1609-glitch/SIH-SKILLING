@@ -62,7 +62,7 @@ export const FloatingActionStack = () => {
             <div className="p-5 space-y-4 text-xs text-slate-700">
               <div className="p-3.5 rounded-lg bg-blue-50 border border-blue-200 space-y-1.5">
                 <div className="flex items-center gap-2 text-[#0B3D6B] font-bold">
-                  <PhoneCall className="w-4 h-4 text-[#D96B27]" />
+                  <PhoneCall className="w-4 h-4 text-[#D2691E]" />
                   <span className="text-sm font-mono tracking-tight">1800-11-2026 (Toll-Free)</span>
                 </div>
                 <p className="text-[11px] text-slate-600">
