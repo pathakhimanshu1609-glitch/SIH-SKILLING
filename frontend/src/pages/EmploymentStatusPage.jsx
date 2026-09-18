@@ -23,6 +23,7 @@ import {
   TrendingUp,
   Award
 } from 'lucide-react';
+import { RetentionTimeline } from '../components/common/RetentionTimeline';
 
 export const EmploymentStatusPage = () => {
   const { user, role } = useAuth();
@@ -466,7 +467,17 @@ export const EmploymentStatusPage = () => {
       </div>
 
       {/* ------------------------------------------------------------- */}
-      {/* 3. SINGLE COMPACT HORIZONTAL CHECK-IN PROGRESS STRIP          */}
+      {/* 3. POST-PLACEMENT RETENTION TRACKING TIMELINE (DAY 30, 90, 180, 365) */}
+      {/* ------------------------------------------------------------- */}
+      <RetentionTimeline
+        candidateId={selectedCandidateId}
+        companyName={currentEmployerName}
+        hireDate={record?.placement_date || '2026-08-01'}
+        onRefresh={loadStatusData}
+      />
+
+      {/* ------------------------------------------------------------- */}
+      {/* 4. LONGITUDINAL CHECK-IN AUDIT TRAIL                          */}
       {/* ------------------------------------------------------------- */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-6 sm:p-8 space-y-6">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">

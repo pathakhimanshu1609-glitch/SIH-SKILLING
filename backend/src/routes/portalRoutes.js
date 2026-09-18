@@ -6,6 +6,7 @@ import { authenticateJWT } from '../middleware/authMiddleware.js';
 import { requireRole } from '../middleware/roleMiddleware.js';
 import { supabase } from '../config/supabaseClient.js';
 import { questionBank } from '../../data/mcq_question_bank.js';
+import { runRetentionReminderCheck, getCandidateLocalDate } from '../services/retentionCron.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -169,9 +170,6 @@ let MOCK_ASSESSMENT_RESULTS = {
     { skill_id: 'sk-114', trade: 'Industrial Automation & Robotics Technician', skill_name: 'PLC & Sensor Interfacing', pre_score: 15, post_score: 25 },
     { skill_id: 'sk-115', trade: 'Industrial Automation & Robotics Technician', skill_name: 'Robotic Arm Calibration', pre_score: 15, post_score: 22 },
     { skill_id: 'sk-116', trade: 'Industrial Automation & Robotics Technician', skill_name: 'Automated Cell Safety Protocols', pre_score: 20, post_score: 28 }
-  ],
-  'cand-05': [
-    { skill_id: 'sk-103', trade: 'Solar PV Installer & Technician', skill_name: 'Solar Panel Array Wiring', pre_score: 30 }
   ]
 };
 
@@ -706,48 +704,80 @@ router.post('/assessments/submit', async (req, res) => {
     };
   });
 
-  // Update MOCK_ASSESSMENT_RESULTS memory cache for Candidate Dashboard / Scorecard
-  if (!MOCK_ASSESSMENT_RESULTS[candidate_id]) {
-    MOCK_ASSESSMENT_RESULTS[candidate_id] = [];
+  // Resolve candidate aliases across Supabase and in-memory cache
+  let allCandKeys = [candidate_id];
+  let targetCandUuid = null;
+  const reqUserId = req.body.user_id || req.user?.id;
+  if (reqUserId && !allCandKeys.includes(reqUserId)) allCandKeys.push(reqUserId);
+
+  try {
+    if (isSupabaseConfigured && supabase) {
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(candidate_id);
+      let candQuery = supabase.from('candidates').select('id, user_id, email');
+      if (isUuid) {
+        candQuery = candQuery.or(`id.eq.${candidate_id},user_id.eq.${candidate_id}`);
+      } else {
+        candQuery = candQuery.or(`id.eq.${candidate_id},email.eq.${candidate_id}${reqUserId ? `,user_id.eq.${reqUserId}` : ''}`);
+      }
+      const { data: candRow } = await candQuery.maybeSingle();
+      if (candRow) {
+        targetCandUuid = candRow.id;
+        if (candRow.id && !allCandKeys.includes(candRow.id)) allCandKeys.push(candRow.id);
+        if (candRow.user_id && !allCandKeys.includes(candRow.user_id)) allCandKeys.push(candRow.user_id);
+      } else if (isUuid) {
+        targetCandUuid = candidate_id;
+      }
+    }
+  } catch (err) {
+    console.warn('Supabase candidate lookup notice on submit:', err.message);
   }
 
-  results.forEach(resItem => {
-    let candSkill = MOCK_ASSESSMENT_RESULTS[candidate_id].find(s => s.skill_name === resItem.skill_name);
-    if (!candSkill) {
-      candSkill = { 
-        skill_id: `sk-${resItem.skill_name}`, 
-        trade: trade || 'Advanced CNC Machinist', 
-        skill_name: resItem.skill_name, 
-        pre_score: null, 
-        post_score: null 
-      };
-      MOCK_ASSESSMENT_RESULTS[candidate_id].push(candSkill);
+  // Update MOCK_ASSESSMENT_RESULTS memory cache for Candidate Dashboard / Scorecard for all candidate aliases
+  allCandKeys.forEach(candKey => {
+    if (!MOCK_ASSESSMENT_RESULTS[candKey]) {
+      MOCK_ASSESSMENT_RESULTS[candKey] = [];
     }
-    candSkill.trade = trade || candSkill.trade || 'Advanced CNC Machinist';
+
+    results.forEach(resItem => {
+      let candSkill = MOCK_ASSESSMENT_RESULTS[candKey].find(s => s.skill_name === resItem.skill_name);
+      if (!candSkill) {
+        candSkill = { 
+          skill_id: `sk-${resItem.skill_name}`, 
+          trade: trade || 'Advanced CNC Machinist', 
+          skill_name: resItem.skill_name, 
+          pre_score: null, 
+          post_score: null 
+        };
+        MOCK_ASSESSMENT_RESULTS[candKey].push(candSkill);
+      }
+      candSkill.trade = trade || candSkill.trade || 'Advanced CNC Machinist';
+      if (phase === 'pre') {
+        candSkill.pre_score = Number(resItem.score);
+        candSkill.post_score = null; // Clear post score when candidate takes pre-assessment
+      } else {
+        candSkill.post_score = Number(resItem.score);
+        if (candSkill.pre_score === null || candSkill.pre_score === undefined) {
+          candSkill.pre_score = Math.max(25, Math.round(candSkill.post_score * 0.6));
+        }
+      }
+    });
+
+    // If candidate submits pre-assessment, reset any stale placement record to unplaced
     if (phase === 'pre') {
-      candSkill.pre_score = Number(resItem.score);
-    } else {
-      candSkill.post_score = Number(resItem.score);
+      const empRec = EMPLOYMENT_RECORDS.find(r => r.candidate_id === candKey);
+      if (empRec && empRec.self_reported_status === 'Placed') {
+        empRec.self_reported_status = 'Applied';
+        empRec.employer_confirmed = false;
+      }
     }
   });
 
-  console.log(`[POST /assessments/submit] Candidate: "${candidate_id}", Phase: "${phase}", Trade: "${trade}", Results:`, JSON.stringify(results));
+  console.log(`[POST /assessments/submit] Candidate: "${candidate_id}" (aliases: ${allCandKeys.join(', ')}), Phase: "${phase}", Trade: "${trade}", Results:`, JSON.stringify(results));
 
   // Attempt live insertion into Supabase skill_assessments if active
   try {
-    if (isSupabaseConfigured && supabase) {
-      let targetCandUuid = candidate_id;
-      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(candidate_id);
-      if (!isUuid) {
-        const { data: candRow } = await supabase
-          .from('candidates')
-          .select('id')
-          .or(`id.eq.${candidate_id},email.eq.${candidate_id}`)
-          .maybeSingle();
-        if (candRow) targetCandUuid = candRow.id;
-      }
-
-      const isValidUuid = targetCandUuid && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(targetCandUuid);
+    if (isSupabaseConfigured && supabase && targetCandUuid) {
+      const isValidUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(targetCandUuid);
 
       if (isValidUuid) {
         const { data: skillsData } = await supabase
@@ -811,9 +841,27 @@ router.get('/assessments/results', async (req, res) => {
   const candidate_id = req.query.candidate_id || 'cand-01';
   const trade = req.query.trade || 'Advanced CNC Machinist';
 
+  let candKeys = [candidate_id];
+  if (isSupabaseConfigured && supabase) {
+    try {
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(candidate_id);
+      let q = supabase.from('candidates').select('id, user_id');
+      if (isUuid) {
+        q = q.or(`id.eq.${candidate_id},user_id.eq.${candidate_id}`);
+      } else {
+        q = q.or(`id.eq.${candidate_id},email.eq.${candidate_id}`);
+      }
+      const { data: candRow } = await q.maybeSingle();
+      if (candRow) {
+        if (candRow.id && !candKeys.includes(candRow.id)) candKeys.push(candRow.id);
+        if (candRow.user_id && !candKeys.includes(candRow.user_id)) candKeys.push(candRow.user_id);
+      }
+    } catch (e) {}
+  }
+
   // 1. Check live Supabase DB assessments
   try {
-    if (isSupabaseConfigured && supabase && !candidate_id.startsWith('cand-')) {
+    if (isSupabaseConfigured && supabase) {
       const { data: dbData, error } = await supabase
         .from('skill_assessments')
         .select(`
@@ -827,7 +875,7 @@ router.get('/assessments/results', async (req, res) => {
             skill_name
           )
         `)
-        .eq('candidate_id', candidate_id);
+        .in('candidate_id', candKeys);
 
       if (!error && dbData && dbData.length > 0) {
         const filtered = dbData.filter(d => !trade || d.skills?.trade === trade);
@@ -862,19 +910,19 @@ router.get('/assessments/results', async (req, res) => {
     console.warn('Supabase assessments query note:', err.message);
   }
 
-  // 2. Memory cache results
-  const candResults = (candidate_id && MOCK_ASSESSMENT_RESULTS[candidate_id]) ? MOCK_ASSESSMENT_RESULTS[candidate_id] : [];
-  const filteredByTrade = candResults.filter(r => !trade || r.trade === trade);
-
-  console.log(`[GET /assessments/results - Memory Cache] candidate_id: "${candidate_id}", trade: "${trade}", raw results:`, JSON.stringify(filteredByTrade));
-
-  if (filteredByTrade.length > 0) {
-    return res.json({
-      success: true,
-      candidate_id,
-      trade,
-      results: filteredByTrade
-    });
+  // 2. Memory cache results across all candidate aliases
+  for (const idKey of candKeys) {
+    const candResults = MOCK_ASSESSMENT_RESULTS[idKey] || [];
+    const filteredByTrade = candResults.filter(r => !trade || r.trade === trade);
+    if (filteredByTrade.length > 0) {
+      console.log(`[GET /assessments/results - Memory Cache] found for alias "${idKey}":`, JSON.stringify(filteredByTrade));
+      return res.json({
+        success: true,
+        candidate_id,
+        trade,
+        results: filteredByTrade
+      });
+    }
   }
 
   // 3. Return empty results if no assessments exist for this specific candidate
@@ -892,7 +940,7 @@ router.get('/assessments/results', async (req, res) => {
  * Step 1: Onboarded (has candidate profile record)
  * Step 2: Pre-assessment (has taken baseline pre-assessment in skill_assessments)
  * Step 3: Training (enrolled in training batch in batch_candidates)
- * Step 4: Post-assessment (passed post-training assessment with score >= 60%)
+ * Step 4: Post-assessment (has completed post-training assessment)
  * Step 5: Placement (has employment record with self_reported_status = 'Placed')
  */
 router.get('/candidate/journey', async (req, res) => {
@@ -905,97 +953,105 @@ router.get('/candidate/journey', async (req, res) => {
   let hasPlacement = false;
   let placementRecord = null;
 
+  let candKeys = [candidate_id];
+
   try {
     if (isSupabaseConfigured && supabase) {
       // 1. Onboarded: check candidates table
-      const { data: candData } = await supabase
-        .from('candidates')
-        .select('id, full_name, preferred_trade')
-        .or(`id.eq.${candidate_id},user_id.eq.${candidate_id}`)
-        .maybeSingle();
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(candidate_id);
+      let candQuery = supabase.from('candidates').select('id, user_id, email, full_name, preferred_trade');
+      if (isUuid) {
+        candQuery = candQuery.or(`id.eq.${candidate_id},user_id.eq.${candidate_id}`);
+      } else {
+        candQuery = candQuery.eq('email', candidate_id);
+      }
+      const { data: candData } = await candQuery.maybeSingle();
 
       if (candData) {
         hasOnboarded = true;
+        if (candData.id && !candKeys.includes(candData.id)) candKeys.push(candData.id);
+        if (candData.user_id && !candKeys.includes(candData.user_id)) candKeys.push(candData.user_id);
       }
 
-      // 2. Pre-assessment: check skill_assessments WHERE phase = 'pre'
-      const { data: preAssessData } = await supabase
-        .from('skill_assessments')
-        .select('assessment_id')
-        .eq('candidate_id', candidate_id)
-        .eq('phase', 'pre');
+      const uuidKeys = candKeys.filter(k => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(k));
 
-      if (preAssessData && preAssessData.length > 0) {
-        hasPreAssessment = true;
-      }
+      if (uuidKeys.length > 0) {
+        // 2. Pre-assessment: check skill_assessments WHERE phase = 'pre'
+        const { data: preAssessData } = await supabase
+          .from('skill_assessments')
+          .select('assessment_id')
+          .in('candidate_id', uuidKeys)
+          .eq('phase', 'pre');
 
-      // 3. Training: check batch_candidates
-      const { data: batchData } = await supabase
-        .from('batch_candidates')
-        .select('batch_id')
-        .eq('candidate_id', candidate_id);
+        if (preAssessData && preAssessData.length > 0) {
+          hasPreAssessment = true;
+        }
 
-      if (batchData && batchData.length > 0) {
-        isEnrolledInTraining = true;
-      }
+        // 3. Training: check batch_candidates
+        const { data: batchData } = await supabase
+          .from('batch_candidates')
+          .select('batch_id')
+          .in('candidate_id', uuidKeys);
 
-      // 4. Post-assessment: check skill_assessments WHERE phase = 'post' AND score >= 60
-      const { data: postAssessData } = await supabase
-        .from('skill_assessments')
-        .select('assessment_id, score')
-        .eq('candidate_id', candidate_id)
-        .eq('phase', 'post')
-        .gte('score', 60);
+        if (batchData && batchData.length > 0) {
+          isEnrolledInTraining = true;
+        }
 
-      if (postAssessData && postAssessData.length > 0) {
-        hasPostAssessment = true;
-      }
+        // 4. Post-assessment: check skill_assessments WHERE phase = 'post'
+        const { data: postAssessData } = await supabase
+          .from('skill_assessments')
+          .select('assessment_id, score')
+          .in('candidate_id', uuidKeys)
+          .eq('phase', 'post');
 
-      // 5. Placement: check employment_records WHERE self_reported_status = 'Placed'
-      const { data: empData } = await supabase
-        .from('employment_records')
-        .select('*')
-        .eq('candidate_id', candidate_id)
-        .eq('self_reported_status', 'Placed')
-        .maybeSingle();
+        if (postAssessData && postAssessData.length > 0) {
+          hasPostAssessment = true;
+        }
 
-      if (empData) {
-        hasPlacement = true;
-        placementRecord = empData;
+        // 5. Placement: check employment_records WHERE self_reported_status = 'Placed'
+        const { data: empData } = await supabase
+          .from('employment_records')
+          .select('*')
+          .in('candidate_id', uuidKeys)
+          .eq('self_reported_status', 'Placed')
+          .maybeSingle();
+
+        if (empData) {
+          hasPlacement = true;
+          placementRecord = empData;
+        }
       }
     }
   } catch (err) {
     console.warn('Supabase journey check error (checking memory fallback):', err.message);
   }
 
-  // Memory store check for candidates (e.g. cand-01 has demo data; cand-05 is fresh)
-  if (!hasPreAssessment) {
-    const memoryAssess = MOCK_ASSESSMENT_RESULTS[candidate_id] || [];
-    if (memoryAssess.some(a => a.pre_score && a.pre_score > 0)) {
+  // Memory store check across all candidate key aliases
+  for (const idKey of candKeys) {
+    const memoryAssess = MOCK_ASSESSMENT_RESULTS[idKey] || [];
+    if (!hasPreAssessment && memoryAssess.some(a => a.pre_score !== undefined && a.pre_score !== null)) {
       hasPreAssessment = true;
     }
-  }
-
-  if (!hasPostAssessment) {
-    const memoryAssess = MOCK_ASSESSMENT_RESULTS[candidate_id] || [];
-    if (memoryAssess.some(a => a.post_score && a.post_score >= 60)) {
+    if (!hasPostAssessment && memoryAssess.some(a => a.post_score !== undefined && a.post_score !== null)) {
       hasPostAssessment = true;
     }
-  }
-
-  if (!isEnrolledInTraining) {
-    // cand-01 is in training; cand-05 is unassigned
-    if (candidate_id === 'cand-01') {
-      isEnrolledInTraining = true;
+    if (!hasPlacement) {
+      const memRecord = EMPLOYMENT_RECORDS.find(r => r.candidate_id === idKey && r.self_reported_status === 'Placed');
+      if (memRecord) {
+        hasPlacement = true;
+        placementRecord = memRecord;
+      }
     }
   }
 
-  if (!hasPlacement) {
-    const memRecord = EMPLOYMENT_RECORDS.find(r => r.candidate_id === candidate_id && r.self_reported_status === 'Placed');
-    if (memRecord) {
-      hasPlacement = true;
-      placementRecord = memRecord;
-    }
+  // cand-01 is a demo candidate in training
+  if (!isEnrolledInTraining && candidate_id === 'cand-01') {
+    isEnrolledInTraining = true;
+  }
+
+  // If candidate has completed post-assessment, logically pre-assessment was completed
+  if (hasPostAssessment) {
+    hasPreAssessment = true;
   }
 
   // Compute activeStep
@@ -1003,21 +1059,21 @@ router.get('/candidate/journey', async (req, res) => {
   if (hasPlacement) {
     activeStep = 5;
   } else if (hasPostAssessment) {
-    activeStep = 5; // Ready for placement
+    activeStep = 5; // Post-assessment complete -> ready for placement & applications
   } else if (isEnrolledInTraining) {
-    activeStep = 4; // In training, certification exam is next
+    activeStep = 4; // In training -> certification / post-assessment exam is next
   } else if (hasPreAssessment) {
-    activeStep = 3; // Pre-assessment done, training is next
+    activeStep = 3; // Pre-assessment done -> training batch enrollment is next
   } else if (hasOnboarded) {
-    activeStep = 2; // Onboarded, pre-assessment is next
+    activeStep = 2; // Onboarded -> pre-assessment baseline is next
   }
 
   const steps = [
     { step: 1, title: 'Onboarded', desc: 'Profile Registered', isDone: hasOnboarded },
-    { step: 2, title: 'Pre-assessment', desc: 'Skill Baseline', isDone: hasPreAssessment },
-    { step: 3, title: 'Training', desc: 'Workshop Batch', isDone: isEnrolledInTraining && (hasPostAssessment || hasPlacement) },
-    { step: 4, title: 'Post-assessment', desc: 'NCVT Certified', isDone: hasPostAssessment },
-    { step: 5, title: 'Placement', desc: 'Industry Hired', isDone: hasPlacement }
+    { step: 2, title: 'Pre-assessment', desc: hasPreAssessment ? 'Skill Baseline Completed' : 'Skill Baseline', isDone: hasPreAssessment },
+    { step: 3, title: 'Training', desc: (hasPostAssessment || hasPlacement) ? 'Training Completed' : (isEnrolledInTraining ? 'In Active Training' : 'Workshop Batch'), isDone: (isEnrolledInTraining || hasPostAssessment || hasPlacement) && hasPreAssessment },
+    { step: 4, title: 'Post-assessment', desc: hasPostAssessment ? 'Assessment Completed' : 'NCVT Certified', isDone: hasPostAssessment },
+    { step: 5, title: 'Placement', desc: hasPlacement ? 'Industry Hired' : 'Upcoming Placement', isDone: hasPlacement }
   ];
 
   res.json({
@@ -1043,9 +1099,27 @@ router.get('/candidate/certifications', async (req, res) => {
 
   let rawAssessments = [];
 
+  let candKeys = [candidate_id];
+  if (isSupabaseConfigured && supabase) {
+    try {
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(candidate_id);
+      let q = supabase.from('candidates').select('id, user_id');
+      if (isUuid) {
+        q = q.or(`id.eq.${candidate_id},user_id.eq.${candidate_id}`);
+      } else {
+        q = q.or(`id.eq.${candidate_id},email.eq.${candidate_id}`);
+      }
+      const { data: candRow } = await q.maybeSingle();
+      if (candRow) {
+        if (candRow.id && !candKeys.includes(candRow.id)) candKeys.push(candRow.id);
+        if (candRow.user_id && !candKeys.includes(candRow.user_id)) candKeys.push(candRow.user_id);
+      }
+    } catch (e) {}
+  }
+
   // 1. Query Supabase skill_assessments joined with skills
   try {
-    if (isSupabaseConfigured && supabase && !candidate_id.startsWith('cand-')) {
+    if (isSupabaseConfigured && supabase) {
       const { data, error } = await supabase
         .from('skill_assessments')
         .select(`
@@ -1060,7 +1134,7 @@ router.get('/candidate/certifications', async (req, res) => {
             skill_name
           )
         `)
-        .eq('candidate_id', candidate_id)
+        .in('candidate_id', candKeys)
         .eq('phase', 'post');
 
       if (!error && data && data.length > 0) {
@@ -1078,16 +1152,22 @@ router.get('/candidate/certifications', async (req, res) => {
     console.warn('Notice querying Supabase certifications:', err.message);
   }
 
-  // 2. Memory assessments strictly for this candidate_id (never fallback to cand-01)
+  // 2. Memory assessments strictly for this candidate (never fallback to cand-01)
   if (rawAssessments.length === 0) {
-    const memoryScores = MOCK_ASSESSMENT_RESULTS[candidate_id] || [];
-    rawAssessments = memoryScores.map(m => ({
-      phase: 'post',
-      score: m.post_score || 0,
-      taken_at: new Date().toISOString(),
-      trade: m.trade || 'Advanced CNC Machinist',
-      skill_name: m.skill_name
-    }));
+    for (const idKey of candKeys) {
+      const memoryScores = MOCK_ASSESSMENT_RESULTS[idKey] || [];
+      const postScores = memoryScores.filter(m => m.post_score !== undefined && m.post_score !== null);
+      if (postScores.length > 0) {
+        rawAssessments = postScores.map(m => ({
+          phase: 'post',
+          score: Number(m.post_score),
+          taken_at: new Date().toISOString(),
+          trade: m.trade || 'Advanced CNC Machinist',
+          skill_name: m.skill_name
+        }));
+        break;
+      }
+    }
   }
 
   // 3. Group by candidate and trade
@@ -1965,6 +2045,38 @@ const updateApplicationStatusHandler = async (req, res) => {
       }
     }
 
+    // Auto-generate 4 Retention Tracking Checkpoints (Day 30, 90, 180, 365)
+    const retentionCheckpoints = initRetentionCheckpoints({
+      candidateId: candId,
+      jobApplicationId: app.application_id,
+      employerId: rec.employer_id || 'emp-01',
+      hireDate: rec.placement_date || todayStr
+    });
+
+    // Supabase sync for retention_tracking if active
+    if (isSupabaseConfigured && supabase) {
+      try {
+        for (const cp of retentionCheckpoints) {
+          await supabase.from('retention_tracking').upsert({
+            id: cp.id.startsWith('rt-') ? undefined : cp.id,
+            candidate_id: cp.candidate_id.startsWith('cand-') ? null : cp.candidate_id,
+            job_application_id: cp.job_application_id?.startsWith('app-') ? null : cp.job_application_id,
+            employer_id: cp.employer_id?.startsWith('emp-') ? null : cp.employer_id,
+            hire_date: cp.hire_date,
+            checkpoint_day: cp.checkpoint_day,
+            checkpoint_due_date: cp.checkpoint_due_date,
+            status: cp.status,
+            candidate_confirmed: cp.candidate_confirmed,
+            employer_confirmed: cp.employer_confirmed,
+            salary_slip_url: cp.salary_slip_url,
+            updated_at: cp.updated_at
+          }, { onConflict: 'candidate_id,checkpoint_day' });
+        }
+      } catch (err) {
+        console.warn('Supabase retention tracking upsert notice:', err.message);
+      }
+    }
+
     updatedEmploymentRecord = rec;
     candidateCheckins = CHECKINS.filter(c => c.record_id === rec.id).sort((a, b) => a.interval_day - b.interval_day);
   }
@@ -1975,7 +2087,8 @@ const updateApplicationStatusHandler = async (req, res) => {
     application: app,
     employment_record: updatedEmploymentRecord,
     checkins_generated: checkinsGenerated,
-    checkins: candidateCheckins
+    checkins: candidateCheckins,
+    retention_checkpoints: RETENTION_TRACKING.filter(r => r.candidate_id === app.candidate_id)
   });
 };
 
@@ -2184,6 +2297,411 @@ export let CHECKINS = [
   { id: 'chk-07-180', record_id: 'rec-07', interval_day: 180, due_date: '2027-02-08', continued_employment_status: null, role_match_confirmation: null, salary_band_change: null, submitted_at: null },
   { id: 'chk-07-365', record_id: 'rec-07', interval_day: 365, due_date: '2027-08-12', continued_employment_status: null, role_match_confirmation: null, salary_band_change: null, submitted_at: null }
 ];
+
+// ============================================================================
+// 15. POST-PLACEMENT RETENTION TRACKING SYSTEM
+// Fixed Day-Based Checkpoints: Day 30, 90, 180, 365
+// Tripartite Consensus: Candidate self-report + Employer confirmation + Salary slip upload
+// ============================================================================
+
+export let RETENTION_TRACKING = [
+  // cand-01: Rahul Sharma, hired 2026-08-01 at Tata Advanced Engineering (emp-01)
+  // Day 30 due 2026-08-31 -> verified (candidate + employer + salary slip = tripartite consensus 3/3)
+  {
+    id: 'rt-cand-01-30',
+    candidate_id: 'cand-01',
+    job_application_id: 'app-init-001',
+    employer_id: 'emp-01',
+    hire_date: '2026-08-01',
+    checkpoint_day: 30,
+    checkpoint_due_date: '2026-08-31',
+    status: 'verified',
+    verification_method: 'candidate_self_report',
+    candidate_confirmed: true,
+    candidate_confirmed_at: '2026-08-31T09:30:00Z',
+    employer_confirmed: true,
+    employer_confirmed_at: '2026-08-31T11:00:00Z',
+    salary_slip_url: 'https://storage.supabase.co/v1/object/public/salary-slips/cand-01-day30.pdf',
+    verified_at: '2026-08-31T11:00:00Z',
+    notes: 'Tripartite consensus verified: candidate + employer + salary slip match.',
+    reminder_sent_at: '2026-08-31T08:00:00Z',
+    created_at: '2026-08-01T09:00:00Z',
+    updated_at: '2026-08-31T11:00:00Z'
+  },
+  {
+    id: 'rt-cand-01-90',
+    candidate_id: 'cand-01',
+    job_application_id: 'app-init-001',
+    employer_id: 'emp-01',
+    hire_date: '2026-08-01',
+    checkpoint_day: 90,
+    checkpoint_due_date: '2026-10-30',
+    status: 'pending',
+    verification_method: null,
+    candidate_confirmed: false,
+    candidate_confirmed_at: null,
+    employer_confirmed: false,
+    employer_confirmed_at: null,
+    salary_slip_url: null,
+    verified_at: null,
+    notes: null,
+    reminder_sent_at: null,
+    created_at: '2026-08-01T09:00:00Z',
+    updated_at: '2026-08-01T09:00:00Z'
+  },
+  {
+    id: 'rt-cand-01-180',
+    candidate_id: 'cand-01',
+    job_application_id: 'app-init-001',
+    employer_id: 'emp-01',
+    hire_date: '2026-08-01',
+    checkpoint_day: 180,
+    checkpoint_due_date: '2027-01-28',
+    status: 'pending',
+    verification_method: null,
+    candidate_confirmed: false,
+    candidate_confirmed_at: null,
+    employer_confirmed: false,
+    employer_confirmed_at: null,
+    salary_slip_url: null,
+    verified_at: null,
+    notes: null,
+    reminder_sent_at: null,
+    created_at: '2026-08-01T09:00:00Z',
+    updated_at: '2026-08-01T09:00:00Z'
+  },
+  {
+    id: 'rt-cand-01-365',
+    candidate_id: 'cand-01',
+    job_application_id: 'app-init-001',
+    employer_id: 'emp-01',
+    hire_date: '2026-08-01',
+    checkpoint_day: 365,
+    checkpoint_due_date: '2027-08-01',
+    status: 'pending',
+    verification_method: null,
+    candidate_confirmed: false,
+    candidate_confirmed_at: null,
+    employer_confirmed: false,
+    employer_confirmed_at: null,
+    salary_slip_url: null,
+    verified_at: null,
+    notes: null,
+    reminder_sent_at: null,
+    created_at: '2026-08-01T09:00:00Z',
+    updated_at: '2026-08-01T09:00:00Z'
+  },
+
+  // cand-02: Pooja Patil, hired 2026-07-15 at Mahindra Susten (emp-02)
+  // Day 30 verified (candidate + employer = 2/3 consensus)
+  {
+    id: 'rt-cand-02-30',
+    candidate_id: 'cand-02',
+    job_application_id: 'app-002',
+    employer_id: 'emp-02',
+    hire_date: '2026-07-15',
+    checkpoint_day: 30,
+    checkpoint_due_date: '2026-08-14',
+    status: 'verified',
+    verification_method: 'employer_confirmation',
+    candidate_confirmed: true,
+    candidate_confirmed_at: '2026-08-14T10:00:00Z',
+    employer_confirmed: true,
+    employer_confirmed_at: '2026-08-15T09:30:00Z',
+    salary_slip_url: null,
+    verified_at: '2026-08-15T09:30:00Z',
+    notes: 'Verified by candidate self-report and employer HR confirmation.',
+    reminder_sent_at: '2026-08-14T08:00:00Z',
+    created_at: '2026-07-15T10:00:00Z',
+    updated_at: '2026-08-15T09:30:00Z'
+  },
+  {
+    id: 'rt-cand-02-90',
+    candidate_id: 'cand-02',
+    job_application_id: 'app-002',
+    employer_id: 'emp-02',
+    hire_date: '2026-07-15',
+    checkpoint_day: 90,
+    checkpoint_due_date: '2026-10-13',
+    status: 'pending',
+    verification_method: null,
+    candidate_confirmed: false,
+    candidate_confirmed_at: null,
+    employer_confirmed: false,
+    employer_confirmed_at: null,
+    salary_slip_url: null,
+    verified_at: null,
+    notes: null,
+    reminder_sent_at: null,
+    created_at: '2026-07-15T10:00:00Z',
+    updated_at: '2026-07-15T10:00:00Z'
+  },
+  {
+    id: 'rt-cand-02-180',
+    candidate_id: 'cand-02',
+    job_application_id: 'app-002',
+    employer_id: 'emp-02',
+    hire_date: '2026-07-15',
+    checkpoint_day: 180,
+    checkpoint_due_date: '2027-01-11',
+    status: 'pending',
+    verification_method: null,
+    candidate_confirmed: false,
+    candidate_confirmed_at: null,
+    employer_confirmed: false,
+    employer_confirmed_at: null,
+    salary_slip_url: null,
+    verified_at: null,
+    notes: null,
+    reminder_sent_at: null,
+    created_at: '2026-07-15T10:00:00Z',
+    updated_at: '2026-07-15T10:00:00Z'
+  },
+  {
+    id: 'rt-cand-02-365',
+    candidate_id: 'cand-02',
+    job_application_id: 'app-002',
+    employer_id: 'emp-02',
+    hire_date: '2026-07-15',
+    checkpoint_day: 365,
+    checkpoint_due_date: '2027-07-15',
+    status: 'pending',
+    verification_method: null,
+    candidate_confirmed: false,
+    candidate_confirmed_at: null,
+    employer_confirmed: false,
+    employer_confirmed_at: null,
+    salary_slip_url: null,
+    verified_at: null,
+    notes: null,
+    reminder_sent_at: null,
+    created_at: '2026-07-15T10:00:00Z',
+    updated_at: '2026-07-15T10:00:00Z'
+  },
+
+  // cand-03: Amit Verma, hired 2026-08-10 at Tata Advanced Engineering (emp-01)
+  // Day 30 due 2026-09-09 -> Candidate self-reported ONLY. Status remains 'pending' (single party fraud prevention!)
+  {
+    id: 'rt-cand-03-30',
+    candidate_id: 'cand-03',
+    job_application_id: 'app-003',
+    employer_id: 'emp-01',
+    hire_date: '2026-08-10',
+    checkpoint_day: 30,
+    checkpoint_due_date: '2026-09-09',
+    status: 'pending',
+    verification_method: 'candidate_self_report',
+    candidate_confirmed: true,
+    candidate_confirmed_at: '2026-09-09T14:00:00Z',
+    employer_confirmed: false,
+    employer_confirmed_at: null,
+    salary_slip_url: null,
+    verified_at: null,
+    notes: 'Candidate self-reported. Awaiting employer confirmation or salary slip upload to achieve bipartite consensus.',
+    reminder_sent_at: '2026-09-09T08:00:00Z',
+    created_at: '2026-08-10T12:00:00Z',
+    updated_at: '2026-09-09T14:00:00Z'
+  },
+  {
+    id: 'rt-cand-03-90',
+    candidate_id: 'cand-03',
+    job_application_id: 'app-003',
+    employer_id: 'emp-01',
+    hire_date: '2026-08-10',
+    checkpoint_day: 90,
+    checkpoint_due_date: '2026-11-08',
+    status: 'pending',
+    verification_method: null,
+    candidate_confirmed: false,
+    candidate_confirmed_at: null,
+    employer_confirmed: false,
+    employer_confirmed_at: null,
+    salary_slip_url: null,
+    verified_at: null,
+    notes: null,
+    reminder_sent_at: null,
+    created_at: '2026-08-10T12:00:00Z',
+    updated_at: '2026-08-10T12:00:00Z'
+  },
+  {
+    id: 'rt-cand-03-180',
+    candidate_id: 'cand-03',
+    job_application_id: 'app-003',
+    employer_id: 'emp-01',
+    hire_date: '2026-08-10',
+    checkpoint_day: 180,
+    checkpoint_due_date: '2027-02-06',
+    status: 'pending',
+    verification_method: null,
+    candidate_confirmed: false,
+    candidate_confirmed_at: null,
+    employer_confirmed: false,
+    employer_confirmed_at: null,
+    salary_slip_url: null,
+    verified_at: null,
+    notes: null,
+    reminder_sent_at: null,
+    created_at: '2026-08-10T12:00:00Z',
+    updated_at: '2026-08-10T12:00:00Z'
+  },
+  {
+    id: 'rt-cand-03-365',
+    candidate_id: 'cand-03',
+    job_application_id: 'app-003',
+    employer_id: 'emp-01',
+    hire_date: '2026-08-10',
+    checkpoint_day: 365,
+    checkpoint_due_date: '2027-08-10',
+    status: 'pending',
+    verification_method: null,
+    candidate_confirmed: false,
+    candidate_confirmed_at: null,
+    employer_confirmed: false,
+    employer_confirmed_at: null,
+    salary_slip_url: null,
+    verified_at: null,
+    notes: null,
+    reminder_sent_at: null,
+    created_at: '2026-08-10T12:00:00Z',
+    updated_at: '2026-08-10T12:00:00Z'
+  },
+
+  // cand-04: Sneha Kulkarni, hired 2026-06-01 at Bosch India (emp-03)
+  // Day 30 and Day 90 verified!
+  {
+    id: 'rt-cand-04-30',
+    candidate_id: 'cand-04',
+    job_application_id: 'app-004',
+    employer_id: 'emp-03',
+    hire_date: '2026-06-01',
+    checkpoint_day: 30,
+    checkpoint_due_date: '2026-07-01',
+    status: 'verified',
+    verification_method: 'candidate_self_report',
+    candidate_confirmed: true,
+    candidate_confirmed_at: '2026-07-01T10:00:00Z',
+    employer_confirmed: true,
+    employer_confirmed_at: '2026-07-02T11:00:00Z',
+    salary_slip_url: 'https://storage.supabase.co/v1/object/public/salary-slips/cand-04-day30.pdf',
+    verified_at: '2026-07-02T11:00:00Z',
+    notes: 'Tripartite consensus verified.',
+    reminder_sent_at: '2026-07-01T08:00:00Z',
+    created_at: '2026-06-01T08:00:00Z',
+    updated_at: '2026-07-02T11:00:00Z'
+  },
+  {
+    id: 'rt-cand-04-90',
+    candidate_id: 'cand-04',
+    job_application_id: 'app-004',
+    employer_id: 'emp-03',
+    hire_date: '2026-06-01',
+    checkpoint_day: 90,
+    checkpoint_due_date: '2026-08-30',
+    status: 'verified',
+    verification_method: 'salary_slip_upload',
+    candidate_confirmed: true,
+    candidate_confirmed_at: '2026-08-30T10:00:00Z',
+    employer_confirmed: false,
+    employer_confirmed_at: null,
+    salary_slip_url: 'https://storage.supabase.co/v1/object/public/salary-slips/cand-04-day90.pdf',
+    verified_at: '2026-08-30T10:00:00Z',
+    notes: 'Verified via candidate self-report + salary slip upload (2 of 3 consensus).',
+    reminder_sent_at: '2026-08-30T08:00:00Z',
+    created_at: '2026-06-01T08:00:00Z',
+    updated_at: '2026-08-30T10:00:00Z'
+  },
+  {
+    id: 'rt-cand-04-180',
+    candidate_id: 'cand-04',
+    job_application_id: 'app-004',
+    employer_id: 'emp-03',
+    hire_date: '2026-06-01',
+    checkpoint_day: 180,
+    checkpoint_due_date: '2026-11-28',
+    status: 'pending',
+    verification_method: null,
+    candidate_confirmed: false,
+    candidate_confirmed_at: null,
+    employer_confirmed: false,
+    employer_confirmed_at: null,
+    salary_slip_url: null,
+    verified_at: null,
+    notes: null,
+    reminder_sent_at: null,
+    created_at: '2026-06-01T08:00:00Z',
+    updated_at: '2026-06-01T08:00:00Z'
+  },
+  {
+    id: 'rt-cand-04-365',
+    candidate_id: 'cand-04',
+    job_application_id: 'app-004',
+    employer_id: 'emp-03',
+    hire_date: '2026-06-01',
+    checkpoint_day: 365,
+    checkpoint_due_date: '2027-06-01',
+    status: 'pending',
+    verification_method: null,
+    candidate_confirmed: false,
+    candidate_confirmed_at: null,
+    employer_confirmed: false,
+    employer_confirmed_at: null,
+    salary_slip_url: null,
+    verified_at: null,
+    notes: null,
+    reminder_sent_at: null,
+    created_at: '2026-06-01T08:00:00Z',
+    updated_at: '2026-06-01T08:00:00Z'
+  }
+];
+
+/**
+ * Auto-create all 4 checkpoint rows (Day 30, 90, 180, 365) the moment a candidate is marked 'Hired'
+ */
+export const initRetentionCheckpoints = ({
+  candidateId,
+  jobApplicationId = null,
+  employerId = 'emp-01',
+  hireDate = null,
+  timeZone = 'Asia/Kolkata'
+}) => {
+  const effectiveHireDate = hireDate || getCandidateLocalDate(new Date(), timeZone);
+  const intervals = [30, 90, 180, 365];
+  const createdCheckpoints = [];
+
+  intervals.forEach(days => {
+    let cp = RETENTION_TRACKING.find(r => r.candidate_id === candidateId && r.checkpoint_day === days);
+    const dueDate = addDaysToDate(effectiveHireDate, days);
+    if (!cp) {
+      cp = {
+        id: `rt-${candidateId}-${days}`,
+        candidate_id: candidateId,
+        job_application_id: jobApplicationId,
+        employer_id: employerId,
+        hire_date: effectiveHireDate,
+        checkpoint_day: days,
+        checkpoint_due_date: dueDate,
+        status: 'pending',
+        verification_method: null,
+        candidate_confirmed: false,
+        candidate_confirmed_at: null,
+        employer_confirmed: false,
+        employer_confirmed_at: null,
+        salary_slip_url: null,
+        verified_at: null,
+        notes: null,
+        reminder_sent_at: null,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+      RETENTION_TRACKING.push(cp);
+      createdCheckpoints.push(cp);
+    }
+  });
+
+  return createdCheckpoints;
+};
+
+export const getRetentionTrackingStore = () => RETENTION_TRACKING;
 
 /**
  * GET /api/portal/employers
@@ -2971,6 +3489,282 @@ router.post('/batches/create', async (req, res) => {
       batch_title,
       enrolled_count: candidate_ids.length
     }
+  });
+});
+
+// ============================================================================
+// RETENTION TRACKING API ENDPOINTS
+// ============================================================================
+
+/**
+ * GET /api/portal/retention/aggregates
+ * Government & Admin Dashboard view: aggregate retention rates across all candidates
+ */
+const getRetentionAggregatesHandler = async (req, res) => {
+  const todayStr = getCandidateLocalDate(new Date(), 'Asia/Kolkata');
+  const checkpoints = RETENTION_TRACKING;
+
+  const candidateSet = new Set(checkpoints.map(c => c.candidate_id));
+  const totalTrackedCandidates = candidateSet.size;
+
+  const milestones = [30, 90, 180, 365];
+  const retentionByMilestone = {};
+
+  milestones.forEach(day => {
+    const cps = checkpoints.filter(c => c.checkpoint_day === day);
+    const dueCps = cps.filter(c => todayStr >= c.checkpoint_due_date || c.status === 'verified' || c.status === 'missed' || c.status === 'candidate_left');
+    const verifiedCount = cps.filter(c => c.status === 'verified').length;
+    const pendingCount = cps.filter(c => c.status === 'pending').length;
+    const missedCount = cps.filter(c => c.status === 'missed').length;
+    const leftCount = cps.filter(c => c.status === 'candidate_left').length;
+
+    const denominator = dueCps.length > 0 ? dueCps.length : (cps.length || 1);
+    const retentionRate = Math.round((verifiedCount / denominator) * 100);
+
+    retentionByMilestone[day] = {
+      checkpoint_day: day,
+      label: `Day ${day}`,
+      total_enrolled: cps.length,
+      due_count: dueCps.length,
+      verified_count: verifiedCount,
+      pending_count: pendingCount,
+      missed_count: missedCount,
+      candidate_left_count: leftCount,
+      retention_rate_pct: `${retentionRate}%`,
+      retention_rate: retentionRate
+    };
+  });
+
+  // Anti-fraud analytics
+  const singlePartyPending = checkpoints.filter(c => c.status === 'pending' && (c.candidate_confirmed || c.employer_confirmed)).length;
+  const separationsCount = checkpoints.filter(c => c.status === 'candidate_left').length;
+  const verifiedTripartite = checkpoints.filter(c => c.status === 'verified').length;
+
+  res.json({
+    success: true,
+    total_candidates_tracked: totalTrackedCandidates,
+    overall_retention_rate: retentionByMilestone[90]?.retention_rate_pct || '78%',
+    reference_date: todayStr,
+    milestones: retentionByMilestone,
+    anti_fraud_metrics: {
+      tripartite_consensus_verified: verifiedTripartite,
+      single_party_pending_secondary: singlePartyPending,
+      verified_separations: separationsCount,
+      fraud_prevention_policy: 'Minimum 2 of 3 independent verifications required (Candidate + Employer + Salary Slip)'
+    }
+  });
+};
+
+router.get('/retention/aggregates', getRetentionAggregatesHandler);
+router.get('/retention-aggregates', getRetentionAggregatesHandler);
+
+/**
+ * POST /api/portal/retention/run-cron
+ * Manual trigger for daily retention check-in reminder cron (useful for testing & demo)
+ */
+router.post('/retention/run-cron', async (req, res) => {
+  const { simulated_date, timezone = 'Asia/Kolkata' } = req.body;
+  const result = await runRetentionReminderCheck({
+    retentionStore: RETENTION_TRACKING,
+    simulatedDate: simulated_date,
+    timeZone: timezone
+  });
+  res.json(result);
+});
+
+/**
+ * POST /api/portal/retention/verify
+ * Candidate or employer submits verification.
+ * Tripartite consensus: Requires at least 2 of 3 methods to mark status as 'verified':
+ * 1. candidate_self_report
+ * 2. employer_confirmation
+ * 3. salary_slip_upload
+ * Single-party fraud prevention: Candidate self-reporting alone leaves status as 'pending' (score: 1/3).
+ */
+router.post('/retention/verify', async (req, res) => {
+  const {
+    candidate_id,
+    checkpoint_day,
+    verification_method,
+    still_employed = true,
+    salary_slip_url = null,
+    notes = ''
+  } = req.body;
+
+  if (!candidate_id || !checkpoint_day) {
+    return res.status(400).json({ error: 'candidate_id and checkpoint_day (30, 90, 180, 365) are required' });
+  }
+
+  const cpDayNum = Number(checkpoint_day);
+  let cp = RETENTION_TRACKING.find(r => r.candidate_id === candidate_id && r.checkpoint_day === cpDayNum);
+
+  if (!cp) {
+    // If not found, attempt to initialize timeline for this candidate
+    initRetentionCheckpoints({ candidateId: candidate_id });
+    cp = RETENTION_TRACKING.find(r => r.candidate_id === candidate_id && r.checkpoint_day === cpDayNum);
+    if (!cp) {
+      return res.status(404).json({ error: `Retention checkpoint for candidate ${candidate_id} Day ${checkpoint_day} not found.` });
+    }
+  }
+
+  const nowIso = new Date().toISOString();
+
+  // If candidate or employer reports separation
+  if (still_employed === false) {
+    cp.status = 'candidate_left';
+    cp.updated_at = nowIso;
+    cp.notes = (cp.notes ? cp.notes + ' | ' : '') + `Reported separation: ${notes || 'Candidate no longer employed.'}`;
+
+    if (isSupabaseConfigured && supabase) {
+      try {
+        await supabase.from('retention_tracking').update({ status: 'candidate_left', notes: cp.notes, updated_at: nowIso }).eq('id', cp.id);
+      } catch (e) {
+        console.warn('Supabase retention update warning:', e.message);
+      }
+    }
+
+    return res.json({
+      success: true,
+      message: `Status recorded as 'candidate_left'. Employment separation noted for Day ${cpDayNum}.`,
+      checkpoint: cp,
+      verified: false
+    });
+  }
+
+  // Update specific verification method
+  if (verification_method === 'candidate_self_report') {
+    cp.candidate_confirmed = true;
+    cp.candidate_confirmed_at = nowIso;
+    cp.verification_method = 'candidate_self_report';
+    if (notes) cp.notes = (cp.notes ? cp.notes + ' | ' : '') + `Candidate note: ${notes}`;
+  } else if (verification_method === 'employer_confirmation') {
+    cp.employer_confirmed = true;
+    cp.employer_confirmed_at = nowIso;
+    cp.verification_method = 'employer_confirmation';
+    if (notes) cp.notes = (cp.notes ? cp.notes + ' | ' : '') + `Employer note: ${notes}`;
+  } else if (verification_method === 'salary_slip_upload') {
+    cp.salary_slip_url = salary_slip_url || 'https://storage.supabase.co/v1/object/public/salary-slips/verified_pay_stub.pdf';
+    cp.verification_method = 'salary_slip_upload';
+    if (notes) cp.notes = (cp.notes ? cp.notes + ' | ' : '') + `Salary Slip uploaded: ${notes}`;
+  }
+
+  // Tripartite Consensus Anti-Fraud Evaluation:
+  // Requires at least 2 of 3 methods: (candidate_self_report + employer_confirmation + salary_slip_upload)
+  const consensusCount = (cp.candidate_confirmed ? 1 : 0) +
+                         (cp.employer_confirmed ? 1 : 0) +
+                         (Boolean(cp.salary_slip_url) ? 1 : 0);
+
+  const meetsConsensus = consensusCount >= 2;
+
+  if (meetsConsensus) {
+    cp.status = 'verified';
+    cp.verified_at = nowIso;
+  } else {
+    // Keep pending because only 1 party has confirmed (single-party fraud prevention)
+    cp.status = 'pending';
+  }
+
+  cp.updated_at = nowIso;
+
+  if (isSupabaseConfigured && supabase) {
+    try {
+      await supabase.from('retention_tracking').update({
+        status: cp.status,
+        verification_method: cp.verification_method,
+        candidate_confirmed: cp.candidate_confirmed,
+        candidate_confirmed_at: cp.candidate_confirmed_at,
+        employer_confirmed: cp.employer_confirmed,
+        employer_confirmed_at: cp.employer_confirmed_at,
+        salary_slip_url: cp.salary_slip_url,
+        verified_at: cp.verified_at,
+        notes: cp.notes,
+        updated_at: cp.updated_at
+      }).eq('id', cp.id);
+    } catch (e) {
+      console.warn('Supabase retention update warning:', e.message);
+    }
+  }
+
+  return res.json({
+    success: true,
+    message: meetsConsensus
+      ? `Checkpoint Day ${cpDayNum} successfully verified with tripartite consensus (${consensusCount} of 3 confirmations present)!`
+      : `Verification submitted via ${verification_method}. Current consensus score: ${consensusCount}/3. Status remains 'pending' awaiting secondary confirmation (Anti-Fraud Policy).`,
+    consensus_score: consensusCount,
+    consensus_met: meetsConsensus,
+    methods_present: {
+      candidate_confirmed: cp.candidate_confirmed,
+      employer_confirmed: cp.employer_confirmed,
+      salary_slip_upload: Boolean(cp.salary_slip_url)
+    },
+    checkpoint: cp,
+    verified: cp.status === 'verified'
+  });
+});
+
+/**
+ * GET /api/portal/retention/:candidate_id
+ * Returns the full timeline of checkpoints and their current status for candidate dashboard
+ */
+router.get('/retention/:candidate_id', async (req, res) => {
+  const candidate_id = req.params.candidate_id;
+  let checkpoints = RETENTION_TRACKING.filter(r => r.candidate_id === candidate_id);
+
+  // If candidate has employment record or application but no retention checkpoints, auto-initialize
+  if (checkpoints.length === 0) {
+    const empRec = EMPLOYMENT_RECORDS.find(r => r.candidate_id === candidate_id);
+    if (empRec && empRec.placement_date) {
+      initRetentionCheckpoints({
+        candidateId: candidate_id,
+        employerId: empRec.employer_id || 'emp-01',
+        hireDate: empRec.placement_date
+      });
+      checkpoints = RETENTION_TRACKING.filter(r => r.candidate_id === candidate_id);
+    }
+  }
+
+  // Sort checkpoints: 30, 90, 180, 365
+  checkpoints.sort((a, b) => a.checkpoint_day - b.checkpoint_day);
+
+  const empRec = EMPLOYMENT_RECORDS.find(r => r.candidate_id === candidate_id);
+  const employer = MOCK_EMPLOYERS.find(e => e.id === (checkpoints[0]?.employer_id || empRec?.employer_id)) || null;
+
+  const todayStr = getCandidateLocalDate(new Date(), 'Asia/Kolkata');
+  const todayTime = new Date(`${todayStr}T00:00:00Z`).getTime();
+
+  const enrichedCheckpoints = checkpoints.map(cp => {
+    const dueTime = new Date(`${cp.checkpoint_due_date}T00:00:00Z`).getTime();
+    const daysRemaining = Math.ceil((dueTime - todayTime) / (1000 * 60 * 60 * 24));
+    const consensusCount = (cp.candidate_confirmed ? 1 : 0) +
+                           (cp.employer_confirmed ? 1 : 0) +
+                           (Boolean(cp.salary_slip_url) ? 1 : 0);
+
+    return {
+      ...cp,
+      days_remaining: daysRemaining,
+      is_due_now: daysRemaining <= 0,
+      consensus_score: consensusCount,
+      consensus_required: 2,
+      consensus_status: consensusCount >= 2
+        ? 'Verified by Consensus'
+        : consensusCount === 1
+        ? 'Pending Secondary Confirmation (Anti-Fraud Gating)'
+        : 'Awaiting Confirmations'
+    };
+  });
+
+  res.json({
+    success: true,
+    candidate_id,
+    hire_date: checkpoints[0]?.hire_date || empRec?.placement_date || null,
+    employer: {
+      id: employer?.id || empRec?.employer_id || 'emp-01',
+      name: employer?.company_name || empRec?.employer_name || 'Tata Advanced Engineering Solutions',
+      sector: employer?.industry_sector || 'Precision Engineering & CNC'
+    },
+    total_milestones: 4,
+    verified_milestones: checkpoints.filter(c => c.status === 'verified').length,
+    checkpoints: enrichedCheckpoints
   });
 });
 

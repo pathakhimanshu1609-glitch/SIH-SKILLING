@@ -248,3 +248,56 @@ CREATE POLICY "Public insert enrollment_leads" ON public.enrollment_leads FOR IN
 CREATE POLICY "Public read enrollment_leads" ON public.enrollment_leads FOR SELECT USING (true);
 ALTER PUBLICATION supabase_realtime ADD TABLE public.enrollment_leads;
 
+-- =======================================================
+-- 15. POST-PLACEMENT RETENTION TRACKING SYSTEM
+-- =======================================================
+
+-- Create Enums for Retention Tracking
+DO $$ BEGIN
+    CREATE TYPE retention_checkpoint_status AS ENUM ('pending', 'verified', 'missed', 'candidate_left');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
+
+DO $$ BEGIN
+    CREATE TYPE retention_verification_method AS ENUM ('candidate_self_report', 'employer_confirmation', 'salary_slip_upload');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
+
+CREATE TABLE IF NOT EXISTS public.retention_tracking (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    candidate_id UUID NOT NULL REFERENCES public.candidates(id) ON DELETE CASCADE,
+    job_application_id UUID REFERENCES public.job_applications(application_id) ON DELETE CASCADE,
+    employer_id UUID REFERENCES public.employers(id) ON DELETE SET NULL,
+    hire_date DATE NOT NULL,
+    checkpoint_day INT NOT NULL CHECK (checkpoint_day IN (30, 90, 180, 365)),
+    checkpoint_due_date DATE NOT NULL,
+    status retention_checkpoint_status NOT NULL DEFAULT 'pending',
+    verification_method retention_verification_method,
+    candidate_confirmed BOOLEAN DEFAULT FALSE,
+    candidate_confirmed_at TIMESTAMP WITH TIME ZONE,
+    employer_confirmed BOOLEAN DEFAULT FALSE,
+    employer_confirmed_at TIMESTAMP WITH TIME ZONE,
+    salary_slip_url TEXT,
+    verified_at TIMESTAMP WITH TIME ZONE,
+    notes TEXT,
+    reminder_sent_at TIMESTAMP WITH TIME ZONE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    UNIQUE(candidate_id, checkpoint_day)
+);
+
+CREATE INDEX IF NOT EXISTS idx_retention_cand ON public.retention_tracking(candidate_id);
+CREATE INDEX IF NOT EXISTS idx_retention_app ON public.retention_tracking(job_application_id);
+CREATE INDEX IF NOT EXISTS idx_retention_emp ON public.retention_tracking(employer_id);
+CREATE INDEX IF NOT EXISTS idx_retention_due_status ON public.retention_tracking(checkpoint_due_date, status);
+CREATE INDEX IF NOT EXISTS idx_retention_day ON public.retention_tracking(checkpoint_day);
+
+ALTER TABLE public.retention_tracking ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Public read and write retention_tracking" ON public.retention_tracking FOR ALL USING (true);
+ALTER PUBLICATION supabase_realtime ADD TABLE public.retention_tracking;
+
+-- Supabase Storage Bucket Setup for Salary Slip Proofs:
+-- INSERT INTO storage.buckets (id, name, public) VALUES ('salary-slips', 'salary-slips', true) ON CONFLICT DO NOTHING;
+

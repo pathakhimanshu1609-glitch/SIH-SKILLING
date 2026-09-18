@@ -49,6 +49,7 @@ import { MyApplicationsPage } from './MyApplicationsPage';
 import { useCountUp } from '../hooks/useCountUp';
 import { ScrollReveal } from '../components/common/ScrollReveal';
 import { SkillAssistant } from '../components/common/SkillAssistant';
+import { RetentionTimeline } from '../components/common/RetentionTimeline';
 
 /**
  * Format candidate ID to guarantee a clean, government-standard format (CAND-{year}-{serial}).
@@ -345,7 +346,7 @@ export const CandidateDashboard = ({ activeTab, onNavigateTab }) => {
 
   useEffect(() => {
     loadCandidateProfileAndStats();
-  }, [activeCandidate.id, role]);
+  }, [activeCandidate.id, role, activeTab]);
 
   useEffect(() => {
     loadCandidateCertifications(activeCandidate.id, activeCandidate.preferred_trade);
@@ -375,41 +376,148 @@ export const CandidateDashboard = ({ activeTab, onNavigateTab }) => {
   // 5. Placement: has an employment_records row (placed / employer verified)
   // -------------------------------------------------------------
   const hasOnboarded = Boolean(activeCandidate?.preferred_trade || activeCandidate?.full_name);
-  const hasPreAssessment = journeyData?.hasPreAssessment !== undefined 
-    ? journeyData.hasPreAssessment 
-    : (assessmentSkills.some(s => s.pre_score !== undefined && s.pre_score !== null && s.pre_score > 0) || (activeCandidate.id === 'cand-01'));
-  const isEnrolledInTraining = journeyData?.isEnrolledInTraining !== undefined 
-    ? journeyData.isEnrolledInTraining 
-    : (dbStats.activeCoursesCount > 0);
-  const hasPostAssessment = journeyData?.hasPostAssessment !== undefined 
-    ? journeyData.hasPostAssessment 
-    : ((dbStats.certificatesCount > 0) || assessmentSkills.some(s => s.post_score !== undefined && s.post_score !== null && s.post_score >= 60));
-  const hasPlacement = journeyData?.hasPlacement !== undefined 
-    ? journeyData.hasPlacement 
-    : (employmentRecord?.self_reported_status === 'Placed');
 
-  let activeStep = journeyData?.activeStep || 1;
-  if (!journeyData) {
-    if (hasPlacement) {
-      activeStep = 5;
-    } else if (hasPostAssessment) {
-      activeStep = 5; // Ready for placement
-    } else if (isEnrolledInTraining) {
-      activeStep = 4; // In training, post-assessment exam is next
-    } else if (hasPreAssessment) {
-      activeStep = 3; // Pre-assessment done, training is next
-    } else if (hasOnboarded) {
-      activeStep = 2; // Onboarded, pre-assessment is next
+  // Read local session assessments cache as immediate reactive source of truth
+  let localSavedAssessments = [];
+  try {
+    const rawLocal = sessionStorage.getItem('cand_assessments_current')
+      || sessionStorage.getItem(`cand_assessments_${activeCandidate?.id}`) 
+      || sessionStorage.getItem(`cand_assessments_${user?.id}`)
+      || sessionStorage.getItem(`cand_assessments_${candId}`);
+    if (rawLocal) {
+      localSavedAssessments = JSON.parse(rawLocal) || [];
     }
+  } catch (e) {}
+
+  const latestPhase = sessionStorage.getItem('cand_latest_assessment_phase');
+  const stageOverride = sessionStorage.getItem('cand_journey_stage_override'); // 'fresh' | 'pre' | 'post' | 'placed'
+
+  const localHasPre = localSavedAssessments.some(s => s.phase === 'pre' && s.score !== null && s.score !== undefined);
+  const localHasPost = localSavedAssessments.some(s => s.phase === 'post' && s.score !== null && s.score !== undefined);
+  const hasLocalPreOnly = (latestPhase === 'pre') || (localHasPre && !localHasPost);
+
+  // Dynamic status evaluation:
+  let hasPreAssessment = false;
+  let hasPostAssessment = false;
+  let hasPlacement = false;
+
+  if (stageOverride === 'fresh') {
+    hasPreAssessment = false;
+    hasPostAssessment = false;
+    hasPlacement = false;
+  } else if (stageOverride === 'pre') {
+    hasPreAssessment = true;
+    hasPostAssessment = false;
+    hasPlacement = false;
+  } else if (stageOverride === 'post') {
+    hasPreAssessment = true;
+    hasPostAssessment = true;
+    hasPlacement = false;
+  } else if (stageOverride === 'placed') {
+    hasPreAssessment = true;
+    hasPostAssessment = true;
+    hasPlacement = true;
+  } else if (hasLocalPreOnly) {
+    // User specifically gave pre-assessment in this session
+    hasPreAssessment = true;
+    hasPostAssessment = false;
+    hasPlacement = false;
+  } else if (latestPhase === 'post' || localHasPost) {
+    // User gave post-assessment in this session
+    hasPreAssessment = true;
+    hasPostAssessment = true;
+    hasPlacement = (journeyData?.hasPlacement === true) 
+      || (employmentRecord?.self_reported_status === 'Placed') 
+      || (sessionStorage.getItem('cand_force_placement') === 'true');
+  } else {
+    // Standard backend journey check
+    const apiHasPre = Boolean(
+      journeyData?.hasPreAssessment || 
+      (assessmentSkills && assessmentSkills.some(s => s.pre_score !== undefined && s.pre_score !== null && s.pre_score > 0))
+    );
+    const apiHasPost = Boolean(
+      journeyData?.hasPostAssessment || 
+      (assessmentSkills && assessmentSkills.some(s => s.post_score !== undefined && s.post_score !== null && s.post_score > 0))
+    );
+
+    hasPreAssessment = localHasPre || apiHasPre;
+    hasPostAssessment = localHasPost || apiHasPost;
+    hasPlacement = hasPostAssessment && Boolean(
+      journeyData?.hasPlacement || 
+      (employmentRecord?.self_reported_status === 'Placed')
+    );
   }
 
-  const journeySteps = journeyData?.steps || [
-    { step: 1, title: 'Onboarded', desc: 'Profile Registered', isDone: hasOnboarded },
-    { step: 2, title: 'Pre-assessment', desc: 'Skill Baseline', isDone: hasPreAssessment },
-    { step: 3, title: 'Training', desc: 'Workshop Batch', isDone: isEnrolledInTraining && (hasPostAssessment || hasPlacement) },
-    { step: 4, title: 'Post-assessment', desc: 'NCVT Certified', isDone: hasPostAssessment },
-    { step: 5, title: 'Placement', desc: 'Industry Hired', isDone: hasPlacement }
+  // Active step calculation (1-indexed: 1 to 5):
+  // 1. Onboarded
+  // 2. Pre-assessment
+  // 3. Training
+  // 4. Post-assessment
+  // 5. Placement
+  let activeStep = 1;
+  if (hasPlacement) {
+    activeStep = 5;
+  } else if (hasPostAssessment) {
+    activeStep = 5; // Post-assessment done -> Placement is CURRENT step
+  } else if (hasPreAssessment) {
+    activeStep = 4; // Pre-assessment & Training done -> Post-assessment certification exam is CURRENT step
+  } else if (hasOnboarded) {
+    activeStep = 2; // Onboarded done -> Pre-assessment baseline is CURRENT step
+  }
+
+  const journeySteps = [
+    { 
+      step: 1, 
+      title: 'Onboarded', 
+      desc: 'Profile Registered', 
+      isDone: hasOnboarded 
+    },
+    { 
+      step: 2, 
+      title: 'Pre-assessment', 
+      desc: hasPreAssessment ? 'Skill Baseline Completed' : 'Skill Baseline', 
+      isDone: hasPreAssessment 
+    },
+    { 
+      step: 3, 
+      title: 'Training', 
+      desc: hasPreAssessment ? 'Training Completed' : 'Workshop Batch', 
+      isDone: hasPreAssessment 
+    },
+    { 
+      step: 4, 
+      title: 'Post-assessment', 
+      desc: hasPostAssessment ? 'Assessment Completed' : 'NCVT Certification', 
+      isDone: hasPostAssessment 
+    },
+    { 
+      step: 5, 
+      title: 'Placement', 
+      desc: hasPlacement ? 'Industry Hired' : 'Upcoming Placement', 
+      isDone: hasPlacement 
+    }
   ];
+
+  const handleSetJourneyStage = (stage) => {
+    sessionStorage.setItem('cand_journey_stage_override', stage);
+    if (stage === 'fresh') {
+      sessionStorage.removeItem('cand_latest_assessment_phase');
+      sessionStorage.removeItem('cand_force_placement');
+      sessionStorage.removeItem('cand_assessments_current');
+      sessionStorage.removeItem(`cand_assessments_${activeCandidate?.id}`);
+    } else if (stage === 'pre') {
+      sessionStorage.setItem('cand_latest_assessment_phase', 'pre');
+      sessionStorage.removeItem('cand_force_placement');
+    } else if (stage === 'post') {
+      sessionStorage.setItem('cand_latest_assessment_phase', 'post');
+      sessionStorage.removeItem('cand_force_placement');
+    } else if (stage === 'placed') {
+      sessionStorage.setItem('cand_latest_assessment_phase', 'post');
+      sessionStorage.setItem('cand_force_placement', 'true');
+    }
+    // Refresh stats and state
+    loadCandidateProfileAndStats();
+  };
 
   // Dynamic Profile Completion Calculation
   const calculateProfileCompletion = () => {
@@ -442,7 +550,7 @@ export const CandidateDashboard = ({ activeTab, onNavigateTab }) => {
         title: 'Take your pre-training skill assessment',
         description: `Establish your baseline competency in ${candTrade}. Takes 5 minutes and personalizes your curriculum modules.`,
         buttonText: 'Take Pre-Assessment',
-        action: () => onNavigateTab && onNavigateTab('assessment')
+        action: () => onNavigateTab && onNavigateTab('assessment', { phase: 'pre', trade: candTrade })
       };
     }
     if (activeStep === 3) {
@@ -462,7 +570,7 @@ export const CandidateDashboard = ({ activeTab, onNavigateTab }) => {
         title: 'Complete your post-training certification exam',
         description: 'Score ≥60% across core modules to unlock your official digital NCVT certificate and activate job matching.',
         buttonText: 'Take Certification Exam',
-        action: () => onNavigateTab && onNavigateTab('assessment')
+        action: () => onNavigateTab && onNavigateTab('assessment', { phase: 'post', trade: candTrade })
       };
     }
     if (activeStep === 5 && !hasPlacement) {
@@ -899,7 +1007,7 @@ export const CandidateDashboard = ({ activeTab, onNavigateTab }) => {
 
       {/* 6. FIVE-STEP HORIZONTAL JOURNEY TRACKER */}
       <div className="bg-white rounded-2xl border border-[#E5E7EB] shadow-xs p-6 sm:p-8 space-y-6">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pb-4 border-b border-[#E5E7EB]">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-4 border-b border-[#E5E7EB]">
           <div>
             <div className="flex items-center gap-2">
               <Layers className="w-5 h-5 text-[#0B3D6B]" />
@@ -911,9 +1019,66 @@ export const CandidateDashboard = ({ activeTab, onNavigateTab }) => {
               Live milestone progression from registration to verified industry placement
             </p>
           </div>
-          <span className="text-xs font-bold text-[#D2691E] bg-[#FDEEE0] border border-[#F8D3B8] px-3.5 py-1.5 rounded-full font-mono shadow-2xs">
-            Step {activeStep} of 5: {journeySteps[activeStep - 1]?.title}
-          </span>
+
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Interactive stage tester buttons for hackathon demos */}
+            <div className="inline-flex rounded-lg bg-[#F3F4F6] p-0.5 border border-[#E5E7EB] text-[10px]">
+              <button
+                type="button"
+                onClick={() => handleSetJourneyStage('fresh')}
+                title="Stage 1: Profile Onboarded, Pre-assessment Pending"
+                className={`px-2 py-1 rounded font-bold transition-all ${
+                  activeStep === 2 && !hasPreAssessment
+                    ? 'bg-[#0B3D6B] text-white shadow-xs'
+                    : 'text-[#4B5563] hover:text-[#111827]'
+                }`}
+              >
+                1. Fresh (Step 2)
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSetJourneyStage('pre')}
+                title="Stage 2: Pre-Assessment Done, In Training Cohort"
+                className={`px-2 py-1 rounded font-bold transition-all ${
+                  activeStep === 4 && hasPreAssessment && !hasPostAssessment
+                    ? 'bg-[#D2691E] text-white shadow-xs'
+                    : 'text-[#4B5563] hover:text-[#111827]'
+                }`}
+              >
+                2. Pre-Assessed (Step 4)
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSetJourneyStage('post')}
+                title="Stage 3: Post-Assessment Certification Done, Ready for Placement"
+                className={`px-2 py-1 rounded font-bold transition-all ${
+                  activeStep === 5 && hasPostAssessment && !hasPlacement
+                    ? 'bg-emerald-700 text-white shadow-xs'
+                    : 'text-[#4B5563] hover:text-[#111827]'
+                }`}
+              >
+                3. Post-Assessed (Step 5)
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSetJourneyStage('placed')}
+                title="Stage 4: Industry Placement Verified"
+                className={`px-2 py-1 rounded font-bold transition-all ${
+                  hasPlacement
+                    ? 'bg-emerald-900 text-white shadow-xs'
+                    : 'text-[#4B5563] hover:text-[#111827]'
+                }`}
+              >
+                4. Placed (All 5)
+              </button>
+            </div>
+
+            <span className="text-xs font-bold text-[#D2691E] bg-[#FDEEE0] border border-[#F8D3B8] px-3 py-1.5 rounded-full font-mono shadow-2xs">
+              {hasPlacement 
+                ? 'All 5 Milestones Completed: Verified Placement' 
+                : `Step ${activeStep} of 5: ${journeySteps[activeStep - 1]?.title}`}
+            </span>
+          </div>
         </div>
 
         {/* Stepper visual with animated connecting progress bar */}
@@ -925,24 +1090,38 @@ export const CandidateDashboard = ({ activeTab, onNavigateTab }) => {
             {/* Active colored progress line with 500ms ease */}
             <div 
               className="absolute left-12 top-5 h-1 bg-[#D2691E] transition-all duration-500 ease-out z-0"
-              style={{ width: `${Math.max(0, Math.min(100, ((activeStep - 1) / 4) * 100))}%` }}
+              style={{ width: `${hasPlacement ? 100 : Math.max(0, Math.min(100, ((activeStep - 1) / 4) * 100))}%` }}
             />
 
             {journeySteps.map((s) => {
-              const isCompleted = s.isDone && s.step < activeStep;
-              const isCurrent = s.step === activeStep;
-              const isUpcoming = s.step > activeStep;
+              const isCompleted = s.isDone;
+              const isCurrent = !s.isDone && s.step === activeStep;
+              const isUpcoming = !s.isDone && s.step > activeStep;
+
+              const handleStepClick = () => {
+                if (!onNavigateTab) return;
+                if (s.step === 2) onNavigateTab('assessment', { phase: 'pre', trade: candTrade });
+                else if (s.step === 4) onNavigateTab('assessment', { phase: 'post', trade: candTrade });
+                else if (s.step === 5) onNavigateTab('jobs');
+                else if (s.step === 3) onNavigateTab('courses');
+                else if (s.step === 1) onNavigateTab('onboarding');
+              };
 
               return (
-                <div key={s.step} className="relative z-10 flex flex-col items-center group">
+                <div 
+                  key={s.step} 
+                  onClick={handleStepClick}
+                  className="relative z-10 flex flex-col items-center group cursor-pointer"
+                  title={`Click to open ${s.title}`}
+                >
                   {/* Step Node Icon */}
                   <div 
-                    className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-xs transition-all duration-300 shadow-sm ${
+                    className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-xs transition-all duration-300 shadow-sm group-hover:scale-105 ${
                       isCompleted
-                        ? 'bg-emerald-600 text-white ring-4 ring-emerald-100'
+                        ? 'bg-emerald-600 text-white ring-4 ring-emerald-100 group-hover:ring-emerald-200'
                         : isCurrent
-                        ? 'bg-[#D2691E] text-white ring-4 ring-orange-200 animate-pulse ring-offset-2 ring-offset-white'
-                        : 'bg-white text-[#6B7280] border-2 border-[#E5E7EB]'
+                        ? 'bg-[#D2691E] text-white ring-4 ring-orange-200 animate-pulse ring-offset-2 ring-offset-white group-hover:ring-orange-300'
+                        : 'bg-white text-[#6B7280] border-2 border-[#E5E7EB] group-hover:border-slate-400'
                     }`}
                   >
                     {isCompleted ? (
@@ -956,8 +1135,8 @@ export const CandidateDashboard = ({ activeTab, onNavigateTab }) => {
 
                   {/* Step Labels */}
                   <div className="text-center mt-2.5">
-                    <p className={`text-xs font-bold ${
-                      isCurrent ? 'text-[#D2691E]' : isCompleted ? 'text-[#111827]' : 'text-[#6B7280]'
+                    <p className={`text-xs font-bold transition-colors ${
+                      isCurrent ? 'text-[#D2691E]' : isCompleted ? 'text-[#111827]' : 'text-[#6B7280] group-hover:text-slate-900'
                     }`}>
                       {s.title}
                     </p>
@@ -1008,6 +1187,16 @@ export const CandidateDashboard = ({ activeTab, onNavigateTab }) => {
           </div>
         </div>
       </div>
+
+      {/* 7b. POST-PLACEMENT RETENTION TRACKING MODULE */}
+      {(hasPlacement || activeStep === 5) && (
+        <RetentionTimeline
+          candidateId={activeCandidate.id || 'cand-01'}
+          companyName="Tata Advanced Engineering Solutions"
+          hireDate="2026-08-01"
+          onRefresh={loadDashboard}
+        />
+      )}
 
       {/* 8. OVERVIEW METRICS WITH COUNT-UP & ENCOURAGING EMPTY STATES */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

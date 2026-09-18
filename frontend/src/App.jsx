@@ -23,10 +23,14 @@ const DashboardRouter = () => {
   const { user, role, loading } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [selectedTrade, setSelectedTrade] = useState('Advanced CNC Machinist');
+  const [assessmentPhase, setAssessmentPhase] = useState('pre');
 
   const handleNavigateTab = (tab, params = {}) => {
     if (params?.trade) {
       setSelectedTrade(params.trade);
+    }
+    if (params?.phase) {
+      setAssessmentPhase(params.phase);
     }
     setActiveTab(tab);
   };
@@ -58,6 +62,8 @@ const DashboardRouter = () => {
     if (activeTab === 'assessment') {
       return (
         <SkillAssessmentModule 
+          initialPhase={assessmentPhase}
+          tradeProp={selectedTrade}
           onNavigateScorecard={() => handleNavigateTab('scorecard')} 
           onNavigateTab={handleNavigateTab}
         />

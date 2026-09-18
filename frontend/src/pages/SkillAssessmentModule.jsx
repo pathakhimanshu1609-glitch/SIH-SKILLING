@@ -18,12 +18,12 @@ import {
   Target
 } from 'lucide-react';
 
-export const SkillAssessmentModule = ({ onNavigateScorecard, onNavigateTab }) => {
-  const { user, role } = useAuth();
+export const SkillAssessmentModule = ({ initialPhase = 'pre', tradeProp, onNavigateScorecard, onNavigateTab }) => {
+  const { user, role, candidateProfile } = useAuth();
 
-  const [phase, setPhase] = useState('pre'); // 'pre' or 'post'
-  const [trade, setTrade] = useState('Advanced CNC Machinist');
-  const [district, setDistrict] = useState(user?.candidateRecord?.district || 'Pune');
+  const [phase, setPhase] = useState(initialPhase || 'pre'); // 'pre' or 'post'
+  const [trade, setTrade] = useState(tradeProp || 'Advanced CNC Machinist');
+  const [district, setDistrict] = useState(candidateProfile?.district || user?.candidateRecord?.district || 'Pune');
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(false);
   
@@ -32,6 +32,18 @@ export const SkillAssessmentModule = ({ onNavigateScorecard, onNavigateTab }) =>
   const [quizResults, setQuizResults] = useState(null);
   const [explainableResults, setExplainableResults] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (initialPhase && (initialPhase === 'pre' || initialPhase === 'post')) {
+      setPhase(initialPhase);
+    }
+  }, [initialPhase]);
+
+  useEffect(() => {
+    if (tradeProp) {
+      setTrade(tradeProp);
+    }
+  }, [tradeProp]);
 
   useEffect(() => {
     loadQuestions();
@@ -66,13 +78,15 @@ export const SkillAssessmentModule = ({ onNavigateScorecard, onNavigateTab }) =>
     setSubmitting(true);
 
     try {
-      const candId = user?.candidateRecord?.id || user?.id || 'cand-01';
-      const userDistrict = user?.candidateRecord?.district || district || 'Pune';
+      const candId = candidateProfile?.id || user?.candidateProfile?.id || user?.candidateRecord?.id || user?.id || 'cand-01';
+      const userDistrict = candidateProfile?.district || user?.candidateRecord?.district || district || 'Pune';
       
       const res = await fetchWithAuth('/api/portal/assessments/submit', {
         method: 'POST',
         body: JSON.stringify({
           candidate_id: candId,
+          user_id: user?.id,
+          email: user?.email,
           trade,
           district: userDistrict,
           phase,
@@ -82,6 +96,43 @@ export const SkillAssessmentModule = ({ onNavigateScorecard, onNavigateTab }) =>
 
       if (res.success) {
         setQuizResults(res.results);
+
+        // Set latest phase flag and clear manual overrides so dashboard updates dynamically
+        try {
+          sessionStorage.setItem('cand_latest_assessment_phase', phase);
+          sessionStorage.removeItem('cand_journey_stage_override');
+          if (phase === 'pre') {
+            sessionStorage.removeItem('cand_force_placement');
+          }
+
+          const keysToUpdate = [
+            `cand_assessments_${candId}`,
+            user?.id && user.id !== candId ? `cand_assessments_${user.id}` : null,
+            'cand_assessments_current'
+          ].filter(Boolean);
+
+          keysToUpdate.forEach(k => {
+            let existing = JSON.parse(sessionStorage.getItem(k) || '[]');
+            if (phase === 'pre') {
+              // When submitting pre-assessment, filter out previous post entries so pre-assessment state is clearly visible
+              existing = existing.filter(item => item.trade !== trade || (item.trade === trade && item.phase !== 'pre' && item.phase !== 'post'));
+            } else {
+              existing = existing.filter(item => !(item.trade === trade && item.phase === 'post'));
+            }
+            (res.results || []).forEach(r => {
+              existing.push({
+                trade,
+                skill_name: r.skill_name,
+                phase,
+                score: r.score,
+                taken_at: new Date().toISOString()
+              });
+            });
+            sessionStorage.setItem(k, JSON.stringify(existing));
+          });
+        } catch (e) {
+          console.warn('Session cache update note:', e);
+        }
 
         if (phase === 'post') {
           // If backend provided explainableMatch directly in response, use it immediately
@@ -100,22 +151,6 @@ export const SkillAssessmentModule = ({ onNavigateScorecard, onNavigateTab }) =>
               console.warn('Notice loading fallback explainable match:', mErr);
             }
           }
-
-          try {
-            const key = `cand_assessments_${candId}`;
-            const existing = JSON.parse(sessionStorage.getItem(key) || '[]');
-            const updated = existing.filter(item => item.trade !== trade);
-            (res.results || []).forEach(r => {
-              updated.push({
-                trade,
-                skill_name: r.skill_name,
-                phase: 'post',
-                score: r.score,
-                taken_at: new Date().toISOString()
-              });
-            });
-            sessionStorage.setItem(key, JSON.stringify(updated));
-          } catch (e) {}
         }
 
         setSubmitted(true);
@@ -236,6 +271,15 @@ export const SkillAssessmentModule = ({ onNavigateScorecard, onNavigateTab }) =>
                 </div>
               </div>
               <div className="flex items-center gap-2">
+                {onNavigateTab && (
+                  <button 
+                    onClick={() => onNavigateTab('dashboard')}
+                    className="btn-sid-primary text-xs py-2 px-3.5 flex items-center gap-1.5 shadow-sm bg-[#0B3D6B] hover:bg-[#072847]"
+                  >
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    <span>View Journey Progress</span>
+                  </button>
+                )}
                 {phase === 'post' && onNavigateTab && (
                   <button 
                     onClick={() => onNavigateTab('skill-match')}
@@ -451,14 +495,34 @@ export const SkillAssessmentModule = ({ onNavigateScorecard, onNavigateTab }) =>
               <span>Retake / Test Another Trade</span>
             </button>
 
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
+              {onNavigateTab && (
+                <button
+                  onClick={() => onNavigateTab('dashboard')}
+                  className="btn-sid-primary text-xs py-2.5 px-4 font-bold flex items-center gap-1.5 shadow-sm bg-[#0B3D6B] hover:bg-[#072847]"
+                >
+                  <ArrowRight className="w-4 h-4 rotate-180" />
+                  <span>Return to Dashboard</span>
+                </button>
+              )}
+
+              {phase === 'pre' && (
+                <button
+                  onClick={() => { setPhase('post'); setSubmitted(false); setUserAnswers({}); }}
+                  className="bg-[#D2691E] hover:bg-[#b85817] text-white text-xs py-2.5 px-4 font-bold rounded-md flex items-center gap-1.5 shadow-sm transition-colors"
+                >
+                  <span>Proceed to Post-Training Exam</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              )}
+
               {onNavigateTab && (
                 <button
                   onClick={() => onNavigateTab('skill-match')}
-                  className="btn-sid-primary text-xs py-2.5 px-4 font-bold flex items-center gap-1.5 shadow-sm"
+                  className="btn-sid-secondary text-xs py-2.5 px-4 font-bold flex items-center gap-1.5 shadow-sm bg-white"
                 >
                   <Target className="w-4 h-4" />
-                  <span>Go to Skill Match & Gap Analysis</span>
+                  <span>Skill Match & Gap Analysis</span>
                 </button>
               )}
             </div>

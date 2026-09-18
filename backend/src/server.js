@@ -4,9 +4,10 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
 import authRoutes from './routes/authRoutes.js';
-import portalRoutes from './routes/portalRoutes.js';
+import portalRoutes, { getRetentionTrackingStore } from './routes/portalRoutes.js';
 import whatsappRoutes from './routes/whatsappRoutes.js';
 import assistantRoutes from './routes/assistantRoutes.js';
+import { startRetentionCron } from './services/retentionCron.js';
 
 dotenv.config();
 
@@ -47,6 +48,10 @@ if (!process.env.VERCEL) {
     console.log(`===================================================`);
     console.log(`🏛️ Govt Portal Backend running on port http://localhost:${PORT}`);
     console.log(`📱 WhatsApp Bot Active (Hindi / Marathi / English)`);
+    console.log(`🔄 Retention Checkpoint Cron Initialized`);
     console.log(`===================================================`);
+
+    // Start background daily retention reminder cron
+    startRetentionCron(getRetentionTrackingStore);
   });
 }
