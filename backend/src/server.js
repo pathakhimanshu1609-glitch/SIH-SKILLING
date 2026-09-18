@@ -38,10 +38,15 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Start Server
-app.listen(PORT, () => {
-  console.log(`===================================================`);
-  console.log(`🏛️ Govt Portal Backend running on port http://localhost:${PORT}`);
-  console.log(`📱 WhatsApp Bot Active (Hindi / Marathi / English)`);
-  console.log(`===================================================`);
-});
+// Export Express app for Vercel serverless deployments
+export default app;
+
+// Start Server when running directly / locally
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`===================================================`);
+    console.log(`🏛️ Govt Portal Backend running on port http://localhost:${PORT}`);
+    console.log(`📱 WhatsApp Bot Active (Hindi / Marathi / English)`);
+    console.log(`===================================================`);
+  });
+}

@@ -1,6 +1,8 @@
 import { supabase, isSupabaseConfigured } from './supabaseClient';
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL !== undefined 
+  ? import.meta.env.VITE_BACKEND_URL 
+  : (import.meta.env.DEV ? 'http://localhost:5000' : '');
 
 export async function fetchWithAuth(endpoint, options = {}, currentRole = 'candidate') {
   let token = null;
