@@ -66,7 +66,7 @@ export const Register = () => {
           Portal Profile Registration
         </h2>
         <p className="text-xs sm:text-sm text-slate-500 font-medium">
-          Create an official role-based account on the National Skilling Portal
+          Create an official role-based account on Career Bridge
         </p>
       </div>
 

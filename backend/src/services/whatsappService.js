@@ -25,7 +25,7 @@ const MESSAGES = {
     checkin_confirmed: `✅ *धन्यवाद! तुमची Day-30 नोकरी नोंदणी व्हॉट्सअॅपद्वारे यशस्वीरित्या पूर्ण झाली आहे.*\n\nतुमची स्थिती: *Still Employed (Tata Advanced Engineering)*. राष्ट्रीय पोर्टलवर तुमचा रेकॉर्ड अद्ययावत करण्यात आला आहे.`
   },
   en: {
-    welcome: `🇮🇳 *NATIONAL SKILLING PORTAL - WHATSAPP BOT* 🇮🇳\n\nWelcome *[CANDIDATE_NAME]*! Please reply with an option number:\n\n1️⃣ *Employment Status & Check-In Reminders*\n2️⃣ *Digital Scorecard Summary*\n3️⃣ *Top 3 Skill Recommendations*\n4️⃣ *Submit Day-30 Employment Check-In*\n\n_Reply with 1, 2, 3, or 4._`,
+    welcome: `🇮🇳 *CAREER BRIDGE - WHATSAPP BOT* 🇮🇳\n\nWelcome *[CANDIDATE_NAME]*! Please reply with an option number:\n\n1️⃣ *Employment Status & Check-In Reminders*\n2️⃣ *Digital Scorecard Summary*\n3️⃣ *Top 3 Skill Recommendations*\n4️⃣ *Submit Day-30 Employment Check-In*\n\n_Reply with 1, 2, 3, or 4._`,
     status: `💼 *Employment Status & 30/90/180-Day Check-Ins*\n\n• *Status:* Placed at Tata Advanced Engineering\n• *Verification:* Confirmed by Employer HR\n• *Next Prompt:* 30-Day Check-In Active\n• *Salary Band:* ₹ 22,000 - ₹ 28,000 / mo\n\n_Reply '4' to confirm continued placement._`,
     scorecard: `📊 *Your Digital Competency Scorecard*\n\n• *G-Code CNC Programming:* 85% (Post-Training)\n• *Lathe Machine Calibration:* 70% (Post-Training)\n• *Certification Status:* NCVT Level 4 Approved!`,
     recommendation: `💡 *Top 3 Recommended Skills (High Demand in Pune)*\n\n1. *Lathe Machine Calibration:* Appears in 88% of Pune job postings (Your score: 65%).\n2. *BMS Sensor Calibration:* Appears in 75% of Pune job postings (Your score: 55%).\n3. *Grid Inverter Installation:* Appears in 72% of Pune job postings (Your score: 60%).`,

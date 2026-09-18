@@ -290,7 +290,7 @@ export const SkillAssessmentModule = ({ initialPhase = 'pre', tradeProp, onNavig
                   </button>
                 )}
                 <button 
-                  onClick={onNavigateScorecard}
+                  onClick={() => onNavigateScorecard ? onNavigateScorecard(trade) : (onNavigateTab && onNavigateTab('scorecard', { trade }))}
                   className="btn-sid-secondary text-xs py-2 px-3.5 flex items-center gap-1.5 shadow-xs bg-white"
                 >
                   <BarChart2 className="w-3.5 h-3.5" />

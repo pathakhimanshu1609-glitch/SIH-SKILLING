@@ -584,7 +584,7 @@ export const LandingPage = () => {
               <div>
                 <div className="flex items-center gap-2">
                   <span className="font-display text-base sm:text-lg font-bold text-[#0B3D6B] tracking-tight leading-none uppercase">
-                    National Skilling Portal
+                    Career Bridge
                   </span>
                   <span className="text-[10px] font-bold uppercase tracking-wider text-[#D2691E] bg-[#FDEEE0] border border-[#D2691E]/40 px-2 py-0.5 rounded-md">
                     SID Hub
@@ -683,7 +683,7 @@ export const LandingPage = () => {
               </div>
 
               <h2 className="font-display text-2xl sm:text-3xl font-bold text-white tracking-tight">
-                Welcome to National Skilling Portal
+                Welcome to Career Bridge
               </h2>
               <p className="text-xs sm:text-sm text-slate-200 mt-1 max-w-lg">
                 Select your persona to access tailored assessments, verified employment registries, or sovereign audit dashboards.
@@ -1252,7 +1252,7 @@ export const LandingPage = () => {
             <div className="text-center max-w-3xl mx-auto space-y-3">
               <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 text-amber-200 text-xs font-bold uppercase tracking-wider border border-white/20 backdrop-blur-xs">
                 <BrainCircuit className="w-4 h-4 text-[#D2691E]" />
-                <span>National Skilling Portal • AI Innovation</span>
+                <span>Career Bridge • AI Innovation</span>
               </div>
               <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-tight">
                 Meet <span className="text-[#D2691E] underline decoration-[#D2691E]/50 underline-offset-8">SkillSetuu</span>
@@ -1862,7 +1862,7 @@ export const LandingPage = () => {
                     Transparent & Auditable Skilling Outcomes
                   </h2>
                   <p className="text-xs sm:text-sm text-slate-300">
-                    Placement data on the National Skilling Portal is verified by employing HR departments and validated via longitudinal 30/90/180/365-day check-ins.
+                    Placement data on Career Bridge is verified by employing HR departments and validated via longitudinal 30/90/180/365-day check-ins.
                   </p>
                 </div>
 
@@ -2136,7 +2136,7 @@ export const LandingPage = () => {
             <div className="space-y-1.5 text-left">
               <div className="flex items-center gap-2.5">
                 <span className="font-display font-bold text-base tracking-tight text-white uppercase">
-                  National Skilling Portal (NSP)
+                  Career Bridge
                 </span>
                 <span className="text-[10px] font-bold text-[#D2691E] border border-[#D2691E] px-2 py-0.5 rounded">
                   Govt of India

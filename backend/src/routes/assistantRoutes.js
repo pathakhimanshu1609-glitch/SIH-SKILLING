@@ -119,7 +119,7 @@ async function buildCandidateContext(candidateId, trade, district) {
 
 // ─── Build Gemini Prompt ──────────────────────────────────────────────────────
 function buildPrompt(question, ctx) {
-  return `You are a personalized skill guidance assistant for India's National Skilling Portal (MSDE). Your role is to help candidates understand their skill gaps, job readiness, and career pathways based on their real assessment data.
+  return `You are a personalized skill guidance assistant for Career Bridge (MSDE). Your role is to help candidates understand their skill gaps, job readiness, and career pathways based on their real assessment data.
 
 STRICT INSTRUCTIONS:
 - Answer the candidate's question using ONLY the data provided below.

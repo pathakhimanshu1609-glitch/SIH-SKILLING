@@ -159,7 +159,7 @@ export const WhatsAppWidget = ({
 
           <div>
             <div className="flex items-center gap-1.5">
-              <h3 className="text-xs font-bold tracking-tight">National Skilling WhatsApp Bot</h3>
+              <h3 className="text-xs font-bold tracking-tight">Career Bridge WhatsApp Bot</h3>
               <CheckCheck className="w-3.5 h-3.5 text-[#25D366]" />
             </div>
             <p className="text-[10px] text-emerald-200">Twilio Sandbox • Official Verification</p>

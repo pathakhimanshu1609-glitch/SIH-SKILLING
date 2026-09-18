@@ -64,14 +64,20 @@ const DashboardRouter = () => {
         <SkillAssessmentModule 
           initialPhase={assessmentPhase}
           tradeProp={selectedTrade}
-          onNavigateScorecard={() => handleNavigateTab('scorecard')} 
+          onNavigateScorecard={(t) => handleNavigateTab('scorecard', { trade: t || selectedTrade })} 
           onNavigateTab={handleNavigateTab}
         />
       );
     }
 
     if (activeTab === 'scorecard') {
-      return <SkillScorecardPage selectedTrade={selectedTrade} onSelectTrade={setSelectedTrade} />;
+      return (
+        <SkillScorecardPage 
+          selectedTrade={selectedTrade} 
+          onSelectTrade={setSelectedTrade} 
+          onNavigateTab={handleNavigateTab}
+        />
+      );
     }
 
     if (activeTab === 'onboarding' || activeTab === 'enrollment') {

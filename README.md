@@ -1,4 +1,4 @@
-# National Skilling Portal (Govt Theme)
+# Career Bridge (Govt Theme)
 
 Full-stack Government Skill & Employment Portal featuring a **React + Tailwind CSS** frontend, **Node.js/Express** backend, and **Supabase Postgres** database with role-based JWT authentication (`candidate`, `training_center`, `government`, `employer`).
 

@@ -157,7 +157,7 @@ export const Login = () => {
                     भारत सरकार • GOVERNMENT OF INDIA
                   </p>
                   <p className="text-[11px] text-slate-200 font-medium">
-                    National Skilling & Employment Portal
+                    Career Bridge Portal
                   </p>
                 </div>
               </div>
@@ -183,7 +183,7 @@ export const Login = () => {
                   <span>Verified Single Sign-On Access</span>
                 </div>
                 <h2 className="font-display text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
-                  Welcome to National Skilling Portal
+                  Welcome to Career Bridge
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-600 font-sans">
                   Select how you'd like to access the portal.
@@ -329,7 +329,7 @@ export const Login = () => {
               {activeLegalModal === 'terms' ? (
                 <>
                   <p>
-                    1. <strong>Sovereign Usage:</strong> Access to the National Skilling Portal is governed by the Ministry of Skill Development and Entrepreneurship (MSDE).
+                    1. <strong>Sovereign Usage:</strong> Access to Career Bridge is governed by the Ministry of Skill Development and Entrepreneurship (MSDE).
                   </p>
                   <p>
                     2. <strong>Verification Compliance:</strong> All candidate skill assessments and employer vacancy postings are subject to independent NCVT audit.
@@ -408,7 +408,7 @@ export const Login = () => {
           <div className="space-y-3 max-w-lg">
             <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-[4px] bg-[#072847] border border-[#C9A227]/40 text-[#C9A227] text-xs font-semibold">
               <span className="w-1.5 h-1.5 rounded-[2px] bg-[#C9A227]" />
-              <span>National Skilling & Employment Portal</span>
+              <span>Career Bridge Portal</span>
             </div>
             <h1 className="text-2xl font-bold tracking-tight text-white leading-tight">
               Verified Skills.<br />

@@ -45,7 +45,7 @@ export const FloatingActionStack = () => {
                   GOV
                 </div>
                 <div>
-                  <h3 className="font-display text-sm font-bold tracking-tight">National Skilling Support Desk</h3>
+                  <h3 className="font-display text-sm font-bold tracking-tight">Career Bridge Support Desk</h3>
                   <p className="text-[10px] text-blue-200">MSDE • Official Candidate & Center Helpdesk</p>
                 </div>
               </div>
@@ -132,8 +132,8 @@ export const FloatingActionStack = () => {
           <button
             onClick={() => setIsSupportModalOpen(true)}
             className="group relative flex items-center justify-center w-12 h-12 rounded-full bg-[#0B3D6B] hover:bg-[#072847] text-white shadow-xl hover:shadow-2xl border border-[#C9A227]/40 transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[#C9A227]"
-            title="National Skilling Helpline (1800-11-2026)"
-            aria-label="National Skilling Helpline (1800-11-2026)"
+            title="Career Bridge Helpline (1800-11-2026)"
+            aria-label="Career Bridge Helpline (1800-11-2026)"
           >
             <PhoneCall className="w-5 h-5 text-[#C9A227]" />
             

@@ -171,7 +171,7 @@ export const Header = ({ setActiveTab, activeTab }) => {
           <div>
             <div className="flex items-center space-x-2">
               <span className="font-bold text-base md:text-lg tracking-tight font-sans text-white">
-                National Skilling Portal
+                Career Bridge
               </span>
               <span className="bg-govt-orange text-white text-[10px] uppercase font-bold px-1.5 py-0.5 rounded tracking-wide">
                 OFFICIAL

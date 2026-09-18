@@ -129,20 +129,20 @@ export async function getJobPostingsByTradeAndDistrict(trade, district) {
 let MOCK_ASSESSMENT_RESULTS = {
   'cand-01': [
     // Advanced CNC Machinist
-    { skill_id: 'sk-101', trade: 'Advanced CNC Machinist', skill_name: 'G-Code CNC Programming', pre_score: 45, post_score: 85 },
-    { skill_id: 'sk-102', trade: 'Advanced CNC Machinist', skill_name: 'Lathe Machine Calibration', pre_score: 40, post_score: 65 },
-    { skill_id: 'sk-107', trade: 'Advanced CNC Machinist', skill_name: 'Quality & Precision Measurement', pre_score: 50, post_score: 75 },
-    { skill_id: 'sk-108', trade: 'Advanced CNC Machinist', skill_name: 'Safety & Machine Maintenance', pre_score: 55, post_score: 80 },
+    { skill_id: 'sk-101', trade: 'Advanced CNC Machinist', skill_name: 'CNC Programming (G-code)', pre_score: 45, post_score: 85 },
+    { skill_id: 'sk-102', trade: 'Advanced CNC Machinist', skill_name: 'Machine Setup & Calibration', pre_score: 40, post_score: 75 },
+    { skill_id: 'sk-107', trade: 'Advanced CNC Machinist', skill_name: 'Quality & Precision Measurement', pre_score: 50, post_score: 80 },
+    { skill_id: 'sk-108', trade: 'Advanced CNC Machinist', skill_name: 'Safety & Maintenance', pre_score: 55, post_score: 90 },
     // Solar PV Installer & Technician
-    { skill_id: 'sk-103', trade: 'Solar PV Installer & Technician', skill_name: 'Solar Panel Array Wiring', pre_score: 42, post_score: 80 },
-    { skill_id: 'sk-104', trade: 'Solar PV Installer & Technician', skill_name: 'Grid Inverter Installation', pre_score: 38, post_score: 75 },
-    { skill_id: 'sk-109', trade: 'Solar PV Installer & Technician', skill_name: 'PV System Design', pre_score: 35, post_score: 70 },
+    { skill_id: 'sk-109', trade: 'Solar PV Installer & Technician', skill_name: 'PV System Design', pre_score: 35, post_score: 75 },
+    { skill_id: 'sk-103', trade: 'Solar PV Installer & Technician', skill_name: 'Electrical Wiring & Safety', pre_score: 42, post_score: 80 },
     { skill_id: 'sk-110', trade: 'Solar PV Installer & Technician', skill_name: 'Installation & Mounting', pre_score: 40, post_score: 85 },
+    { skill_id: 'sk-104', trade: 'Solar PV Installer & Technician', skill_name: 'Troubleshooting & Maintenance', pre_score: 38, post_score: 70 },
     // EV Battery Maintenance Specialist
-    { skill_id: 'sk-105', trade: 'EV Battery Maintenance Specialist', skill_name: 'EV Lithium Pack Diagnostics', pre_score: 50, post_score: 90 },
-    { skill_id: 'sk-106', trade: 'EV Battery Maintenance Specialist', skill_name: 'BMS Sensor Calibration', pre_score: 45, post_score: 70 },
-    { skill_id: 'sk-111', trade: 'EV Battery Maintenance Specialist', skill_name: 'Battery Safety & Hazard Mitigation', pre_score: 40, post_score: 80 },
-    { skill_id: 'sk-112', trade: 'EV Battery Maintenance Specialist', skill_name: 'Thermal Management Systems', pre_score: 35, post_score: 75 },
+    { skill_id: 'sk-105', trade: 'EV Battery Maintenance Specialist', skill_name: 'Battery Chemistry & BMS', pre_score: 50, post_score: 90 },
+    { skill_id: 'sk-106', trade: 'EV Battery Maintenance Specialist', skill_name: 'High-Voltage Electrical Safety', pre_score: 45, post_score: 75 },
+    { skill_id: 'sk-111', trade: 'EV Battery Maintenance Specialist', skill_name: 'Diagnostics & Fault Detection', pre_score: 40, post_score: 80 },
+    { skill_id: 'sk-112', trade: 'EV Battery Maintenance Specialist', skill_name: 'Maintenance & Disposal', pre_score: 35, post_score: 85 },
     // Industrial Automation & Robotics Technician
     { skill_id: 'sk-113', trade: 'Industrial Automation & Robotics Technician', skill_name: 'Industrial Robotics Programming', pre_score: 40, post_score: 85 },
     { skill_id: 'sk-114', trade: 'Industrial Automation & Robotics Technician', skill_name: 'PLC & Sensor Interfacing', pre_score: 35, post_score: 75 },
@@ -151,20 +151,20 @@ let MOCK_ASSESSMENT_RESULTS = {
   ],
   'cand-low': [
     // Advanced CNC Machinist
-    { skill_id: 'sk-101', trade: 'Advanced CNC Machinist', skill_name: 'G-Code CNC Programming', pre_score: 20, post_score: 35 },
-    { skill_id: 'sk-102', trade: 'Advanced CNC Machinist', skill_name: 'Lathe Machine Calibration', pre_score: 15, post_score: 30 },
+    { skill_id: 'sk-101', trade: 'Advanced CNC Machinist', skill_name: 'CNC Programming (G-code)', pre_score: 20, post_score: 35 },
+    { skill_id: 'sk-102', trade: 'Advanced CNC Machinist', skill_name: 'Machine Setup & Calibration', pre_score: 15, post_score: 30 },
     { skill_id: 'sk-107', trade: 'Advanced CNC Machinist', skill_name: 'Quality & Precision Measurement', pre_score: 25, post_score: 35 },
-    { skill_id: 'sk-108', trade: 'Advanced CNC Machinist', skill_name: 'Safety & Machine Maintenance', pre_score: 20, post_score: 30 },
+    { skill_id: 'sk-108', trade: 'Advanced CNC Machinist', skill_name: 'Safety & Maintenance', pre_score: 20, post_score: 30 },
     // Solar PV Installer & Technician
-    { skill_id: 'sk-103', trade: 'Solar PV Installer & Technician', skill_name: 'Solar Panel Array Wiring', pre_score: 22, post_score: 35 },
-    { skill_id: 'sk-104', trade: 'Solar PV Installer & Technician', skill_name: 'Grid Inverter Installation', pre_score: 18, post_score: 28 },
     { skill_id: 'sk-109', trade: 'Solar PV Installer & Technician', skill_name: 'PV System Design', pre_score: 15, post_score: 25 },
+    { skill_id: 'sk-103', trade: 'Solar PV Installer & Technician', skill_name: 'Electrical Wiring & Safety', pre_score: 22, post_score: 35 },
     { skill_id: 'sk-110', trade: 'Solar PV Installer & Technician', skill_name: 'Installation & Mounting', pre_score: 20, post_score: 30 },
+    { skill_id: 'sk-104', trade: 'Solar PV Installer & Technician', skill_name: 'Troubleshooting & Maintenance', pre_score: 18, post_score: 28 },
     // EV Battery Maintenance Specialist
-    { skill_id: 'sk-105', trade: 'EV Battery Maintenance Specialist', skill_name: 'EV Lithium Pack Diagnostics', pre_score: 25, post_score: 38 },
-    { skill_id: 'sk-106', trade: 'EV Battery Maintenance Specialist', skill_name: 'BMS Sensor Calibration', pre_score: 20, post_score: 32 },
-    { skill_id: 'sk-111', trade: 'EV Battery Maintenance Specialist', skill_name: 'Battery Safety & Hazard Mitigation', pre_score: 22, post_score: 30 },
-    { skill_id: 'sk-112', trade: 'EV Battery Maintenance Specialist', skill_name: 'Thermal Management Systems', pre_score: 18, post_score: 26 },
+    { skill_id: 'sk-105', trade: 'EV Battery Maintenance Specialist', skill_name: 'Battery Chemistry & BMS', pre_score: 25, post_score: 38 },
+    { skill_id: 'sk-106', trade: 'EV Battery Maintenance Specialist', skill_name: 'High-Voltage Electrical Safety', pre_score: 20, post_score: 32 },
+    { skill_id: 'sk-111', trade: 'EV Battery Maintenance Specialist', skill_name: 'Diagnostics & Fault Detection', pre_score: 22, post_score: 30 },
+    { skill_id: 'sk-112', trade: 'EV Battery Maintenance Specialist', skill_name: 'Maintenance & Disposal', pre_score: 18, post_score: 26 },
     // Industrial Automation & Robotics Technician
     { skill_id: 'sk-113', trade: 'Industrial Automation & Robotics Technician', skill_name: 'Industrial Robotics Programming', pre_score: 18, post_score: 30 },
     { skill_id: 'sk-114', trade: 'Industrial Automation & Robotics Technician', skill_name: 'PLC & Sensor Interfacing', pre_score: 15, post_score: 25 },
@@ -739,7 +739,9 @@ router.post('/assessments/submit', async (req, res) => {
     }
 
     results.forEach(resItem => {
-      let candSkill = MOCK_ASSESSMENT_RESULTS[candKey].find(s => s.skill_name === resItem.skill_name);
+      let candSkill = MOCK_ASSESSMENT_RESULTS[candKey].find(s => 
+        s.skill_name === resItem.skill_name || isSkillEquivalent(s.skill_name, resItem.skill_name)
+      );
       if (!candSkill) {
         candSkill = { 
           skill_id: `sk-${resItem.skill_name}`, 
@@ -750,6 +752,7 @@ router.post('/assessments/submit', async (req, res) => {
         };
         MOCK_ASSESSMENT_RESULTS[candKey].push(candSkill);
       }
+      candSkill.skill_name = resItem.skill_name;
       candSkill.trade = trade || candSkill.trade || 'Advanced CNC Machinist';
       if (phase === 'pre') {
         candSkill.pre_score = Number(resItem.score);

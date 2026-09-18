@@ -170,7 +170,7 @@ export const AuthProvider = ({ children }) => {
       ...currentUser,
       role: targetRole,
       organization_name: targetRole === 'candidate' 
-        ? 'National Skilling Candidate' 
+        ? 'Career Bridge Candidate' 
         : (currentUser.organization_name || `${targetRole.replace('_', ' ').toUpperCase()} Organization`)
     };
 
@@ -302,7 +302,7 @@ export const AuthProvider = ({ children }) => {
     }
 
     const orgNameByRole = {
-      candidate: 'National Skilling Candidate',
+      candidate: 'Career Bridge Candidate',
       training_center: 'Apex Industrial Training Institute',
       employer: 'Tata Motors Limited',
       government: 'Ministry of Skill Development & Entrepreneurship'
